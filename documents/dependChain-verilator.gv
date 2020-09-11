@@ -1,0 +1,35 @@
+digraph G {
+  "configurations.h" -> "common.h";
+  "constants.h" -> "common.h";
+  "common.h" -> "diffTestIO.h";
+  "diffTestIO.h" -> "verilatorResult.h", "verilatorResult.cpp", "main.cpp";
+  "verilatorResult.h" -> "verilatorResult.cpp", "main.cpp";
+
+  "VsimTOP.h" [style=bold];
+  "VsimTOP.h" -> "verilatorResult.h", "verilatorResult.cpp";
+
+  "verilatorResult.cpp" [style=filled];
+  "main.cpp" [style=filled];
+
+  "iostream" [style=dotted];
+  "verilated.h" [style=dotted];
+  "iostream" -> "main.cpp" [style=dotted];
+  "verilated.h" -> "main.cpp" [style=dotted];
+
+  // Legend
+  subgraph cluster1 {
+    "my .cpp code" [style=filled];
+    "lib .h" [style=dotted];
+    "my .h code";
+    "verilator generated .h" [style=bold];
+
+    label = "Legend";
+    style=bold;
+    color = "orange";
+  }
+}
+
+// TODO: 1. Add verilator generated .cpp files as a node.
+//          The intrinsic problem is we cannot draw a node with `style=filled+bold`
+//       2. Add a node represent runnable, which is arrowed by all .cpp.
+//          This can only be done after solve TODO1.

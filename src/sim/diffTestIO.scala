@@ -1,7 +1,6 @@
 package sim
 
 import chisel3._
-import chisel3.util.experimental.BoringUtils
 
 import common.constants._
 import common.configurations._

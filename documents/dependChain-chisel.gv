@@ -1,0 +1,25 @@
+digraph G {
+  "common.configuration" -> "mycore.regfile", "sim.diffTestIO";
+  "common.constants" -> "mycore.regfile", "sim.diffTestIO";
+  "mycore.regfile" -> "mycore.core";
+  "mycore.core" -> "sim.simTOP";
+  "sim.diffTestIO" -> "sim.simTOP";
+
+  "chisel3._" [style=dotted]
+  "chisel3.util.experimental.BoringUtils" [style=dotted]
+  "chisel3._" -> "mycore.regfile", "mycore.core", "sim.diffTestIO", "sim.simTOP" [style=dotted];
+  "chisel3.util.experimental.BoringUtils" -> "mycore.regfile", "sim.simTOP" [style=dotted];
+
+  // Legend
+  subgraph cluster1 {
+    "chisel lib" [style=dotted];
+    "my code";
+
+    label = "Legend";
+    style=bold;
+    color = "orange";
+  }
+}
+
+// TODO: Add main Object `elaborate` which is runned by sbt to generate .v files.
+//       This will be helpful to keep *how sbt works* in mind .
