@@ -1,15 +1,25 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+#define DEBUG
+#define __RV64__
+
+typedef unsigned int uint32_t;
+typedef unsigned long int uint64_t;
+
+#ifdef __RV32__
+typedef uint32_t wordLen_t;
+
+#elif defined __RV64__
+typedef uint64_t wordLen_t;
+
+#endif
+
+#define ADDRSTART 0x80000000
+#define RAMSIZE (128 * 1024 * 1024)
+
 #include "configurations.h"
 #include "constants.h"
-
-#define DEBUG
-
-typedef unsigned int reg_t;
-
-
-
 
 
 #endif

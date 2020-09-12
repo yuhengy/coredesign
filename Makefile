@@ -8,6 +8,10 @@ verilatorHFile = $(shell find $(PWD)/verilator -name '*.h')
 verilatorCppFile = $(shell find $(PWD)/verilator -name '*.cpp')
 #---------Src File End-------------
 
+#---------Lib Begin-------------
+NEMU_SO = /ProjectRiscv/coredesign/verilator/diffLib/riscv64-nemu-interpreter-so
+#---------Lib End-------------
+
 #---------Build File Begin-------------
 verilogDir = $(PWD)/build/generated-verilog
 verilogFile = $(verilogDir)/$(topModuleName).v
@@ -27,6 +31,8 @@ $(verilatorRunable): $(verilatorHFile) $(verilatorCppFile) $(verilogFile)
 	verilator --cc \
 		--Mdir $(verilatorDir) \
 		--exe $(verilatorCppFile) \
+		-CFLAGS "-g -DNEMU_SO=\\\"$(NEMU_SO)\\\"" \
+		-LDFLAGS "-ldl" \
 		$(verilogFile)
 	make -C $(verilatorDir) -f V$(topModuleName).mk
 

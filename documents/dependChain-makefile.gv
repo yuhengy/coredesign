@@ -4,6 +4,7 @@ digraph G {
   "$(verilatorDir)/$(topModuleName).v" -> "$(verilatorDir)/verilatorRunable";
   "./verilator/verilatorHFile" -> "$(verilatorDir)/verilatorRunable" [label="`make V$(topModuleName).mk`"];
   "./verilator/verilatorCppFile" -> "$(verilatorDir)/verilatorRunable";
+  "$(NEMU_SO)" -> "$(verilatorDir)/verilatorRunable";
 
   // Legend
   subgraph cluster1 {

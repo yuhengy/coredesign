@@ -1,20 +1,32 @@
 digraph G {
   "configurations.h" -> "common.h";
   "constants.h" -> "common.h";
-  "common.h" -> "diffTestIO.h";
-  "diffTestIO.h" -> "verilatorResult.h", "verilatorResult.cpp", "main.cpp";
+  "common.h" -> "diffTestIO.h", "nemuResult.cpp", "nemuResult.h", "ram.h";
+  "diffTestIO.h" -> "verilatorResult.h", "nemuResult.cpp", "verilatorResult.cpp", "main.cpp", "nemuResult.h";
   "verilatorResult.h" -> "verilatorResult.cpp", "main.cpp";
 
   "VsimTOP.h" [style=bold];
   "VsimTOP.h" -> "verilatorResult.h", "verilatorResult.cpp";
 
+  "nemuResult.cpp" [style=filled];
   "verilatorResult.cpp" [style=filled];
   "main.cpp" [style=filled];
+  "ram.cpp" [style=filled];
+
 
   "iostream" [style=dotted];
   "verilated.h" [style=dotted];
+  "dlfcn.h" [style=dotted];
+  "stdio.h" [style=dotted];
   "iostream" -> "main.cpp" [style=dotted];
   "verilated.h" -> "main.cpp" [style=dotted];
+  "dlfcn.h" -> "nemuResult.cpp";
+  "stdio.h" -> "ram.cpp";
+
+  "ram.h" -> "main.cpp", "nemuResult.cpp", "nemuResult.h", "ram.cpp";
+  "nemuResult.h" -> "main.cpp", "nemuResult.cpp";
+
+
 
   // Legend
   subgraph cluster1 {
