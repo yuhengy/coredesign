@@ -15,7 +15,8 @@ typedef uint64_t wordLen_t;
 
 #endif
 
-#define ADDRSTART 0x80000000
+typedef uint32_t mask_t;
+
 #define RAMSIZE (128 * 1024 * 1024)
 
 #include "configurations.h"

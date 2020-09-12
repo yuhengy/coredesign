@@ -1,19 +1,28 @@
 digraph G {
-  "common.configuration" -> "mycore.regfile", "sim.diffTestIO";
+  "common.configuration" -> "mycore.regfile", "sim.diffTestIO", "mycore.memReadIO", "mycore.memWriteIO";
   "common.constants" -> "mycore.regfile", "sim.diffTestIO";
-  "mycore.regfile" -> "mycore.core";
-  "mycore.core" -> "sim.simTOP";
+  "mycore.regfile" -> "mycore.mycoreTOP";
+  "mycore.mycoreTOP" -> "sim.simTOP";
   "sim.diffTestIO" -> "sim.simTOP";
 
-  "chisel3._" [style=dotted]
+  "mycore.memReadIO" -> "mycore.mycoreTOPIO";
+  "mycore.memWriteIO" -> "mycore.mycoreTOPIO";
+  "mycore.mycoreTOPIO" -> "mycore.mycoreTOP", "sim.simTOP";
+
   "chisel3.util.experimental.BoringUtils" [style=dotted]
-  "chisel3._" -> "mycore.regfile", "mycore.core", "sim.diffTestIO", "sim.simTOP" [style=dotted];
+  "chisel3.util.log2Ceil" [style=dotted]
   "chisel3.util.experimental.BoringUtils" -> "mycore.regfile", "sim.simTOP" [style=dotted];
+  "chisel3.util.log2Ceil" -> "common.constants" [style=dotted]
+
+  "mycore.regfile" [style=filled];
+  "mycore.mycoreTOP" [style=filled];
+  "sim.simTOP" [style=filled];
 
   // Legend
   subgraph cluster1 {
     "chisel lib" [style=dotted];
-    "my code";
+    "my Module" [style=filled];
+    "my Boudle";
 
     label = "Legend";
     style=bold;
@@ -23,3 +32,5 @@ digraph G {
 
 // TODO: Add main Object `elaborate` which is runned by sbt to generate .v files.
 //       This will be helpful to keep *how sbt works* in mind .
+
+// NOTE: We ignore `chisel3._` for simplicity and ignore `scala.language.reflectiveCalls`

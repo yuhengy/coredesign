@@ -1,12 +1,18 @@
 package common
 
 object configurations extends
-  TODOConfigurations
+  TODOConfigurations with
+  debugConfigurations
 {
 }
 
 
 trait TODOConfigurations
 {
-  val XLEN = 32
+  val XLEN = 64
+}
+
+trait debugConfigurations
+{
+  val DEBUG = true
 }

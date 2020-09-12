@@ -4,6 +4,7 @@ In deed, use
 ```
 dot -Tpdf dependChain-chisel.gv -o dependChain-chisel.pdf
 dot -Tpdf dependChain-verilator.gv -o dependChain-verilator.pdf
+dot -Tpdf dependChain-verilator-mergeHCPP.gv -o dependChain-verilator-mergeHCPP.pdf
 dot -Tpdf dependChain-makefile.gv -o dependChain-makefile.pdf
 ```
 to plot from the `.gv` files

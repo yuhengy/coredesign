@@ -11,17 +11,19 @@ int main(int argc, char** argv)
   ram_c* ram = new ram_c(argv[1]);
   diffTestIO_t verilatorResultIO;
   diffTestIO_t nemuResultIO;
-  verilatorResult_c* verilatorResult = new verilatorResult_c();
+  verilatorResult_c* verilatorResult = new verilatorResult_c(ram);
   nemuResult_c* nemuResult = new nemuResult_c(ram);
 
   while (!Verilated::gotFinish()) {
 #ifdef DEBUG
     verilatorResult->getDiffTestResult(&verilatorResultIO);
     nemuResult->getDiffTestResult(&nemuResultIO);
-    std::cout << "verilatorCycle " << verilatorResult->getCycleCounter() 
-    << ": reg[5] = " << (void*)verilatorResultIO.regFile[5] << std::endl;
-    std::cout << "nemuCycle " << nemuResult->getCycleCounter() 
-    << ": reg[5] = " << (void*)nemuResultIO.regFile[5] << std::endl;
+    std::cout << "verilatorCycle " << verilatorResult->getCycleCounter()
+    << ": PC=" << (void*)verilatorResultIO.PC
+    << "---reg[5] = " << (void*)verilatorResultIO.regFile[5] << std::endl;
+    std::cout << "nemuCycle " << nemuResult->getCycleCounter()
+    << ": PC=" << (void*)nemuResultIO.PC
+    << "---reg[5] = " << (void*)nemuResultIO.regFile[5] << std::endl;
 #endif
 
     verilatorResult->step(1);
@@ -30,10 +32,12 @@ int main(int argc, char** argv)
     nemuResult->getDiffTestResult(&nemuResultIO);
 
 #ifdef DEBUG
-    std::cout << "verilatorCycle " << verilatorResult->getCycleCounter() 
-    << ": reg[5] = " << (void*)verilatorResultIO.regFile[5] << std::endl;
-    std::cout << "nemuCycle " << nemuResult->getCycleCounter() 
-    << ": reg[5] = " << (void*)nemuResultIO.regFile[5] << std::endl;
+    std::cout << "verilatorCycle " << verilatorResult->getCycleCounter()
+    << ": PC=" << (void*)verilatorResultIO.PC
+    << "---reg[5] = " << (void*)verilatorResultIO.regFile[5] << std::endl;
+    std::cout << "nemuCycle " << nemuResult->getCycleCounter()
+    << ": PC=" << (void*)nemuResultIO.PC
+    << "---reg[5] = " << (void*)nemuResultIO.regFile[5] << std::endl;
 
     if (verilatorResult->getCycleCounter() == 10) {
       break;

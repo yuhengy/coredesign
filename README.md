@@ -24,3 +24,12 @@ Learn `dlfcn.h` from `NutShell/src/test/csrc/difftest.cpp` and this [example](ht
 
 ### Sep12, 2020 commit-fa9843d
 This commit use an alternative method to use sbt. This is better becuase old method must create new subproject whenever create a new dir.
+
+### Sep13, 2020 commit-
+This commit tests three functions:
++ `ram.cpp` feeds chisel data successfully.
++ Chisel write to regfile successfully.
++ Chisel boringUtils the regfile to `verilatorResult.cpp` successfully.
+
+The test method is that we let the `mycorTOP.scala` keep reading the memory and writing it into regfile.
+Note Scala does not support 0x80000000, and need use 0x80000000**L** instead.

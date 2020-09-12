@@ -2,8 +2,11 @@
 #include "VsimTOP.h"
 #include "verilatorResult.h"
 
-verilatorResult_c::verilatorResult_c()
+verilatorResult_c::verilatorResult_c(ram_c* inputRam)
 {
+  ram = inputRam;
+  cycleCounter = 0;
+  
   simTOP = new VsimTOP;
   simTOP->eval();
   simTOP->eval();
@@ -12,7 +15,6 @@ verilatorResult_c::verilatorResult_c()
     simTOP->eval();
   }
 
-  cycleCounter = 0;
 }
 
 void verilatorResult_c::step(int i)
@@ -22,6 +24,15 @@ void verilatorResult_c::step(int i)
   for (; i > 0; i--) {
     simTOP->clock = simTOP->clock ? 0 : 1;
     simTOP->eval();
+
+    simTOP->io_mycoreTOPIO_instReadIO_data = 
+      ram->InstRead(simTOP->io_mycoreTOPIO_instReadIO_addr, simTOP->io_mycoreTOPIO_instReadIO_en);
+    simTOP->io_mycoreTOPIO_dataReadIO_data = 
+      ram->DataRead(simTOP->io_mycoreTOPIO_dataReadIO_addr, simTOP->io_mycoreTOPIO_dataReadIO_en);
+    ram->DataWrite(simTOP->io_mycoreTOPIO_dataWriteIO_addr, 
+                   simTOP->io_mycoreTOPIO_dataWriteIO_data, 
+                   simTOP->io_mycoreTOPIO_dataWriteIO_en, 
+                   simTOP->io_mycoreTOPIO_dataWriteIO_mask);
   }
 }
 

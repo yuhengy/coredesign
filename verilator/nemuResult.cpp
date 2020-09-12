@@ -27,7 +27,7 @@ nemuResult_c::nemuResult_c(ram_c* inputRam)
   // --------------APT End--------------
 
   refInit();
-  refMemcpyFromDUT(ADDRSTART, ram->getImgStart(), ram->getImgSize());
+  refMemcpyFromDUT(ADDR_START, ram->getImgStart(), ram->getImgSize());
 }
 
 void nemuResult_c::step(int i)
