@@ -2,7 +2,7 @@ package mycore
 
 import chisel3._
 
-class mycore extends Module
+class mycoreTOP extends Module
 {
   val io = IO(new Bundle{
   })

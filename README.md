@@ -19,3 +19,5 @@ cp ${NEMU_HOME}/build/riscv64-nemu-interpreter-so ${COREDESIGN_HOME}/verilator/d
 ```
 
 Learn `dlfcn.h` from `NutShell/src/test/csrc/difftest.cpp` and this [example](https://www.jianshu.com/p/72cc08405a5a).
+
+This commit use an alternative method to use sbt. This is better becuase old method must create new subproject whenever create a new dir.

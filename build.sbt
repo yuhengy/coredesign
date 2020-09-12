@@ -28,6 +28,15 @@ def javacOptionsVersion(scalaVersion: String): Seq[String] = {
   }
 }
 
+  
+scalaVersion := "2.12.6"
+scalacOptions := Seq("-deprecation", "-feature") ++ scalacOptionsVersion(scalaVersion.value)
+javacOptions ++= javacOptionsVersion(scalaVersion.value)
+  
+libraryDependencies += "edu.berkeley.cs" %% "chisel3" % "3.3.2"
+
+/*
+//-----------------alternative sbt usage begin-----------------
 lazy val commonSettings = Seq (
   scalaVersion := "2.12.6",
   scalacOptions := Seq("-deprecation", "-feature") ++ scalacOptionsVersion(scalaVersion.value),
@@ -36,17 +45,16 @@ lazy val commonSettings = Seq (
   libraryDependencies += "edu.berkeley.cs" %% "chisel3" % "3.3.2",
 )
 
-//------------------------------------------
-lazy val common = (project in file("src/common")).
+lazy val common = (project in file("src/main/scala/common")).
   settings(commonSettings)
 
-//------------------------------------------
-lazy val mycore = (project in file("src/mycore")).
+lazy val mycore = (project in file("src/main/scala/mycore")).
   settings(commonSettings).
   dependsOn(common)
 
-//------------------------------------------
-lazy val sim = (project in file("src/sim")).
+lazy val sim = (project in file("src/main/scala/sim")).
   settings(commonSettings).
   dependsOn(common).
   dependsOn(mycore)
+//-----------------alternative sbt usage end-----------------
+*/

@@ -13,7 +13,7 @@ class simTOP extends Module {
   })
   io := DontCare
 
-  val mycore = Module(new mycore())
+  val mycoreTOP = Module(new mycoreTOP())
 
   // These three line is an alternative for `io := DontCare`
   // , which can avoid `error: Reference io is not fully initialized`

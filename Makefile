@@ -23,7 +23,8 @@ verilatorRunable = $(verilatorDir)/V$(topModuleName)
 .PHONY: verilog verilator clean
 
 $(verilogFile): $(scalaFile)
-	sbt "project sim; run -td $(verilogDir)"
+	sbt "runMain sim.elaborate -td $(verilogDir)"
+	#sbt "project sim; run -td $(verilogDir)" #alternative sbt usage
 
 verilog: $(verilogFile)
 
