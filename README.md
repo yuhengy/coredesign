@@ -25,7 +25,7 @@ Learn `dlfcn.h` from `NutShell/src/test/csrc/difftest.cpp` and this [example](ht
 ### Sep12, 2020 commit-fa9843d
 This commit use an alternative method to use sbt. This is better becuase old method must create new subproject whenever create a new dir.
 
-### Sep13, 2020 commit-
+### Sep13, 2020 commit-f793da0
 This commit tests three functions:
 + `ram.cpp` feeds chisel data successfully.
 + Chisel write to regfile successfully.
@@ -33,3 +33,14 @@ This commit tests three functions:
 
 The test method is that we let the `mycorTOP.scala` keep reading the memory and writing it into regfile.
 Note Scala does not support 0x80000000, and need use 0x80000000**L** instead.
+
+### Sep13, 2020 commit-
+This commit is the `instFetch` and `decode` stages. These are enough to formalize the codestyle even though this commit is untestable.
+Much code is based on [soder](https://github.com/ucb-bar/riscv-sodor)'s 5-stage core and its structure plot is copied into ./documents/ for convenience.
+
+CodeStyle: 
++ I use individual package for each of five stages. 
++ In each class (in each package), I also divide it into several subclasses with `//------begin------ //^^^^^^end^^^^^^`. These subclasses hold following abstractions:
+	+ Subclasses named `${stageName} global status` is global to the whole class, i.e. all other subclass can read or write to it.
+	+ Other subclasses have **Two Interface** (`//input` and `//output`) and their **Private Val**.
++ In each class, io.input is global to the whole class; while io.output is connected in a individual subclass for clear. 
