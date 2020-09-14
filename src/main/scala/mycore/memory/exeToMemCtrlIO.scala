@@ -9,4 +9,8 @@ class exeToMemCtrlIO extends bundle()
 {
   val wbSel   = Input(UInt(wbSel_w.W))
   val rfWen   = Input(Bool())
+
+  def init = {
+    rfWen := REN_0
+  }
 }

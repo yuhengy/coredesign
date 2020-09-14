@@ -21,6 +21,11 @@ class decodeTOP extends Module
     val decToExeData = Flipped(new decToExeDataIO)
   //exeToMenCtrl
     val decToExeCtrlIO = Flipped(new decToExeCtrlIO)
+    
+  //wbToDecRegWrite
+    val wbToDecWbAddr = Output(UInt(WID_REG_ADDR.W))
+    val wbToDecWbdata = Output(UInt(XLEN.W))
+    val wbToDecWRfWen = Output(Bool())
   })
 
 //--------------decode global status start--------------
@@ -48,11 +53,11 @@ class decodeTOP extends Module
 
   regfile.io.rAddr2 := decRsAddr2
   regfile.io.rAddr1 := decRsAddr1
-  rfRs1Data := regfile.io.rs1_data
-  rfRs2Data := regfile.io.rs2_data
-  regfile.io.wAddr := wb_reg_wbaddr
-  regfile.io.wData := wb_reg_wbdata
-  regfile.io.wEn   := wb_reg_ctrl_rf_wen
+  rfRs2Data := regfile.io.rData2
+  rfRs1Data := regfile.io.rData1
+  regfile.io.wAddr := io.wbToDecWbAddr
+  regfile.io.wData := io.wbToDecWbdata
+  regfile.io.wEn   := io.wbToDecWRfWen
 //^^^^^^^^^^^^^^regfile read end^^^^^^^^^^^^^^
 
 //--------------immediate start--------------

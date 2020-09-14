@@ -45,7 +45,7 @@ CodeStyle:
 	+ Other subclasses have **Two Interface** (`//input` and `//output`) and their **Private Val**.
 + In each class, io.input is global to the whole class; while io.output is connected in a individual subclass for clear. 
 
-### Sep14, 2020 commit-
+### Sep14, 2020 commit-adf221a
 This commit uses bundle as data/ctrl-io and add execute stage. Untestable.
 
 As code scale up, we futher highlight the **Coding Principles** behind the **Code Style** listed above. Any other styles can be an alternative once they can achieve these principle.
@@ -67,3 +67,6 @@ Naming Convention:
 	+ Type name, use typeName_t, to avoid conflict in this situation: `typeName_t typeName` (instead of the conflict in `typeName typeName`).
 	+ Class name, use className_t.
 	+ Data wide, like PCSel_w.
+
+### Sep14, 2020 commit-
+This commit finishes memory and writeBack pipe-stages and integrate all five stages into mycoreTOP. Untested, but ready to test in next commit.

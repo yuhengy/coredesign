@@ -4,23 +4,30 @@ import scala.language.reflectiveCalls
 
 import chisel3._
 
-//if (DEBUG)
-import common.constants._
-import common.configurations._
-//endif
-
 class mycoreTOP extends Module
 {
   val io = IO(new mycoreTOPIO)
-  io := DontCare
-  val regfile = Module(new regfile())
-  regfile.io := DontCare
 
-  if (DEBUG) {
-  regfile.io.wEn := true.B
-  regfile.io.wAddr := 5.asUInt(WID_REG_ADDR.W)
-  regfile.io.wData := io.instReadIO.data
-  io.instReadIO.addr := ADDR_START.asUInt(XLEN.W)
-  io.instReadIO.en := true.B
-  }
+  val instFetchTOP = new instFetchTOP
+  val decodeTOP = new decodeTOP
+  val executeTOP = new executeTOP
+  val memoryTOP = new memoryTOP
+  val writeBackTOP = new writeBackTOP
+
+  instFetchTOP.io <> executeTOP.io
+  instFetchTOP.instReadIO <> io.instReadIO
+
+  decodeTOP.io <> instFetchTOP.io
+  decodeTOP.io <> writeBackTOP.io
+
+  executeTOP.io <> decodeTOP.io
+  executeTOP.io.dataReadIO <> io.dataReadIO
+  executeTOP.io.dataWriteIO <> io.dataWriteIO
+
+  memoryTOP.io <> executeTOP.io
+  memoryTOP.io.dataReadIO <> io.dataReadIO
+
+  writeBackTOP.io <> memoryTOP.io
+
+
 }

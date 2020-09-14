@@ -16,5 +16,11 @@ class decToExeCtrlIO extends bundle()
   val memWr   = Input(Bool())
   val memMask = Input(UInt(memMask_w.W))
 
+  def init = {
+    brType := BR_N
+    rfWen := REN_0
+    memRd := MRD_0
+    memWr := MWR_0
+  }
   
 }

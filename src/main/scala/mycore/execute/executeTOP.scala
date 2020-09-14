@@ -39,7 +39,7 @@ class executeTOP extends Module
   regDataIO <> io.decToExeDataIO
 
   val regCtrlIO = RegInit({
-    val temp = wire(new exeToMemCtrlIO)
+    val temp = wire(new decToExeCtrlIO)
     temp.init
     temp
   })
@@ -64,11 +64,11 @@ class executeTOP extends Module
 //input 
   // aluOut
 //output
-  val WbData  = Wire(UInt(XLEN.W))
+  val wbData  = Wire(UInt(XLEN.W))
 //private
   val PCPlus4  = (exe_reg_pc + 4.U)(XLEN-1,0)
 
-  WbData := Mux((regCtrlIO.wbSel === WB_PC4), PCPlus4, aluOut)
+  wbData := Mux((regCtrlIO.wbSel === WB_PC4), PCPlus4, aluOut)
 //^^^^^^^^^^^^^^writeBack data end^^^^^^^^^^^^^^
 
 //--------------branch/jump target start--------------
@@ -106,11 +106,10 @@ class executeTOP extends Module
            )))))))))//)
 //^^^^^^^^^^^^^^branch/jump select end^^^^^^^^^^^^^^
 
-
 //--------------io.output start--------------
 //exeToMemData
   io.exeToMemDataIO <> regDataIO
-  io.exeToMemWbData := WbData
+  io.exeToMemwbData := wbData  //TODO: check this will rewrite the assignment above
 
 //decToExeCtrl
   io.exeToMemCtrlIO <> regCtrlIO

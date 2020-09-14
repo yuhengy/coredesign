@@ -27,17 +27,24 @@ digraph G {
   "mycore.decode.decoder" [style=filled];
   "mycore.execute.executeTOP" [style=filled];
   "mycore.execute.alu" [style=filled];
+  "mycore.memory.memoryTOP" [style=filled];
+  "mycore.writeBack.writeBackTOP" [style=filled];
   "mycore.instFetch.instFetchTOP" -> "mycore.mycoreTOP";
   "mycore.decode.decodeTOP" -> "mycore.mycoreTOP";
+  "mycore.execute.executeTOP" -> "mycore.mycoreTOP";
+  "mycore.memory.memoryTOP" -> "mycore.mycoreTOP";
+  "mycore.writeBack.writeBackTOP" -> "mycore.mycoreTOP";
 
   "mycore.decode.allCtrlIO" -> "mycore.decode.decoder", "mycore.decode.decodeTOP";
   "mycore.decode.decoder" -> "mycore.decode.decodeTOP";
 
   "mycore.execute.decToExeData/CtrlIO" -> "mycore.decode.decodeTOP", "mycore.execute.executeTOP";
-  "mycore.memory.exeToMemData/CtrlIO" -> "mycore.execute.executeTOP";
+  "mycore.memory.exeToMemData/CtrlIO" -> "mycore.execute.executeTOP", "mycore.memory.memoryTOP";
+  "mycore.writeBack.memToExeData/CtrlIO" -> "mycore.memory.memoryTOP", "mycore.writeBack.writeBackTOP";
 
   "mycore.execute.alu" -> "mycore.execute.executeTOP";
-  "mycore.execute.executeTOP" -> "mycore.mycoreTOP";
+
+
 
 
   // Legend
