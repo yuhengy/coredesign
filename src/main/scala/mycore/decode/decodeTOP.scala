@@ -6,27 +6,26 @@ import chisel3.util.MuxCase
 
 import common.configurations._
 import common.constants._
-import mycore.execute.toExeCtrlIO
+//TODO: It seems we can move configurations/constants for wide into IO totally.
+import mycore.execute.decToExeDataIO
+import mycore.execute.decToExeCtrlIO
 
 class decodeTOP extends Module
 {
   io = IO(new Bundle{
-    val ifToDecPC   = Input(UInt(XLEN.W))
-    val ifToDecInst = Input(UInt(WID_INST.W))
+  //ifToDecData
+    val ifToDecDataIO = new ifToDecDataIO
+  //decToExeCtrl
 
-    val decToExePC        = Output(UInt(XLEN.W))
-    val decToExeInst      = Output(UInt(WID_INST.W))
-    val decToExeAluop1    = Output(UInt(XLEN.W))
-    val decToExeAluop2    = Output(UInt(XLEN.W))
-    val decToExeRfRs2Data = Output(UInt(XLEN.W))
-    val decToExeWbAddr    = Output(UInt(XLEN.W))
-
-    val toExeCtrlIO = new toExeCtrlIO
+  //decToExeData
+    val decToExeData = Flipped(new decToExeDataIO)
+  //exeToMenCtrl
+    val decToExeCtrlIO = Flipped(new decToExeCtrlIO)
   })
 
 //--------------decode global status start--------------
-  val regPC   = RegInit(UInt(XLEN.W), io.ifToDecPCU)
-  val regInst = RegInit(UInt(WID_INST.W), io.ifToDecInst)
+  val regDataIO = Reg(new Packet)
+  regDataIO <> io.ifToDecDataIO
 //^^^^^^^^^^^^^^decode global status end^^^^^^^^^^^^^^
 
 //--------------inst decode start--------------
@@ -34,18 +33,17 @@ class decodeTOP extends Module
   // decoder.io.allCtrlIO
 //private
   val decoder = Module(new decoder)
-  decoder.io.inst := regInst
-
+  decoder.io.inst := regDataIO.inst
 //^^^^^^^^^^^^^^inst decode end^^^^^^^^^^^^^^
 
 //--------------regfile read start--------------
 //output
   val rfRs1Data = Wire(UInt(XLEN.W))
   val rfRs2Data = Wire(UInt(XLEN.W))
+  val wbAddr    = regDataIO.inst(RD_MSB, RD_LSB)
 //private
-  val decRsAddr2 = regInst(RS2_MSB, RS2_LSB)
-  val decRsAddr1 = regInst(RS1_MSB, RS1_LSB)
-  val decWbAddr  = regInst(RD_MSB, RD_LSB)
+  val decRsAddr2 = regDataIO.inst(RS2_MSB, RS2_LSB)
+  val decRsAddr1 = regDataIO.inst(RS1_MSB, RS1_LSB)
   val regfile = Module(new regfile())
 
   regfile.io.rAddr2 := decRsAddr2
@@ -90,7 +88,7 @@ class decodeTOP extends Module
   val aluop1 = MuxCase(0.U, Array(
                (decoder.io.allCtrlIO.op1Sel === OP1_RS1) -> rfRs1Data,
                (decoder.io.allCtrlIO.op1Sel === OP1_IMZ) -> immZ,
-               (decoder.io.allCtrlIO.op1Sel === OP1_PC)  -> regPC
+               (decoder.io.allCtrlIO.op1Sel === OP1_PC)  -> regDataIO.PC
                ))
 //^^^^^^^^^^^^^^operand1 end^^^^^^^^^^^^^^
 
@@ -115,13 +113,12 @@ class decodeTOP extends Module
 //^^^^^^^^^^^^^^operand2 end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
-  io.decToExePC        := regPC
-  io.decToExeInst      := regInst
-  io.decToExeAluop1    := aluop1
-  io.decToExeAluop2    := aluop2
-  io.decToExeRfRs2Data := rfRs2Data
-  io.decToExeWbAddr    := decWbAddr
-  io.toExeCtrlIO       <> decoder.io.allCtrlIO
+  io.decToExeData           <> regDataIO
+  io.decToExeData.aluop1    := aluop1
+  io.decToExeData.aluop2    := aluop2
+  io.decToExeData.rfRs2Data := rfRs2Data
+  io.decToExeData.wbAddr    := wbAddr
+  io.decToExeCtrlIO         <> decoder.io.allCtrlIO
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

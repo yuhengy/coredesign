@@ -3,6 +3,8 @@ package decode
 
 import chisel3._
 
+import common.constants._
+
 class allCtrlIO extends bundle()
 {
   val brType  = Output(UInt(brType_w.W))

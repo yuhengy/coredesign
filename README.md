@@ -34,7 +34,7 @@ This commit tests three functions:
 The test method is that we let the `mycorTOP.scala` keep reading the memory and writing it into regfile.
 Note Scala does not support 0x80000000, and need use 0x80000000**L** instead.
 
-### Sep13, 2020 commit-
+### Sep13, 2020 commit-9532afa
 This commit is the `instFetch` and `decode` stages. These are enough to formalize the codestyle even though this commit is untestable.
 Much code is based on [soder](https://github.com/ucb-bar/riscv-sodor)'s 5-stage core and its structure plot is copied into ./documents/ for convenience.
 
@@ -44,3 +44,26 @@ CodeStyle:
 	+ Subclasses named `${stageName} global status` is global to the whole class, i.e. all other subclass can read or write to it.
 	+ Other subclasses have **Two Interface** (`//input` and `//output`) and their **Private Val**.
 + In each class, io.input is global to the whole class; while io.output is connected in a individual subclass for clear. 
+
+### Sep14, 2020 commit-
+This commit uses bundle as data/ctrl-io and add execute stage. Untestable.
+
+As code scale up, we futher highlight the **Coding Principles** behind the **Code Style** listed above. Any other styles can be an alternative once they can achieve these principle.
+
+Coding Principles:
++ Name Space (i.e. Visibility) Principle
+	+ Whole Project: Only readonly configurations/constants are visible to the whole project.
+	+ One file/class(~200 lines): all global value with in one file need to be **explicitly highlighted** by `include`, `import`, `io`, `notation`. These global values should be a trade-off between as few as possible, and as frequently used as possible. Also, this indicate that we should `include/import` as few as possible in order to be more specific.
+	+ One function/subclass with `//------begin------ //^^^^^^end^^^^^^` (~20 lines): all local value need to be **highlighted** explicitly by `paramters`, `return`, `notation`, or implicitly by `val` declaration. This is achieved under the cost of more input/output codes.
+	+ I suppose **this complex module interface** is intrinsic in hardware design contrary to software design. Chisel provides a cool method to solve it with `<>`, which provides an implicit connection between interfaces with a reasonable hint from `bundle` name. Further, [here](https://www.chisel-lang.org/api/latest/chisel3/Bundle.html) and [here](https://stackoverflow.com/questions/59049673/how-to-initialize-a-reg-of-bundle-in-chisel) provides an implicit connection between interfaces and regs without unbundling.
++ Other Principles for future
+
+Besides, we formalized the Naming convention here.
+
+Naming Convention:
++ One file, one class. File name is the same to the class name.
++ In most cases, use **littleCaseBeginUpCaseFollow** name for both class name or value name.
++ List all usage of `_`:
+	+ Type name, use typeName_t, to avoid conflict in this situation: `typeName_t typeName` (instead of the conflict in `typeName typeName`).
+	+ Class name, use className_t.
+	+ Data wide, like PCSel_w.

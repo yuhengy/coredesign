@@ -6,8 +6,8 @@ digraph G {
   "mycore.mycoreTOP" -> "sim.simTOP";
   "sim.diffTestIO" -> "sim.simTOP";
 
-  "common.memReadIO" -> "mycore.mycoreTOPIO", "mycore.instFetch.instFetchTOP";
-  "common.memWriteIO" -> "mycore.mycoreTOPIO";
+  "common.memReadIO" -> "mycore.mycoreTOPIO", "mycore.instFetch.instFetchTOP", "mycore.execute.executeTOP";
+  "common.memWriteIO" -> "mycore.mycoreTOPIO", "mycore.execute.executeTOP";
   "mycore.mycoreTOPIO" -> "mycore.mycoreTOP", "sim.simTOP";
 
   "chisel3.util.experimental.BoringUtils" [style=dotted];
@@ -25,12 +25,19 @@ digraph G {
   "mycore.decode.decodeTOP" [style=filled];
   "mycore.decode.regfile" [style=filled];
   "mycore.decode.decoder" [style=filled];
+  "mycore.execute.executeTOP" [style=filled];
+  "mycore.execute.alu" [style=filled];
   "mycore.instFetch.instFetchTOP" -> "mycore.mycoreTOP";
   "mycore.decode.decodeTOP" -> "mycore.mycoreTOP";
 
   "mycore.decode.allCtrlIO" -> "mycore.decode.decoder", "mycore.decode.decodeTOP";
   "mycore.decode.decoder" -> "mycore.decode.decodeTOP";
-  "mycore.execute.toExeCtrlIO" -> "mycore.decode.decodeTOP";
+
+  "mycore.execute.decToExeData/CtrlIO" -> "mycore.decode.decodeTOP", "mycore.execute.executeTOP";
+  "mycore.memory.exeToMemData/CtrlIO" -> "mycore.execute.executeTOP";
+
+  "mycore.execute.alu" -> "mycore.execute.executeTOP";
+  "mycore.execute.executeTOP" -> "mycore.mycoreTOP";
 
 
   // Legend

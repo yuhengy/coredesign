@@ -10,10 +10,16 @@ import common.memReadIO
 class instFetchTOP extends Module
 {
   io = IO(new Bundle{
+  //ifToDecData
+    val decToExeData = new decToExeDataIO
+
+  //exeToIfFeedback
+    val brjmpTarget = Input(UInt(XLEN.W))
+    val jmpRTarget  = Input(UInt(XLEN.W))
     val PCSel       = Input(UInt(PCSel_w.W))
+
+  //toRam
     val instReadIO  = new memReadIO
-    val ifToDecPC   = Output(UInt(XLEN.W))
-    val ifToDecInst = Output(UInt(WID_INST.W))
   })
 
 //--------------instFetch global status start--------------
@@ -22,9 +28,7 @@ class instFetchTOP extends Module
 
 //--------------PC update start--------------
 //input
-  val brjmpTarget     = Wire(UInt(XLEN.W))
-  val jmpRTarget      = Wire(UInt(XLEN.W))
-  val exceptionTarget = Wire(UInt(XLEN.W))
+  val exceptionTarget = Wire(UInt(XLEN.W))  //TODO: this does not have signal now
 //private
   val PC4             = Wire(UInt(XLEN.W))
   val PCNext          = Wire(UInt(XLEN.W))
@@ -46,8 +50,8 @@ class instFetchTOP extends Module
 //^^^^^^^^^^^^^^inst read end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
-  io.ifToDecPC   := regPC
-  io.ifToDecInst := io.instReadIO.data  //TODO: inst should be 32
+  io.decToExeData.PC   := regPC
+  io.decToExeData.inst := io.instReadIO.data  //TODO: inst should be 32
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }
