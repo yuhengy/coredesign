@@ -6,21 +6,26 @@ import chisel3._
 import common.configurations._
 import common.constants._
 
-class decToExeCtrlIO extends bundle()
+class decToExeCtrlIO extends Bundle()
 {
-  val brType  = Input(UInt(brType_w.W))
-  val aluFunc = Input(UInt(aluFunc_w.W))
-  val wbSel   = Input(UInt(wbSel_w.W))
-  val rfWen   = Input(Bool())
-  val memRd   = Input(Bool())
-  val memWr   = Input(Bool())
-  val memMask = Input(UInt(memMask_w.W))
+  val brType  = UInt(brType_w.W)
+  val aluFunc = UInt(aluFunc_w.W)
+  val wbSel   = UInt(wbSel_w.W)
+  val rfWen   = Bool()
+  val memRd   = Bool()
+  val memWr   = Bool()
+  val memMask = UInt(memMask_w.W)
 
   def init = {
     brType := BR_N
-    rfWen := REN_0
-    memRd := MRD_0
-    memWr := MWR_0
+    rfWen  := REN_0
+    memRd  := MRD_0
+    memWr  := MWR_0
+
+    //TODO: following init is useless
+    aluFunc := ALU_X
+    wbSel   := WB_X
+    memMask := MSK_X
   }
   
 }

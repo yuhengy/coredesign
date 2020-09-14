@@ -5,9 +5,9 @@ import chisel3._
 
 import common.configurations._
 
-class exeToMemDataIO extends bundle()
+class exeToMemDataIO extends Bundle()
 {
-    val inst   = Input(UInt(XLEN.W))
-    val wbData = Input(UInt(XLEN.W))
-    val wbAddr = Input(UInt(XLEN.W))
+  val inst   = UInt(XLEN.W)
+  val wbData = UInt(XLEN.W)
+  val wbAddr = UInt(XLEN.W)
 }

@@ -35,7 +35,7 @@ digraph G {
   "mycore.memory.memoryTOP" -> "mycore.mycoreTOP";
   "mycore.writeBack.writeBackTOP" -> "mycore.mycoreTOP";
 
-  "mycore.decode.allCtrlIO" -> "mycore.decode.decoder", "mycore.decode.decodeTOP";
+  "mycore.decode.allCtrlIO" -> "mycore.decode.decoder";
   "mycore.decode.decoder" -> "mycore.decode.decodeTOP";
 
   "mycore.execute.decToExeData/CtrlIO" -> "mycore.decode.decodeTOP", "mycore.execute.executeTOP";

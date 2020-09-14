@@ -1,26 +1,28 @@
 package mycore
 package memory
 
+import scala.language.reflectiveCalls
+
 import chisel3._
 import chisel3.util.MuxCase
 
 import common.constants._
 import common.configurations._
-import mycore.writeBack.memTowbDataIO
-import mycore.writeBack.memToWbCtrl
+import mycore.writeBack.memToWbDataIO
+import mycore.writeBack.memToWbCtrlIO
 
 class memoryTOP extends Module
 {
-  io = IO(new Bundle{
+  val io = IO(new Bundle{
   //exeToMemData
-    val exeToMenDataIO = new exeToMenDataIO
+    val exeToMemDataIO = Input(new exeToMemDataIO)
   //exeToMenCtrl
-    val exeToMemCtrlIO = new exeToMemCtrlIO
+    val exeToMemCtrlIO = Input(new exeToMemCtrlIO)
 
   //memTowbData
-    val memTowbDataIO = Flipped(new memTowbDataIO)
+    val memToWbDataIO = Output(new memToWbDataIO)
   //memToWbCtrl
-    val memToWbCtrl = Flipped(new memToWbCtrl)
+    val memToWbCtrlIO = Output(new memToWbCtrlIO)
 
   //fromRam
     val dataReadIO = new Bundle{
@@ -29,11 +31,11 @@ class memoryTOP extends Module
   })
 
 //--------------execute global status start--------------
-  val regDataIO = Reg(new Packet)
-  regDataIO <> io.exeToMenDataIO
+  val regDataIO = Reg(new exeToMemDataIO)
+  regDataIO <> io.exeToMemDataIO
 
   val regCtrlIO = RegInit({
-    val temp = wire(new exeToMemCtrlIO)
+    val temp = Wire(new exeToMemCtrlIO)
     temp.init
     temp
   })
@@ -52,11 +54,11 @@ class memoryTOP extends Module
 
 //--------------io.output start--------------
 //memTowbData
-  io.memTowbDataIO <> regDataIO
-  io.memTowbDataIO := wbData  //TODO: check this will rewrite the assignment above
+  io.memToWbDataIO.wbData := wbData
+  io.memToWbDataIO.wbAddr := regDataIO.wbAddr
 
 //memToWbCtrl
-  io.memToWbCtrlIO <> regCtrlIO
+  io.memToWbCtrlIO.rfWen := regCtrlIO.rfWen
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

@@ -1,8 +1,12 @@
 package mycore
 package decode
 
+import scala.language.reflectiveCalls
+
 import chisel3._
 import chisel3.util.MuxCase
+import chisel3.util.Cat
+import chisel3.util.Fill
 
 import common.configurations._
 import common.constants._
@@ -12,24 +16,24 @@ import mycore.execute.decToExeCtrlIO
 
 class decodeTOP extends Module
 {
-  io = IO(new Bundle{
+  val io = IO(new Bundle{
   //ifToDecData
-    val ifToDecDataIO = new ifToDecDataIO
+    val ifToDecDataIO = Input(new ifToDecDataIO)
   //decToExeCtrl
 
   //decToExeData
-    val decToExeData = Flipped(new decToExeDataIO)
+    val decToExeDataIO = Output(new decToExeDataIO)
   //exeToMenCtrl
-    val decToExeCtrlIO = Flipped(new decToExeCtrlIO)
+    val decToExeCtrlIO = Output(new decToExeCtrlIO)
     
   //wbToDecRegWrite
-    val wbToDecWbAddr = Output(UInt(WID_REG_ADDR.W))
-    val wbToDecWbdata = Output(UInt(XLEN.W))
-    val wbToDecWRfWen = Output(Bool())
+    val wbToDecWbAddr = Input(UInt(WID_REG_ADDR.W))
+    val wbToDecWbdata = Input(UInt(XLEN.W))
+    val wbToDecWRfWen = Input(Bool())
   })
 
 //--------------decode global status start--------------
-  val regDataIO = Reg(new Packet)
+  val regDataIO = Reg(new ifToDecDataIO)
   regDataIO <> io.ifToDecDataIO
 //^^^^^^^^^^^^^^decode global status end^^^^^^^^^^^^^^
 
@@ -69,18 +73,18 @@ class decodeTOP extends Module
    val immUtypeSext  = Wire(UInt(XLEN.W))
    val immUjtypeSext = Wire(UInt(XLEN.W))
 //private
-   val imm_itype  = dec_reg_inst(31,20)
-   val imm_stype  = Cat(dec_reg_inst(31,25), dec_reg_inst(11,7))
-   val imm_sbtype = Cat(dec_reg_inst(31), dec_reg_inst(7), dec_reg_inst(30, 25), dec_reg_inst(11,8))
-   val imm_utype  = dec_reg_inst(31, 12)
-   val imm_ujtype = Cat(dec_reg_inst(31), dec_reg_inst(19,12), dec_reg_inst(20), dec_reg_inst(30,21))
+   val imm_itype  = regDataIO.inst(31,20)
+   val imm_stype  = Cat(regDataIO.inst(31,25), regDataIO.inst(11,7))
+   val imm_sbtype = Cat(regDataIO.inst(31), regDataIO.inst(7), regDataIO.inst(30, 25), regDataIO.inst(11,8))
+   val imm_utype  = regDataIO.inst(31, 12)
+   val imm_ujtype = Cat(regDataIO.inst(31), regDataIO.inst(19,12), regDataIO.inst(20), regDataIO.inst(30,21))
 
-   val immZ = Cat(Fill(59,0.U), dec_reg_inst(19,15))
-   val immItypeSext  = Cat(Fill(52,imm_itype(11)), imm_itype)
-   val immStypeSext  = Cat(Fill(52,imm_stype(11)), imm_stype)
-   val immSbtypeSext = Cat(Fill(51,imm_sbtype(11)), imm_sbtype, 0.U)
-   val immUtypeSext  = Cat(Fill(32,imm_utype(19)), imm_utype, Fill(12,0.U))
-   val immUjtypeSext = Cat(Fill(43,imm_ujtype(19)), imm_ujtype, 0.U)
+   immZ          := Cat(Fill(59,0.U), regDataIO.inst(19,15))
+   immItypeSext  := Cat(Fill(52,imm_itype(11)), imm_itype)
+   immStypeSext  := Cat(Fill(52,imm_stype(11)), imm_stype)
+   immSbtypeSext := Cat(Fill(51,imm_sbtype(11)), imm_sbtype, 0.U)
+   immUtypeSext  := Cat(Fill(32,imm_utype(19)), imm_utype, Fill(12,0.U))
+   immUjtypeSext := Cat(Fill(43,imm_ujtype(19)), imm_ujtype, 0.U)
 //^^^^^^^^^^^^^^immediate end^^^^^^^^^^^^^^
 
 //--------------operand1 start--------------
@@ -118,12 +122,19 @@ class decodeTOP extends Module
 //^^^^^^^^^^^^^^operand2 end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
-  io.decToExeData           <> regDataIO
-  io.decToExeData.aluop1    := aluop1
-  io.decToExeData.aluop2    := aluop2
-  io.decToExeData.rfRs2Data := rfRs2Data
-  io.decToExeData.wbAddr    := wbAddr
-  io.decToExeCtrlIO         <> decoder.io.allCtrlIO
+  io.decToExeDataIO.PC        := regDataIO.PC
+  io.decToExeDataIO.inst      := regDataIO.inst
+  io.decToExeDataIO.aluop1    := aluop1
+  io.decToExeDataIO.aluop2    := aluop2
+  io.decToExeDataIO.rfRs2Data := rfRs2Data
+  io.decToExeDataIO.wbAddr    := wbAddr
+  io.decToExeCtrlIO.brType    := decoder.io.allCtrlIO.brType
+  io.decToExeCtrlIO.aluFunc   := decoder.io.allCtrlIO.aluFunc
+  io.decToExeCtrlIO.wbSel     := decoder.io.allCtrlIO.wbSel
+  io.decToExeCtrlIO.rfWen     := decoder.io.allCtrlIO.rfWen
+  io.decToExeCtrlIO.memRd     := decoder.io.allCtrlIO.memRd
+  io.decToExeCtrlIO.memWr     := decoder.io.allCtrlIO.memWr
+  io.decToExeCtrlIO.memMask   := decoder.io.allCtrlIO.memMask
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

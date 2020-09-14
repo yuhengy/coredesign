@@ -1,6 +1,8 @@
 package mycore
 package writeBack
 
+import scala.language.reflectiveCalls
+
 import chisel3._
 
 import common.constants._
@@ -8,11 +10,11 @@ import common.configurations._
 
 class writeBackTOP extends Module
 {
-  io = IO(new Bundle{
+  val io = IO(new Bundle{
   //memTowbData
-    val memTowbDataIO = new memTowbDataIO
+    val memToWbDataIO = Input(new memToWbDataIO)
   //memToWbCtrl
-    val memToWbCtrl = new memToWbCtrl
+    val memToWbCtrlIO = Input(new memToWbCtrlIO)
 
   //wbToDecRegWrite
     val wbToDecWbAddr = Output(UInt(WID_REG_ADDR.W))
@@ -21,15 +23,15 @@ class writeBackTOP extends Module
   })
 
 //--------------execute global status start--------------
-  val regDataIO = Reg(new Packet)
-  regDataIO <> io.memTowbDataIO
+  val regDataIO = Reg(new memToWbDataIO)
+  regDataIO <> io.memToWbDataIO
 
   val regCtrlIO = RegInit({
-    val temp = wire(new memToWbCtrl)
+    val temp = Wire(new memToWbCtrlIO)
     temp.init
     temp
   })
-  regCtrlIO <> io.memToWbCtrl
+  regCtrlIO <> io.memToWbCtrlIO
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------

@@ -11,9 +11,12 @@ verilatorResult_c::verilatorResult_c(ram_c* inputRam)
   simTOP->eval();
   simTOP->eval();
   simTOP->clock = 0;
+  simTOP->reset = 1;
   for (int i = 0; i < 10; i++) {
+    simTOP->clock = simTOP->clock ? 0 : 1;
     simTOP->eval();
   }
+  simTOP->reset = 0;
 
 }
 
@@ -22,6 +25,8 @@ void verilatorResult_c::step(int i)
   cycleCounter += i;
 
   for (; i > 0; i--) {
+    simTOP->clock = simTOP->clock ? 0 : 1;
+    simTOP->eval();
     simTOP->clock = simTOP->clock ? 0 : 1;
     simTOP->eval();
 
@@ -75,6 +80,7 @@ void verilatorResult_c::getDiffTestResult(diffTestIO_t* diffTestIO)
   diffTestIO->regFile[29] = simTOP->io_diffTestIO_regFile_29;
   diffTestIO->regFile[30] = simTOP->io_diffTestIO_regFile_30;
   diffTestIO->regFile[31] = simTOP->io_diffTestIO_regFile_31;
+  diffTestIO->PC = simTOP->io_diffTestIO_PC;
 }
 
 verilatorResult_c::~verilatorResult_c()

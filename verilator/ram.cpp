@@ -8,8 +8,8 @@ ram_c::ram_c(char* imgPath)
 #ifdef DEBUG
   imgSize = 3;
   ram[0] = 0x800002b7;  // lui t0,0x80000
-  ram[1] = 0x0002a023;  // sw  zero,0(t0)
-  ram[2] = 0x0002a503;  // lw  a0,0(t0)
+  //ram[1] = 0x0002a023;  // sw  zero,0(t0)
+  //ram[2] = 0x0002a503;  // lw  a0,0(t0)
 
 #else
   assert(imgPath && "No image file.");

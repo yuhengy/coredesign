@@ -6,8 +6,8 @@ import chisel3._
 import common.configurations._
 import common.constants._
 
-class ifToDecDataIO extends bundle()
+class ifToDecDataIO extends Bundle()
 {
-  val PC   = Input(UInt(XLEN.W))
-  val inst = Input(UInt(WID_INST.W))
+  val PC   = UInt(XLEN.W)
+  val inst = UInt(WID_INST.W)
 }

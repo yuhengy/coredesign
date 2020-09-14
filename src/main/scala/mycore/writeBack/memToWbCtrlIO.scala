@@ -3,9 +3,11 @@ package writeBack
 
 import chisel3._
 
-class memToWbCtrlIO extends bundle()
+import common.constants._
+
+class memToWbCtrlIO extends Bundle()
 {
-  val rfWen   = Input(Bool())
+  val rfWen   = Bool()
 
   def init = {
     rfWen := REN_0

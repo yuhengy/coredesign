@@ -1,17 +1,23 @@
 package mycore
 package decode
 
+import scala.language.reflectiveCalls
+
 import chisel3._
 import chisel3.util.ListLookup
 
 import common.constants._
 import common.instructions._
 
+//if (DEBUG)
+import common.configurations._
+//endif
+
 class decoder extends Module
 {
-  io = IO(new Bundle{
+  val io = IO(new Bundle{
     val inst      = Input(UInt(WID_INST.W))
-    val allCtrlIO = new allCtrlIO
+    val allCtrlIO = Output(new allCtrlIO)
   })
 
   // TODO: csrCmd is a foo one for now.
@@ -26,6 +32,21 @@ class decoder extends Module
 
   // Put these control signals in variables
   // TODO: all val within () is useless for now
-  val (cs_val_inst: Bool) :: io.allCtrlIO.brType :: io.allCtrlIO.op1Sel :: io.allCtrlIO.op2Sel :: (cs_rs1_oen: Bool) :: (cs_rs2_oen: Bool) :: subCsignals := csignals
-  val io.allCtrlIO.aluFunc :: io.allCtrlIO.wbSel :: io.allCtrlIO.rfWen :: io.allCtrlIO.memRd :: io.allCtrlIO.memWr :: io.allCtrlIO.memMask :: (cs_csr_cmd: Bool) :: (cs_fencei: Bool) :: Nil := subCsignals
+  val (cs_val_inst: Bool) :: temp_brType :: temp_op1Sel :: temp_op2Sel :: (cs_rs1_oen: Bool) :: (cs_rs2_oen: Bool) :: subCsignals = csignals
+  val temp_aluFunc :: temp_wbSel :: temp_rfWen :: temp_memRd :: temp_memWr :: temp_memMask :: (cs_csr_cmd: Bool) :: (cs_fencei: Bool) :: Nil = subCsignals
+
+  // TODO: there may be a better solution
+  io.allCtrlIO.brType := temp_brType
+  io.allCtrlIO.op1Sel := temp_op1Sel
+  io.allCtrlIO.op2Sel := temp_op2Sel
+  io.allCtrlIO.aluFunc := temp_aluFunc
+  io.allCtrlIO.wbSel := temp_wbSel
+  io.allCtrlIO.rfWen := temp_rfWen
+  io.allCtrlIO.memRd := temp_memRd
+  io.allCtrlIO.memWr := temp_memWr
+  io.allCtrlIO.memMask := temp_memMask
+
+  if (DEBUG) {
+    printf(p"The value of decoder.io = %${io}")
+  }
 }

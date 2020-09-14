@@ -1,25 +1,29 @@
 package mycore
 package execute
 
+import scala.language.reflectiveCalls
+
 import chisel3._
 
 import common.constants._
 import common.configurations._
-import mycore.memory.exeToMenDataIO
+import common.memWriteIO
+
+import mycore.memory.exeToMemDataIO
 import mycore.memory.exeToMemCtrlIO
 
 class executeTOP extends Module
 {
-  io = IO(new Bundle{
+  val io = IO(new Bundle{
   //decToExeData
-    val decToExeDataIO = new decToExeDataIO
+    val decToExeDataIO = Input(new decToExeDataIO)
   //decToExeCtrl
-    val decToExeCtrlIO = new decToExeCtrlIO
+    val decToExeCtrlIO = Input(new decToExeCtrlIO)
 
   //exeToMemData
-    val exeToMenDataIO = Flipped(new exeToMenDataIO)
+    val exeToMemDataIO = Output(new exeToMemDataIO)
   //exeToMenCtrl
-    val exeToMemCtrlIO = Flipped(new exeToMemCtrlIO)
+    val exeToMemCtrlIO = Output(new exeToMemCtrlIO)
 
   //exeToIfFeedback
     val brjmpTarget = Output(UInt(XLEN.W))
@@ -35,11 +39,11 @@ class executeTOP extends Module
   })
 
 //--------------execute global status start--------------
-  val regDataIO = Reg(new Packet)
+  val regDataIO = Reg(new decToExeDataIO)
   regDataIO <> io.decToExeDataIO
 
   val regCtrlIO = RegInit({
-    val temp = wire(new decToExeCtrlIO)
+    val temp = Wire(new decToExeCtrlIO)
     temp.init
     temp
   })
@@ -53,11 +57,11 @@ class executeTOP extends Module
 //private
   val alu      = Module(new alu)
 
-  alu.aluFunc := io.aluFunc
-  alu.op1     := regDataIO.aluop1
-  alu.op2     := regDataIO.aluop2
-  aluOut      := alu.out
-  adderOut    := alu.adderOut
+  alu.io.aluFunc := regCtrlIO.aluFunc
+  alu.io.op1     := regDataIO.aluop1
+  alu.io.op2     := regDataIO.aluop2
+  aluOut         := alu.io.out
+  adderOut       := alu.io.adderOut
 //^^^^^^^^^^^^^^alu end^^^^^^^^^^^^^^
 
 //--------------writeBack data start--------------
@@ -66,7 +70,7 @@ class executeTOP extends Module
 //output
   val wbData  = Wire(UInt(XLEN.W))
 //private
-  val PCPlus4  = (exe_reg_pc + 4.U)(XLEN-1,0)
+  val PCPlus4  = (regDataIO.PC + 4.U)(XLEN-1,0)
 
   wbData := Mux((regCtrlIO.wbSel === WB_PC4), PCPlus4, aluOut)
 //^^^^^^^^^^^^^^writeBack data end^^^^^^^^^^^^^^
@@ -78,7 +82,7 @@ class executeTOP extends Module
   val brjmpTarget = Wire(UInt(XLEN.W))
   val jmpRTarget  = Wire(UInt(XLEN.W))
 
-  brjmpTarget := regDataIO.PC + regAluop2
+  brjmpTarget := regDataIO.PC + regDataIO.aluop2
   jmpRTarget  := adderOut
 //^^^^^^^^^^^^^^branch/jump target end^^^^^^^^^^^^^^
 
@@ -108,28 +112,26 @@ class executeTOP extends Module
 
 //--------------io.output start--------------
 //exeToMemData
-  io.exeToMemDataIO <> regDataIO
-  io.exeToMemwbData := wbData  //TODO: check this will rewrite the assignment above
+  io.exeToMemDataIO.inst   := regDataIO.inst
+  io.exeToMemDataIO.wbData := wbData
+  io.exeToMemDataIO.wbAddr := regDataIO.wbAddr
 
 //decToExeCtrl
-  io.exeToMemCtrlIO <> regCtrlIO
+  io.exeToMemCtrlIO.wbSel := regCtrlIO.wbSel
+  io.exeToMemCtrlIO.rfWen := regCtrlIO.rfWen
 
 //exeToIfFeedback
-  io.brjmpTarget   := brjmpTarget
-  io.jmpRTarget := jmpRTarget
-  io.PCSel := PCSel
+  io.brjmpTarget := brjmpTarget
+  io.jmpRTarget  := jmpRTarget
+  io.PCSel       := PCSel
 
 //toRam
-  io.dataReadIO.addr := aluOut
-  io.dataReadIO.en := regCtrlIO.memRd
+  io.dataReadIO.addr  := aluOut
+  io.dataReadIO.en    := regCtrlIO.memRd
   io.dataWriteIO.addr := aluOut
   io.dataWriteIO.data := regDataIO.rfRs2Data
   io.dataWriteIO.mask := regCtrlIO.memMask
-  io.dataWriteIO.en := regCtrlIO.memWr
+  io.dataWriteIO.en   := regCtrlIO.memWr
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
-
-
-
-
-
+}
