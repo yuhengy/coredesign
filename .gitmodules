@@ -1,0 +1,3 @@
+[submodule "learn-riscv-note"]
+	path = learn-riscv-note
+	url = https://github.com/yuhengy/learn-riscv-note.git
