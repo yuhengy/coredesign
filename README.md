@@ -78,7 +78,7 @@ This commit dirtyly changes many files but they are all fixing bugs, Mainly thes
 + Partial assignment with `<>` is prohibited delibratedly to avoid subtle bugs.([here](https://github.com/freechipsproject/chisel3/issues/661) and [here](https://github.com/freechipsproject/www.chisel-lang.org/pull/48))
 + A bundle with direction (i.e., Input/Output) cannot be used to create a reg. See it by searching "Register myReg cannot be a bundle type with flips" in Google.
 
-### Sep18, 2020 commit-
+### Sep18, 2020 commit-da4ae93
 This commit update the use of docker with `docker-compose` instead of old `docker run ...`.
 
 Here, we explain the commands.
@@ -117,3 +117,8 @@ Summary: Keep in mind we have:
 + container that has been manually changed
 
 These commands hold more complex logic compared with vagrant, becuase here we have provisioned images
+
+### Sep18, 2020 commit-
+**Exciting Demo** This commit provides an **`one command from nothing`** method to setup docker enviornment,  run simulation, and cleanup everything with a single command. The only thing you need is docker and docker-compose(bounded with docker destop on Mac/Win). Then, run `sh run_from_nothing.sh`.
+
+One thing to note is that,  non-interactive bash in `docker-compose exec my_env bash -c "..."` is quite difficult to use. And a non-trival `sed` is used to make it work.
