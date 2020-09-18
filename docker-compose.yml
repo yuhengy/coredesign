@@ -1,0 +1,9 @@
+version: "3"
+services:
+  my_env:
+    build: .
+    volumes:
+      - .:/ProjectRiscv/coredesign
+      - .:/test
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t

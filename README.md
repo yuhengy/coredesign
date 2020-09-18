@@ -71,9 +71,49 @@ Naming Convention:
 ### Sep14, 2020 commit-03c900c
 This commit finishes memory and writeBack pipe-stages and integrate all five stages into mycoreTOP. Untested, but ready to test in next commit.
 
-### Sep14, 2020 commit
+### Sep14, 2020 commit-ed6a367
 **SIGNIFICANT** This commit works the first LUI instruction, and compared it with nemu. 
 
 This commit dirtyly changes many files but they are all fixing bugs, Mainly these 2 bugs:
 + Partial assignment with `<>` is prohibited delibratedly to avoid subtle bugs.([here](https://github.com/freechipsproject/chisel3/issues/661) and [here](https://github.com/freechipsproject/www.chisel-lang.org/pull/48))
 + A bundle with direction (i.e., Input/Output) cannot be used to create a reg. See it by searching "Register myReg cannot be a bundle type with flips" in Google.
+
+### Sep18, 2020 commit-
+This commit update the use of docker with `docker-compose` instead of old `docker run ...`.
+
+Here, we explain the commands.
++ docker-compose up -d #For the first time
+	1. create a container from image
+	2. provision it with Dockerfile
+	3. commit the container into a temp image
+	4. provision it with docker-compose.yml
+	5. run it at background
++ docker-compose exec my_env bash
+	1. log into the container
++ docker-compose down --rmi all
+	1. delete the container and the temp image
++ docker-compose down
+	1. delete the container
+	2. but the temp provisioned image remains
++ docker-compose up -d --build #after docker-compose down
+	1. delete the old temp image
+	2. redo docker-compose up -d as the first time
+	3. With updated Dockerfile and updated docker-compose.yml, lose changes in the container
++ docker-compose up -d #after docker-compose down
+	1. create a container from the temp image, even the Dockerfile may have changed
+	2. provision it with docker-compose.yml
+	3. run it at background
+	4. With out-of-date Dockerfile and updated docker-compose.yml, lose changes in the container
++ docker-compose stop
+	1. stop the container
++  docker-compose up -d
+	1. rerun the container
+	2. With out-of-date Dockerfile and updated docker-compose.yml, maintain changes in the container
+
+Summary: Keep in mind we have:
++ original image
++ provisioned temp image
++ container booted from provisioned image
++ container that has been manually changed
+
+These commands hold more complex logic compared with vagrant, becuase here we have provisioned images
