@@ -118,7 +118,24 @@ Summary: Keep in mind we have:
 
 These commands hold more complex logic compared with vagrant, becuase here we have provisioned images
 
-### Sep18, 2020 commit-
+### Sep18, 2020 commit-137718e
 **Exciting Demo** This commit provides an **`one command from nothing`** method to setup docker enviornment,  run simulation, and cleanup everything with a single command. The only thing you need is docker and docker-compose(bounded with docker destop on Mac/Win). Then, run `sh run_from_nothing.sh`.
 
 One thing to note is that,  non-interactive bash in `docker-compose exec my_env bash -c "..."` is quite difficult to use. And a non-trival `sed` is used to make it work.
+
+### Sep26, 2020 commit-
+This commit adds a testbench-compile framework. As an example, a single LUI .S file is compiled and loaded into verilator to feed nemu and chiselcore.
+
++ How to strip out the elf info in a` .o` file? so that it can be run on bare core
+	Generally, when we use `riscv64-linux-gnu-gcc -c ./testbench/singleLUI.S -o ./testbench/build/singleLUI.o`, the generated `.o` file is quite complex with much elf infomation. To strip them out, refering to [here](https://stackoverflow.com/questions/13132138/purest-way-to-assemble-compile-a-file-with-no-other-elf-object-bloat), use `riscv64-linux-gnu-objcopy -O binary ./testbench/build/singleLUI.o ./testbench/build/singleLUI.bin`, so that the generated `.bin` file is a single instruction.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

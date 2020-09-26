@@ -13,7 +13,7 @@ docker-compose up -d
 # This enable non-interactive bash to `source /root/.bashrc`
 docker-compose exec my_env bash -c "sed -i 's/\[\ -z\ \"\$PS1\"\ \]\ \&\&\ return/\#\ ThisLineIsRemoved/g' /root/.bashrc"
 
-docker-compose exec my_env bash -c "source /root/.bashrc; sh ProjectRiscv/coredesign/test-scripts-forcommits/5-commited6a367.sh"
+docker-compose exec my_env bash -c "source /root/.bashrc; sh ProjectRiscv/coredesign/test-scripts-forcommits/6-commit.sh"
 
 # This disable non-interactive bash to `source /root/.bashrc`
 docker-compose exec my_env bash -c "sed -i 's/\#\ ThisLineIsRemoved/\[\ -z\ \"\$PS1\"\ \]\ \&\&\ return/g' /root/.bashrc"

@@ -5,13 +5,13 @@
 
 ram_c::ram_c(char* imgPath)
 {
-#ifdef DEBUG
-  imgSize = 3;
-  ram[0] = 0x800002b7;  // lui t0,0x80000
-  //ram[1] = 0x0002a023;  // sw  zero,0(t0)
-  //ram[2] = 0x0002a503;  // lw  a0,0(t0)
+//#ifdef DEBUG
+//  imgSize = 3;
+//  ram[0] = 0x800002b7;  // lui t0,0x80000
+//  //ram[1] = 0x0002a023;  // sw  zero,0(t0)
+//  //ram[2] = 0x0002a503;  // lw  a0,0(t0)
 
-#else
+//#else
   assert(imgPath && "No image file.");
   FILE *fp = fopen(imgPath, "rb");
   assert(fp && "Can not open image file.");
@@ -24,7 +24,11 @@ ram_c::ram_c(char* imgPath)
   assert(ret == 1 && "Can not read image file.");
   fclose(fp);
 
-#endif
+//#ifdef DEBUG
+//  printf("RAM: %x\n", (unsigned int)ram[0]);
+//#endif
+
+//#endif
 }
 
 void* ram_c::getImgStart()

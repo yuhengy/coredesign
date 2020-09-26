@@ -1,10 +1,12 @@
 digraph G {
-  "./src/scalaFile" -> "$(verilogDir)/verilogFile" [label="sbt/mill"];
-  "$(verilogDir)/verilogFile" -> "$(verilatorDir)/$(topModuleName).v" [label="verilator"];
-  "$(verilatorDir)/$(topModuleName).v" -> "$(verilatorDir)/verilatorRunable";
-  "./verilator/verilatorHFile" -> "$(verilatorDir)/verilatorRunable" [label="`make V$(topModuleName).mk`"];
-  "./verilator/verilatorCppFile" -> "$(verilatorDir)/verilatorRunable";
-  "$(NEMU_SO)" -> "$(verilatorDir)/verilatorRunable";
+  "./src/*.scala" -> "build/generated-verilog/*.v" [label="sbt/mill"];
+  "build/generated-verilog/*.v" -> "build/generated-cpp/*.cpp" [label="verilator"];
+  "build/generated-cpp/*.cpp" -> "build/runable";
+  "./verilator/*.h *.cpp" -> "build/runable" [label="`make V$(topModuleName).mk`"];
+  "$(NEMU_SO)" -> "build/runable";
+  "./testbench/*.S" -> "build/testbench/*.o" [label="gcc -c"];
+  "build/testbench/*.o" -> "build/testbench/*.bin" [label="objcopy -O binary"];
+  "build/testbench/*.bin" -> "build/runable";
 
   // Legend
   subgraph cluster1 {

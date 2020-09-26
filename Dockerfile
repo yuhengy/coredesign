@@ -1,1 +1,1 @@
-FROM yuhengy/coredesign:v4
+FROM yuhengy/coredesign:v5
