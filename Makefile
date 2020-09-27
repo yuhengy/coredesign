@@ -24,7 +24,7 @@ verilogFile = $(verilogDir)/$(topModuleName).v
 #---------Chisel File End-------------
 
 #---------Nemu Begin-------------
-NEMU_SO = /ProjectRiscv/coredesign/verilator/diffLib/riscv64-nemu-interpreter-so
+NEMU_SO = $(PWD)/build/riscv64-nemu-interpreter-so
 #---------Nemu End-------------
 
 #---------Test File Begin-------------
@@ -40,6 +40,11 @@ verilatorCppFile = $(shell find $(PWD)/verilator -name '*.cpp')
 verilatorDir = $(PWD)/build/generated-cpp
 verilatorRunable = $(verilatorDir)/V$(topModuleName)
 #---------Verilator File End-------------
+
+#---------Documents File Begin-------------
+documentsFile = $(shell find $(PWD)/documents -name '*.gv')
+documentsPDF = $(documentsFile:%.gv=%.pdf)
+#---------Documents File End-------------
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -63,6 +68,10 @@ getVerilog: $(verilogFile)
 #---------Chisel to verilog End-------------
 
 #---------Nemu-src to  Nemu-os Begin-------------
+$(NEMU_SO):
+	make -C $(NEMU_HOME) DIFF=nemu ISA=riscv64 ${NEMU_HOME}/build/riscv64-nemu-interpreter-so
+	cp ${NEMU_HOME}/build/riscv64-nemu-interpreter-so $(NEMU_SO)
+getNemuOS: $(NEMU_SO)
 ## For this makefile, we assume nemu-os already exists
 ## To generate it from source code, please refer to test-scripts-forcommits/3-commit759988d.sh
 #---------Nemu-src to  Nemu-os End-------------
@@ -83,7 +92,7 @@ cleanTestbench :
 #---------Testbench .S to .bin End-------------
 
 #---------Assemble Verilog-Nemu-Testbench to Runable Begin-------------
-$(verilatorRunable): $(verilatorHFile) $(verilatorCppFile) $(verilogFile)
+$(verilatorRunable): $(verilatorHFile) $(verilatorCppFile) $(verilogFile) $(NEMU_SO)
 	verilator --cc \
 		--Mdir $(verilatorDir) \
 		--exe $(verilatorCppFile) \
@@ -97,6 +106,13 @@ getVerilator: $(verilatorRunable)
 runVerilator: $(verilatorRunable) $(testBuildDir)/$(TestName).bin
 	$(verilatorRunable) $(testBuildDir)/$(TestName).bin
 #---------Assemble Verilog-Nemu-Testbench to Runable End-------------
+
+#---------Get Documents PDF Begin-------------
+%.pdf: %.gv
+	dot -Tpdf $^ -o $@
+
+getDocuments: documentsPDF
+#---------et Documents PDF End-------------
 
 clean:
 	sbt "clean"
