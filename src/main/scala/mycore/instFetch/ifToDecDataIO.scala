@@ -1,5 +1,5 @@
 package mycore
-package decode
+package instFetch
 
 import chisel3._
 

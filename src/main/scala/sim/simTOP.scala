@@ -14,6 +14,7 @@ class simTOP extends Module {
   })
   io := DontCare
   BoringUtils.addSink(io.diffTestIO.regFile, "diffTestRegfile")
+  BoringUtils.addSink(io.diffTestIO.commit, "diffTestCommit")
   BoringUtils.addSink(io.diffTestIO.PC, "diffTestPC")
 
   val mycoreTOP = Module(new mycoreTOP())

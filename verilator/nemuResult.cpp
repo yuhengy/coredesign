@@ -41,12 +41,12 @@ int nemuResult_c::getCycleCounter()
   return cycleCounter;
 }
 
-void nemuResult_c::getDiffTestResult(diffTestIO_t* diffTestIO)
+void nemuResult_c::getDiffTestResult(diffTestIO_c* diffTestIO)
 {
   refGetregs(diffTestIO->regFile);  //32 regs and followed &(diffTestIO->PC)
 }
 
-void nemuResult_c::setDiffTestStatus(diffTestIO_t* diffTestIO)
+void nemuResult_c::setDiffTestStatus(diffTestIO_c* diffTestIO)
 {
   refSetregs(diffTestIO->regFile);  //32 regs and followed &(diffTestIO->PC)
 }

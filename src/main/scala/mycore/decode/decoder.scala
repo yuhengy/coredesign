@@ -48,6 +48,6 @@ class decoder extends Module
 
   if (DEBUG) {
     printf(p"The value of decoder.io = ${io}\n")
-    assert(cs_val_inst === Y)
+    //assert(cs_val_inst === Y)
   }
 }

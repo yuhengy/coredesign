@@ -1,17 +1,18 @@
 digraph G {
   "configurations.h" -> "common.h";
   "constants.h" -> "common.h";
-  "common.h" -> "diffTestIO.h", "nemuResult.cpp", "nemuResult.h", "ram.h";
-  "diffTestIO.h" -> "verilatorResult.h", "nemuResult.cpp", "verilatorResult.cpp", "main.cpp", "nemuResult.h";
-  "verilatorResult.h" -> "verilatorResult.cpp", "main.cpp", "ram.cpp";
+  "common.h" -> "diffTestIO.h/cpp", "nemuResult.h/cpp", "ram.h/cpp";
+  "diffTestIO.h/cpp" -> "verilatorResult.h/cpp", "nemuResult.h/cpp", "main.h/cpp";
+  "verilatorResult.h/cpp" -> "main.h/cpp", "ram.h/cpp";
 
   "VsimTOP.h" [style=bold];
-  "VsimTOP.h" -> "verilatorResult.h", "verilatorResult.cpp";
+  "VsimTOP.h" -> "verilatorResult.h/cpp";
 
-  "nemuResult.cpp" [style=filled];
-  "verilatorResult.cpp" [style=filled];
-  "main.cpp" [style=filled];
-  "ram.cpp" [style=filled];
+  "nemuResult.h/cpp" [style=filled];
+  "verilatorResult.h/cpp" [style=filled];
+  "main.h/cpp" [style=filled];
+  "ram.h/cpp" [style=filled];
+  "diffTestIO.h/cpp" [style=filled];
 
 
   "iostream" [style=dotted];
@@ -19,14 +20,14 @@ digraph G {
   "dlfcn.h" [style=dotted];
   "stdio.h" [style=dotted];
   "assert.h" [style=dotted];
-  "iostream" -> "main.cpp" [style=dotted];
-  "verilated.h" -> "main.cpp" [style=dotted];
-  "dlfcn.h" -> "nemuResult.cpp";
-  "stdio.h" -> "ram.cpp";
-  "assert.h" -> "ram.cpp";
+  "iostream" -> "main.h/cpp" [style=dotted];
+  "verilated.h" -> "main.h/cpp" [style=dotted];
+  "dlfcn.h" -> "nemuResult.h/cpp";
+  "stdio.h" -> "ram.h/cpp";
+  "assert.h" -> "ram.h/cpp";
 
-  "ram.h" -> "main.cpp", "nemuResult.cpp", "nemuResult.h", "ram.cpp";
-  "nemuResult.h" -> "main.cpp", "nemuResult.cpp";
+  "ram.h/cpp" -> "main.h/cpp", "nemuResult.h/cpp";
+  "nemuResult.h/cpp" -> "main.h/cpp";
 
 
 

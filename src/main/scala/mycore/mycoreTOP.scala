@@ -26,6 +26,9 @@ class mycoreTOP extends Module
   instFetchTOP.io.instReadIO  <> io.instReadIO
 
   decodeTOP.io.ifToDecDataIO <> instFetchTOP.io.ifToDecDataIO
+  decodeTOP.io.ifToDecCtrlIO <> instFetchTOP.io.ifToDecCtrlIO
+  decodeTOP.io.exeDest       <> executeTOP.io.exeDest
+  decodeTOP.io.memDest       <> memoryTOP.io.memDest
   decodeTOP.io.wbToDecWbAddr := writeBackTOP.io.wbToDecWbAddr
   decodeTOP.io.wbToDecWbdata := writeBackTOP.io.wbToDecWbdata
   decodeTOP.io.wbToDecWRfWen := writeBackTOP.io.wbToDecWRfWen

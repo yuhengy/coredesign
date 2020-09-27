@@ -25,6 +25,21 @@ void verilatorResult_c::step(int i)
   cycleCounter += i;
 
   for (; i > 0; i--) {
+    while (!simTOP->io_diffTestIO_commit) {
+      simTOP->clock = simTOP->clock ? 0 : 1;
+      simTOP->eval();
+      simTOP->clock = simTOP->clock ? 0 : 1;
+      simTOP->eval();
+
+      simTOP->io_mycoreTOPIO_instReadIO_data = 
+        ram->InstRead(simTOP->io_mycoreTOPIO_instReadIO_addr, simTOP->io_mycoreTOPIO_instReadIO_en);
+      simTOP->io_mycoreTOPIO_dataReadIO_data = 
+        ram->DataRead(simTOP->io_mycoreTOPIO_dataReadIO_addr, simTOP->io_mycoreTOPIO_dataReadIO_en);
+      ram->DataWrite(simTOP->io_mycoreTOPIO_dataWriteIO_addr, 
+                     simTOP->io_mycoreTOPIO_dataWriteIO_data, 
+                     simTOP->io_mycoreTOPIO_dataWriteIO_en, 
+                     simTOP->io_mycoreTOPIO_dataWriteIO_mask);
+    }
     simTOP->clock = simTOP->clock ? 0 : 1;
     simTOP->eval();
     simTOP->clock = simTOP->clock ? 0 : 1;
@@ -46,7 +61,7 @@ int verilatorResult_c::getCycleCounter()
   return cycleCounter;
 }
 
-void verilatorResult_c::getDiffTestResult(diffTestIO_t* diffTestIO)
+void verilatorResult_c::getDiffTestResult(diffTestIO_c* diffTestIO)
 {
   diffTestIO->regFile[ 0] = simTOP->io_diffTestIO_regFile_0;
   diffTestIO->regFile[ 1] = simTOP->io_diffTestIO_regFile_1;

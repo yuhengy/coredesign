@@ -4,9 +4,14 @@ package writeBack
 import scala.language.reflectiveCalls
 
 import chisel3._
+import chisel3.util._
+import chisel3.util.experimental.BoringUtils
 
 import common.constants._
 import common.configurations._
+
+import mycore.memory.memToWbDataIO
+import mycore.memory.memToWbCtrlIO
 
 class writeBackTOP extends Module
 {
@@ -14,7 +19,7 @@ class writeBackTOP extends Module
   //memTowbData
     val memToWbDataIO = Input(new memToWbDataIO)
   //memToWbCtrl
-    val memToWbCtrlIO = Input(new memToWbCtrlIO)
+    val memToWbCtrlIO = Flipped(Decoupled(new memToWbCtrlIO))
 
   //wbToDecRegWrite
     val wbToDecWbAddr = Output(UInt(WID_REG_ADDR.W))
@@ -31,13 +36,21 @@ class writeBackTOP extends Module
     temp.init
     temp
   })
-  regCtrlIO <> io.memToWbCtrlIO
+  regCtrlIO <> io.memToWbCtrlIO.bits
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
+
+//--------------stall&kill start--------------
+  io.memToWbCtrlIO.ready := true.B
+//^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
   io.wbToDecWbAddr := regDataIO.wbAddr
   io.wbToDecWbdata := regDataIO.wbData
   io.wbToDecWRfWen := regCtrlIO.rfWen
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
+
+  val commitedPC = RegNext(regDataIO.PC, 0.U)
+  BoringUtils.addSource(io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready, "diffTestCommit")
+  BoringUtils.addSource(commitedPC, "diffTestPC")
 
 }

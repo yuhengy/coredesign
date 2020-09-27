@@ -4,13 +4,14 @@ package execute
 import scala.language.reflectiveCalls
 
 import chisel3._
+import chisel3.util._
 
 import common.constants._
 import common.configurations._
 import common.memWriteIO
 
-import mycore.memory.exeToMemDataIO
-import mycore.memory.exeToMemCtrlIO
+import mycore.decode.decToExeDataIO
+import mycore.decode.decToExeCtrlIO
 
 class executeTOP extends Module
 {
@@ -18,17 +19,20 @@ class executeTOP extends Module
   //decToExeData
     val decToExeDataIO = Input(new decToExeDataIO)
   //decToExeCtrl
-    val decToExeCtrlIO = Input(new decToExeCtrlIO)
+    val decToExeCtrlIO = Flipped(Decoupled(new decToExeCtrlIO))
 
   //exeToMemData
     val exeToMemDataIO = Output(new exeToMemDataIO)
   //exeToMenCtrl
-    val exeToMemCtrlIO = Output(new exeToMemCtrlIO)
+    val exeToMemCtrlIO = Decoupled(new exeToMemCtrlIO)
 
   //exeToIfFeedback
     val brjmpTarget = Output(UInt(XLEN.W))
     val jmpRTarget  = Output(UInt(XLEN.W))
     val PCSel       = Output(UInt(PCSel_w.W))
+
+  //exeToDecFeedback
+    val exeDest = Valid(UInt(WID_REG_ADDR.W))
 
   //toRam
     val dataReadIO = new Bundle{
@@ -47,7 +51,7 @@ class executeTOP extends Module
     temp.init
     temp
   })
-  regCtrlIO <> io.decToExeCtrlIO
+  regCtrlIO <> io.decToExeCtrlIO.bits
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------alu start--------------
@@ -110,20 +114,37 @@ class executeTOP extends Module
            )))))))))//)
 //^^^^^^^^^^^^^^branch/jump select end^^^^^^^^^^^^^^
 
+//--------------stall&kill start--------------
+  val stall = false.B
+  val regIsUpdated = RegInit(false.B)
+  when (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready)
+  {regIsUpdated := true.B}.
+  elsewhen (io.exeToMemCtrlIO.valid && io.exeToMemCtrlIO.ready)
+  {regIsUpdated := false.B}  //TODO: check otherwise can be left
+
+  io.decToExeCtrlIO.ready := true.B
+  io.exeToMemCtrlIO.valid := regIsUpdated && !stall
+//^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
+
 //--------------io.output start--------------
 //exeToMemData
+  io.exeToMemDataIO.PC     := regDataIO.PC
   io.exeToMemDataIO.inst   := regDataIO.inst
   io.exeToMemDataIO.wbData := wbData
   io.exeToMemDataIO.wbAddr := regDataIO.wbAddr
 
 //decToExeCtrl
-  io.exeToMemCtrlIO.wbSel := regCtrlIO.wbSel
-  io.exeToMemCtrlIO.rfWen := regCtrlIO.rfWen
+  io.exeToMemCtrlIO.bits.wbSel := regCtrlIO.wbSel
+  io.exeToMemCtrlIO.bits.rfWen := regCtrlIO.rfWen
 
 //exeToIfFeedback
   io.brjmpTarget := brjmpTarget
   io.jmpRTarget  := jmpRTarget
   io.PCSel       := PCSel
+
+//exeToDecFeedback
+  io.exeDest.bits  := regDataIO.wbAddr
+  io.exeDest.valid := regCtrlIO.rfWen
 
 //toRam
   io.dataReadIO.addr  := aluOut

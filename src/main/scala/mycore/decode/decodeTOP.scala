@@ -4,27 +4,29 @@ package decode
 import scala.language.reflectiveCalls
 
 import chisel3._
-import chisel3.util.MuxCase
-import chisel3.util.Cat
-import chisel3.util.Fill
+import chisel3.util._
 
 import common.configurations._
 import common.constants._
 //TODO: It seems we can move configurations/constants for wide into IO totally.
-import mycore.execute.decToExeDataIO
-import mycore.execute.decToExeCtrlIO
+import mycore.instFetch.ifToDecDataIO
 
 class decodeTOP extends Module
 {
   val io = IO(new Bundle{
   //ifToDecData
     val ifToDecDataIO = Input(new ifToDecDataIO)
-  //decToExeCtrl
+  //ifToDecCtrl
+    val ifToDecCtrlIO = Flipped(Decoupled(new Bundle{}))
 
   //decToExeData
     val decToExeDataIO = Output(new decToExeDataIO)
-  //exeToMenCtrl
-    val decToExeCtrlIO = Output(new decToExeCtrlIO)
+  //decToExeCtrl
+    val decToExeCtrlIO = Decoupled(new decToExeCtrlIO)
+
+  //*ToDexFeedback
+    val exeDest = Flipped(Valid(UInt(WID_REG_ADDR.W)))
+    val memDest = Flipped(Valid(UInt(WID_REG_ADDR.W)))
     
   //wbToDecRegWrite
     val wbToDecWbAddr = Input(UInt(WID_REG_ADDR.W))
@@ -47,12 +49,12 @@ class decodeTOP extends Module
 
 //--------------regfile read start--------------
 //output
-  val rfRs1Data = Wire(UInt(XLEN.W))
-  val rfRs2Data = Wire(UInt(XLEN.W))
-  val wbAddr    = regDataIO.inst(RD_MSB, RD_LSB)
-//private
   val decRsAddr2 = regDataIO.inst(RS2_MSB, RS2_LSB)
   val decRsAddr1 = regDataIO.inst(RS1_MSB, RS1_LSB)
+  val rfRs2Data = Wire(UInt(XLEN.W))
+  val rfRs1Data = Wire(UInt(XLEN.W))
+  val wbAddr    = regDataIO.inst(RD_MSB, RD_LSB)
+//private
   val regfile = Module(new regfile())
 
   regfile.io.rAddr2 := decRsAddr2
@@ -121,6 +123,23 @@ class decodeTOP extends Module
               ))
 //^^^^^^^^^^^^^^operand2 end^^^^^^^^^^^^^^
 
+//--------------stall&kill start--------------
+  val stall = io.exeDest.valid && ((decoder.io.allCtrlIO.op2Sel===OP2_RS2) && io.exeDest.bits===decRsAddr2 ||
+                                   (decoder.io.allCtrlIO.op1Sel===OP1_RS1) && io.exeDest.bits===decRsAddr1) ||
+              io.memDest.valid && ((decoder.io.allCtrlIO.op2Sel===OP2_RS2) && io.memDest.bits===decRsAddr2 ||
+                                   (decoder.io.allCtrlIO.op1Sel===OP1_RS1) && io.memDest.bits===decRsAddr1) ||
+              io.wbToDecWRfWen && ((decoder.io.allCtrlIO.op2Sel===OP2_RS2) && io.wbToDecWbAddr===decRsAddr2 ||
+                                   (decoder.io.allCtrlIO.op1Sel===OP1_RS1) && io.wbToDecWbAddr===decRsAddr1)
+  val regIsUpdated = RegInit(false.B)
+  when (io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready)
+  {regIsUpdated := true.B}.
+  elsewhen (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready)
+  {regIsUpdated := false.B}  //TODO: check otherwise can be left
+
+  io.ifToDecCtrlIO.ready := true.B
+  io.decToExeCtrlIO.valid := regIsUpdated && !stall
+//^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
+
 //--------------io.output start--------------
   io.decToExeDataIO.PC        := regDataIO.PC
   io.decToExeDataIO.inst      := regDataIO.inst
@@ -128,13 +147,13 @@ class decodeTOP extends Module
   io.decToExeDataIO.aluop2    := aluop2
   io.decToExeDataIO.rfRs2Data := rfRs2Data
   io.decToExeDataIO.wbAddr    := wbAddr
-  io.decToExeCtrlIO.brType    := decoder.io.allCtrlIO.brType
-  io.decToExeCtrlIO.aluFunc   := decoder.io.allCtrlIO.aluFunc
-  io.decToExeCtrlIO.wbSel     := decoder.io.allCtrlIO.wbSel
-  io.decToExeCtrlIO.rfWen     := decoder.io.allCtrlIO.rfWen
-  io.decToExeCtrlIO.memRd     := decoder.io.allCtrlIO.memRd
-  io.decToExeCtrlIO.memWr     := decoder.io.allCtrlIO.memWr
-  io.decToExeCtrlIO.memMask   := decoder.io.allCtrlIO.memMask
+  io.decToExeCtrlIO.bits.brType    := decoder.io.allCtrlIO.brType
+  io.decToExeCtrlIO.bits.aluFunc   := decoder.io.allCtrlIO.aluFunc
+  io.decToExeCtrlIO.bits.wbSel     := decoder.io.allCtrlIO.wbSel
+  io.decToExeCtrlIO.bits.rfWen     := decoder.io.allCtrlIO.rfWen && wbAddr=/=0.U  //sothat stall judgement donot consider io.wbToDecWbAddr===0.U
+  io.decToExeCtrlIO.bits.memRd     := decoder.io.allCtrlIO.memRd
+  io.decToExeCtrlIO.bits.memWr     := decoder.io.allCtrlIO.memWr
+  io.decToExeCtrlIO.bits.memMask   := decoder.io.allCtrlIO.memMask
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

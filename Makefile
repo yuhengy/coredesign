@@ -89,7 +89,7 @@ getNemuOS: $(NEMU_SO)
 $(myTestBuildDir)/%.o: $(myTestSFileDir)/%.S
 	mkdir -p $(myTestBuildDir)
 	riscv64-linux-gnu-gcc -c $^ -o $@
-	cp $(myTestSFileDir)/%.S $(myTestBuildDir)/%.S
+	cp $^ $(myTestBuildDir)/
 $(myTestBuildDir)/%.bin: $(myTestBuildDir)/%.o
 	riscv64-linux-gnu-objcopy -O binary $^ $@
 
@@ -142,7 +142,7 @@ cleanVerilator:
 %.pdf: %.gv
 	dot -Tpdf $^ -o $@
 
-getDocuments: documentsPDF
+getDocuments: $(documentsPDF)
 #---------et Documents PDF End-------------
 
 clean:

@@ -7,8 +7,8 @@ public:
   nemuResult_c(ram_c* inputRam);
   void step(int i);
   int getCycleCounter();
-  void getDiffTestResult(diffTestIO_t* diffTestIO);
-  void setDiffTestStatus(diffTestIO_t* diffTestIO);
+  void getDiffTestResult(diffTestIO_c* diffTestIO);
+  void setDiffTestStatus(diffTestIO_c* diffTestIO);
 
 
 

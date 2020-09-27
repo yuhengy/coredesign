@@ -4,19 +4,19 @@ package instFetch
 import scala.language.reflectiveCalls
 
 import chisel3._
-import chisel3.util.experimental.BoringUtils
+import chisel3.util._
 
 import common.constants._
 import common.configurations._
 import common.memReadIO
-
-import mycore.decode.ifToDecDataIO
 
 class instFetchTOP extends Module
 {
   val io = IO(new Bundle{
   //ifToDecData
     val ifToDecDataIO = Output(new ifToDecDataIO)
+  //ifToDecCtrl
+    val ifToDecCtrlIO = Decoupled(new Bundle{})
 
   //exeToIfFeedback
     val brjmpTarget = Input(UInt(XLEN.W))
@@ -51,14 +51,24 @@ class instFetchTOP extends Module
 //^^^^^^^^^^^^^^PC update end^^^^^^^^^^^^^^
 
 //--------------inst read start--------------
+//output
+  val resetDelay0 = RegInit(false.B)
+  val resetDelay1 = RegNext(resetDelay0, true.B)
+  val resetDelay2 = RegNext(resetDelay1, true.B)
+//private
   io.instReadIO.addr := regPC
   io.instReadIO.en   := true.B
 //^^^^^^^^^^^^^^inst read end^^^^^^^^^^^^^^
 
+//--------------stall&kill start--------------
+
+//^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
+
 //--------------io.output start--------------
+  io.ifToDecCtrlIO.valid := !resetDelay2
+  
   io.ifToDecDataIO.PC   := regPC
   io.ifToDecDataIO.inst := io.instReadIO.data  //TODO: inst should be 32
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
-  BoringUtils.addSource(regPC, "diffTestPC")
 }

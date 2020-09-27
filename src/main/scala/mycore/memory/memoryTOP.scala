@@ -4,12 +4,13 @@ package memory
 import scala.language.reflectiveCalls
 
 import chisel3._
-import chisel3.util.MuxCase
+import chisel3.util._
 
 import common.constants._
 import common.configurations._
-import mycore.writeBack.memToWbDataIO
-import mycore.writeBack.memToWbCtrlIO
+
+import mycore.execute.exeToMemDataIO
+import mycore.execute.exeToMemCtrlIO
 
 class memoryTOP extends Module
 {
@@ -17,12 +18,15 @@ class memoryTOP extends Module
   //exeToMemData
     val exeToMemDataIO = Input(new exeToMemDataIO)
   //exeToMenCtrl
-    val exeToMemCtrlIO = Input(new exeToMemCtrlIO)
+    val exeToMemCtrlIO = Flipped(Decoupled(new exeToMemCtrlIO))
 
   //memTowbData
     val memToWbDataIO = Output(new memToWbDataIO)
   //memToWbCtrl
-    val memToWbCtrlIO = Output(new memToWbCtrlIO)
+    val memToWbCtrlIO = Decoupled(new memToWbCtrlIO)
+
+  //memToDecFeedback
+    val memDest = Valid(UInt(WID_REG_ADDR.W))
 
   //fromRam
     val dataReadIO = new Bundle{
@@ -39,7 +43,7 @@ class memoryTOP extends Module
     temp.init
     temp
   })
-  regCtrlIO <> io.exeToMemCtrlIO
+  regCtrlIO <> io.exeToMemCtrlIO.bits
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------writeBack data start--------------
@@ -52,13 +56,30 @@ class memoryTOP extends Module
               ))
 //^^^^^^^^^^^^^^writeBack data end^^^^^^^^^^^^^^
 
+//--------------stall&kill start--------------
+  val stall = false.B
+  val regIsUpdated = RegInit(false.B)
+  when (io.exeToMemCtrlIO.valid && io.exeToMemCtrlIO.ready)
+  {regIsUpdated := true.B}.
+  elsewhen (io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready)
+  {regIsUpdated := false.B}  //TODO: check otherwise can be left
+
+  io.exeToMemCtrlIO.ready := true.B
+  io.memToWbCtrlIO.valid := regIsUpdated && !stall
+//^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
+
 //--------------io.output start--------------
-//memTowbData
+//memToWbData
+  io.memToWbDataIO.PC     := regDataIO.PC
   io.memToWbDataIO.wbData := wbData
   io.memToWbDataIO.wbAddr := regDataIO.wbAddr
 
 //memToWbCtrl
-  io.memToWbCtrlIO.rfWen := regCtrlIO.rfWen
+  io.memToWbCtrlIO.bits.rfWen := regCtrlIO.rfWen
+
+//exeToDecFeedback
+  io.memDest.bits  := regDataIO.wbAddr
+  io.memDest.valid := regCtrlIO.rfWen
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

@@ -132,5 +132,10 @@ This commit adds a testbench-compile framework. As an example, a single LUI .S f
 ### Sep27, 2020 commit-e94a5cd
 This commit reorganizes the repo structure. A [parent repo](https://github.com/yuhengy/coredesign-env.git) is created to trace Dockerfile and dependence (i.e., nemu, riscv-gnu-toolchain). Also, the developLog is moved into ./documents and a new README is created.
 
-### Sep27, 2020 commit-
+### Sep27, 2020 commit-15dfd5e
 This commit adds the framework to import official test ([repo riscv-tests](https://github.com/riscv/riscv-tests)) and run on chisel and nemu. For chisel, unimplemented instruction will rise assert error.
+
+### Sep27, 2020 commit-
+This commit adds chisel pipeline stall. And correct step(1) for verilator, which means chisel commit 1 instruction instead of 1 clock cycle.
+
+To implement stall, we use Decoupled(). To read this abstraction easier, we should remember Decoupled will change the Bundle into an **Output** direction, thus Output valid and Input ready. So, to make Bundle more connected with the Output direction, I move `*IO`s to the packages of the classes that Output these `*IO`s.

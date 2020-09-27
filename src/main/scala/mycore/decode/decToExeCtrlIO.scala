@@ -1,5 +1,5 @@
 package mycore
-package execute
+package decode
 
 import chisel3._
 
