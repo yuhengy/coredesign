@@ -47,6 +47,7 @@ class decoder extends Module
   io.allCtrlIO.memMask := temp_memMask
 
   if (DEBUG) {
-    printf(p"The value of decoder.io = %${io}")
+    printf(p"The value of decoder.io = ${io}\n")
+    assert(cs_val_inst === Y)
   }
 }

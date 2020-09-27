@@ -6,6 +6,10 @@
 #include <iostream>
 #include <verilated.h>
 
+double sc_time_stamp () {       // Called by $time in Verilog
+    return 0;
+}
+
 int main(int argc, char** argv)
 {
   ram_c* ram = new ram_c(argv[1]);
@@ -26,20 +30,16 @@ int main(int argc, char** argv)
     << "---reg[5] = " << (void*)nemuResultIO.regFile[5] << std::endl;
 #endif
 
+//#ifdef DEBUG
+//#else
     verilatorResult->step(1);
     verilatorResult->getDiffTestResult(&verilatorResultIO);
+//#endif
     nemuResult->step(1);
     nemuResult->getDiffTestResult(&nemuResultIO);
 
 #ifdef DEBUG
-    std::cout << "verilatorCycle " << verilatorResult->getCycleCounter()
-    << ": PC=" << (void*)verilatorResultIO.PC
-    << "---reg[5] = " << (void*)verilatorResultIO.regFile[5] << std::endl;
-    std::cout << "nemuCycle " << nemuResult->getCycleCounter()
-    << ": PC=" << (void*)nemuResultIO.PC
-    << "---reg[5] = " << (void*)nemuResultIO.regFile[5] << std::endl;
-
-    if (verilatorResult->getCycleCounter() == 10) {
+    if (nemuResult->getCycleCounter() == 100) {
       break;
     }
 #endif

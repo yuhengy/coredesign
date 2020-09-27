@@ -129,5 +129,8 @@ This commit adds a testbench-compile framework. As an example, a single LUI .S f
 + How to strip out the elf info in a` .o` file? so that it can be run on bare core
 	Generally, when we use `riscv64-linux-gnu-gcc -c ./testbench/singleLUI.S -o ./testbench/build/singleLUI.o`, the generated `.o` file is quite complex with much elf infomation. To strip them out, refering to [here](https://stackoverflow.com/questions/13132138/purest-way-to-assemble-compile-a-file-with-no-other-elf-object-bloat), use `riscv64-linux-gnu-objcopy -O binary ./testbench/build/singleLUI.o ./testbench/build/singleLUI.bin`, so that the generated `.bin` file is a single instruction.
 	
-### Sep27, 2020 commit-
+### Sep27, 2020 commit-e94a5cd
 This commit reorganizes the repo structure. A [parent repo](https://github.com/yuhengy/coredesign-env.git) is created to trace Dockerfile and dependence (i.e., nemu, riscv-gnu-toolchain). Also, the developLog is moved into ./documents and a new README is created.
+
+### Sep27, 2020 commit-
+This commit adds the framework to import official test ([repo riscv-tests](https://github.com/riscv/riscv-tests)) and run on chisel and nemu. For chisel, unimplemented instruction will rise assert error.

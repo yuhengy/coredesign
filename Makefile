@@ -7,7 +7,8 @@ PWD := $(shell pwd)## In principle, this is useless,
 #******************** Here We Start the Command Line Envs ********************
 #***************** You Need Overwrite Them from Command Line *****************
 #*****************************************************************************
-TestName ?= singleLUI
+testName ?= myTest/singleLUI
+#testName ?= rv64ui-p-lui
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -27,12 +28,19 @@ verilogFile = $(verilogDir)/$(topModuleName).v
 NEMU_SO = $(PWD)/build/riscv64-nemu-interpreter-so
 #---------Nemu End-------------
 
-#---------Test File Begin-------------
-testSFileDir = $(PWD)/testbench
-testSFile = $(wildcard $(testSFileDir)/*.S)
-testBuildDir = $(PWD)/build/testbench
-testBinFile = $(testSFile:$(testSFileDir)/%.S=$(testBuildDir)/%.bin)
-#---------Test File End-------------
+#----------MyTest File Begin-------------
+myTestSFileDir = $(PWD)/testbench/myTest
+myTestSFile = $(wildcard $(myTestSFileDir)/*.S)
+myTestBuildDir = $(PWD)/build/testbench/myTest
+myTestBinFile = $(myTestSFile:$(myTestSFileDir)/%.S=$(myTestBuildDir)/%.bin)
+#----------MyTest File End-------------
+
+#----------Official riscv-tests File Begin-------------
+officialTestBuildDir = $(PWD)/build/testbench/officialTest
+officialTestDumpFile := $(shell find $(officialTestBuildDir) -name '*.dump')
+officialTestObjFile := $(officialTestDumpFile:%.dump=%)
+officialTestBinFile := $(officialTestObjFile:%=%.bin)
+#----------Official riscv-tests File End-------------
 
 #---------Verilator File Begin-------------
 verilatorHFile = $(shell find $(PWD)/verilator -name '*.h')
@@ -57,7 +65,7 @@ documentsPDF = $(documentsFile:%.gv=%.pdf)
 #.PHONY: debugMakefile
 
 #debugMakefile:
-#	echo $(verilogDir)
+#	echo $(officialTestBinFile)
 
 #---------Chisel to verilog Begin-------------
 $(verilogFile): $(chiselFile)
@@ -65,6 +73,9 @@ $(verilogFile): $(chiselFile)
 	#sbt "project sim; run -td $(verilogDir)" #alternative sbt usage
 
 getVerilog: $(verilogFile)
+
+cleanVerilog:
+	rm -rf $(verilogDir)
 #---------Chisel to verilog End-------------
 
 #---------Nemu-src to  Nemu-os Begin-------------
@@ -72,24 +83,41 @@ $(NEMU_SO):
 	make -C $(NEMU_HOME) DIFF=nemu ISA=riscv64 ${NEMU_HOME}/build/riscv64-nemu-interpreter-so
 	cp ${NEMU_HOME}/build/riscv64-nemu-interpreter-so $(NEMU_SO)
 getNemuOS: $(NEMU_SO)
-## For this makefile, we assume nemu-os already exists
-## To generate it from source code, please refer to test-scripts-forcommits/3-commit759988d.sh
 #---------Nemu-src to  Nemu-os End-------------
 
-#---------Testbench .S to .bin Begin-------------
-$(testBuildDir)/%.o: $(testSFileDir)/%.S
-	mkdir -p $(testBuildDir)
+#---------Testbench-MyTest .S to .bin Begin-------------
+$(myTestBuildDir)/%.o: $(myTestSFileDir)/%.S
+	mkdir -p $(myTestBuildDir)
 	riscv64-linux-gnu-gcc -c $^ -o $@
-$(testBuildDir)/%.bin: $(testBuildDir)/%.o
+	cp $(myTestSFileDir)/%.S $(myTestBuildDir)/%.S
+$(myTestBuildDir)/%.bin: $(myTestBuildDir)/%.o
 	riscv64-linux-gnu-objcopy -O binary $^ $@
 
-.PRECIOUS: $(testBuildDir)/%.o  # to avoid makefile rm .o files automatically
+.PRECIOUS: $(myTestBuildDir)/%.o  # to avoid makefile rm .o files automatically
 
-getTestbench: $(testBinFile)
+getMyTestbench: $(myTestBinFile)
 
-cleanTestbench :
-	rm -rf $(testBuildDir)
-#---------Testbench .S to .bin End-------------
+cleanMyTestbench :
+	rm -rf $(myTestBuildDir)
+#---------Testbench-MyTest .S to .bin End-------------
+
+#---------Get Official riscv-tests Begin-------------
+## TODO: for now, this should be done manully
+RISCVTESTS_HOME = /coredesign-env/riscv-tests
+getFromOfficialRepo:
+	cd $(RISCVTESTS_HOME) && autoconf && ./configure --prefix=$(RISCVTESTS_HOME)/install
+	make -C $(RISCVTESTS_HOME) install
+	mkdir -p $(officialTestBuildDir)
+	cp $(RISCVTESTS_HOME)/install/share/riscv-tests/isa/rv64ui*-p-* $(officialTestBuildDir)
+
+$(officialTestBuildDir)/%.bin: $(officialTestBuildDir)/%
+	riscv64-unknown-elf-objcopy -O binary $^ $@
+
+getOfficialTestbench: $(officialTestBinFile)
+
+cleanOfficialTestbench:
+	rm -rf $(officialTestBuildDir)
+#---------Get Official riscv-tests End-------------
 
 #---------Assemble Verilog-Nemu-Testbench to Runable Begin-------------
 $(verilatorRunable): $(verilatorHFile) $(verilatorCppFile) $(verilogFile) $(NEMU_SO)
@@ -103,8 +131,11 @@ $(verilatorRunable): $(verilatorHFile) $(verilatorCppFile) $(verilogFile) $(NEMU
 
 getVerilator: $(verilatorRunable)
 
-runVerilator: $(verilatorRunable) $(testBuildDir)/$(TestName).bin
-	$(verilatorRunable) $(testBuildDir)/$(TestName).bin
+runVerilator: $(verilatorRunable) $(PWD)/build/testbench/$(testName).bin
+	$(verilatorRunable) $(PWD)/build/testbench/$(testName).bin
+
+cleanVerilator:
+	rm -rf $(verilatorDir)
 #---------Assemble Verilog-Nemu-Testbench to Runable End-------------
 
 #---------Get Documents PDF Begin-------------
@@ -118,3 +149,9 @@ clean:
 	sbt "clean"
 	rm -rf $(PWD)/build
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#cd riscv-tests
+#git submodule update --init --recursive
+#autoconf
+#./configure --prefix=/coredesign-env/coredesign/build/testbench
+#make install

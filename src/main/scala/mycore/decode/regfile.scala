@@ -28,7 +28,7 @@ class regfile extends Module {
   }
 
   if (DEBUG) {
-    printf(p"The value of regfile.io = ${io}")
+    printf(p"The value of regfile.io = ${io}\n")
   }
 
   BoringUtils.addSource(VecInit((0 to NUM_REG-1).map(i => regfile(i.U))), "diffTestRegfile")
