@@ -31,3 +31,12 @@ class decToExeCtrlIO extends Bundle()
   }
   
 }
+
+object decToExeCtrlIO
+{
+  val init = {
+    val temp = Wire(new decToExeCtrlIO)
+    temp.init
+    temp
+  }
+}

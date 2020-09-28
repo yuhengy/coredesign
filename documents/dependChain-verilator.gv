@@ -15,16 +15,14 @@ digraph G {
   "diffTestIO.h/cpp" [style=filled];
 
 
-  "iostream" [style=dotted];
   "verilated.h" [style=dotted];
   "dlfcn.h" [style=dotted];
   "stdio.h" [style=dotted];
   "assert.h" [style=dotted];
-  "iostream" -> "main.h/cpp" [style=dotted];
   "verilated.h" -> "main.h/cpp" [style=dotted];
-  "dlfcn.h" -> "nemuResult.h/cpp";
-  "stdio.h" -> "ram.h/cpp";
-  "assert.h" -> "ram.h/cpp";
+  "dlfcn.h" -> "nemuResult.h/cpp" [style=dotted];
+  "stdio.h" -> "main.h/cpp" [style=dotted];
+  "assert.h" -> "ram.h/cpp" [style=dotted];
 
   "ram.h/cpp" -> "main.h/cpp", "nemuResult.h/cpp", "verilatorResult.h/cpp";
   "nemuResult.h/cpp" -> "main.h/cpp";

@@ -28,20 +28,22 @@ class writeBackTOP extends Module
   })
 
 //--------------execute global status start--------------
+//input
+  val regIsUpdated = RegInit(false.B)
+//output
   val regDataIO = Reg(new memToWbDataIO)
-  val regCtrlIO = RegInit({
-    val temp = Wire(new memToWbCtrlIO)
-    temp.init
-    temp
-  })
+  // regCtrlIO
+//private
+  val regCtrlIO_r = RegInit(memToWbCtrlIO.init)
   when (io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready) {
     regDataIO <> io.memToWbDataIO
-    regCtrlIO <> io.memToWbCtrlIO.bits
+    regCtrlIO_r <> io.memToWbCtrlIO.bits
   }
+  val regCtrlIO = Mux(regIsUpdated, regCtrlIO_r, memToWbCtrlIO.init)
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------stall&kill start--------------
-  val regIsUpdated = RegInit(false.B)
+  //val regIsUpdated = RegInit(false.B)
   when (io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready)
     {regIsUpdated := true.B}.
   otherwise

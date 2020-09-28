@@ -37,7 +37,7 @@ int main(int argc, char** argv)
     }
 
 #ifdef DEBUG
-    if (nemuResult->getCycleCounter() == 10) {
+    if (nemuResult->getCycleCounter() == 100) {
       break;
     }
 #endif

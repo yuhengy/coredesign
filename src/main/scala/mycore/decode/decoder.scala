@@ -28,7 +28,8 @@ class decoder extends Module
                   //LW     -> List(Y, BR_N  , OP1_RS1, OP2_ITYPE , OEN_1, OEN_0, ALU_ADD   , WB_MEM, REN_1, MRD_1, MWR_0, MSK_W,     N, N),
                   //SW     -> List(Y, BR_N  , OP1_RS1, OP2_STYPE , OEN_1, OEN_1, ALU_ADD   , WB_X  , REN_0, MRD_0, MWR_1, MSK_W,     N, N),
                   LUI    -> List(Y, BR_N  , OP1_X  , OP2_UTYPE , OEN_0, OEN_0, ALU_COPY_2, WB_ALU, REN_1, MRD_0, MWR_0, MSK_X,     N, N),
-                  JAL    -> List(Y, BR_J  , OP1_X  , OP2_UJTYPE, OEN_0, OEN_0, ALU_COPY_2, WB_PC4, REN_1, MRD_0, MWR_0, MSK_X,     N, N)
+                  JAL    -> List(Y, BR_J  , OP1_X  , OP2_UJTYPE, OEN_0, OEN_0, ALU_COPY_2, WB_PC4, REN_1, MRD_0, MWR_0, MSK_X,     N, N),
+                  ADDI   -> List(Y, BR_N  , OP1_RS1, OP2_ITYPE , OEN_1, OEN_0, ALU_ADD   , WB_ALU, REN_1, MRD_0, MWR_0, MSK_X,     N, N)
                   ))
 
   // Put these control signals in variables

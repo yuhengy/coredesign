@@ -24,10 +24,9 @@ verilatorResult_c::verilatorResult_c(ram_c* inputRam)
 
 void verilatorResult_c::step(int i)
 {
-  cycleCounter += i;
-
   for (; i > 0; i--) {
     while (!simTOP->io_diffTestIO_commit) {
+      cycleCounter++;
       simTOP->clock = simTOP->clock ? 0 : 1;
       simTOP->eval();
       simTOP->clock = simTOP->clock ? 0 : 1;
@@ -42,6 +41,7 @@ void verilatorResult_c::step(int i)
                      simTOP->io_mycoreTOPIO_dataWriteIO_en, 
                      simTOP->io_mycoreTOPIO_dataWriteIO_mask);
     }
+    cycleCounter++;
     simTOP->clock = simTOP->clock ? 0 : 1;
     simTOP->eval();
     simTOP->clock = simTOP->clock ? 0 : 1;

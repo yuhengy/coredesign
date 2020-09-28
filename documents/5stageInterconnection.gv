@@ -1,0 +1,41 @@
+digraph G {
+
+  "instFetch" -> "decode" [style="bold", color="red"];
+  "decode" -> "execute" [style="bold", color="red"];
+  "execute" -> "memory" [style="bold", color="red"];
+  "memory" -> "writeBack" [style="bold", color="red"];
+
+
+  "execute" -> "instFetch" [label="exeOutKill"];
+  "execute" -> "instFetch" [label="PCSel\nB/J-PC"];
+
+  "execute" -> "decode" [label="exeOutKill"];
+  "execute" -> "decode" [label="exeDest"];
+  "memory" -> "decode" [label="memDest"];
+  "writeBack" -> "decode" [label="wbAddr/Data/Wen\nwbDest"];
+
+
+//ram
+  "instRam" [style="dotted"];
+  "dataRam" [style="dotted"];
+
+  "instFetch" -> "instRam" [label="readReq", style="dotted"];
+  "instRam" -> "instFetch" [label="readResp", style="dotted"];
+
+  "execute" -> "dataRam" [label="read/write\nReq", style="dotted"];
+  "dataRam" -> "memory" [label="read/write\nResp", style="dotted"];
+
+
+
+  // Legend
+  subgraph cluster1 {
+    "ram" [style="dotted"];
+    "pipeline Stage 1" -> "pipeline Stage 2" [label="data\nFlow", fontcolor="red", style="bold", color="red"];
+    "pipeline Stage 2" -> "pipeline Stage 1" [label="feedback"];
+    "pipeline Stage 1" -> "ram" [label="ram\nAccess", style="dotted"];
+
+    label = "Legend";
+    style=bold;
+    color = "orange";
+  }
+}

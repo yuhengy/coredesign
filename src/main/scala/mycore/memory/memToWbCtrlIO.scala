@@ -18,3 +18,12 @@ class memToWbCtrlIO extends Bundle()
     cs_val_inst := false.B
   }
 }
+
+object memToWbCtrlIO
+{
+  val init = {
+    val temp = Wire(new memToWbCtrlIO)
+    temp.init
+    temp
+  }
+}

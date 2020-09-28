@@ -145,5 +145,10 @@ This commit adds JAL instruction. Which means, pipeline kill is implemented becu
 + How to make sure the first instruction at 0x80000000 get to the Decode stage with the `ifToDecCtrlIO.valid` signal.
 + It's convienient to use regFile and the commited PC updated it as the state for Chisel, while, nemu provides the regFIle and the new PC which is going to update it as the trace.
 
-### Sep28, 2020 commit-
+### Sep28, 2020 commit-1c9f590
 This commit makes cpp verilator/nemuResult inherient from diffTestIO_c, which not only make main.cpp clearer, but also is consistent with the inherit in Chisel.
+
+### Sep28, 2020 commit-
+This commit implements ADDI. And, mask the `regCtrlIO` for each pipeline stage with the related `regIsUpdated`.
+
+

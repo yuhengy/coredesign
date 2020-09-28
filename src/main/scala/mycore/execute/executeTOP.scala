@@ -45,16 +45,23 @@ class executeTOP extends Module
   })
 
 //--------------execute global status start--------------
+//input
+  val regIsUpdated = RegInit(false.B)
+//output
   val regDataIO = Reg(new decToExeDataIO)
-  val regCtrlIO = RegInit({
+  // regCtrlIO
+//private
+  val regCtrlIO_init = {
     val temp = Wire(new decToExeCtrlIO)
     temp.init
     temp
-  })
+  }
+  val regCtrlIO_r = RegInit(decToExeCtrlIO.init)
   when (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready) {
     regDataIO <> io.decToExeDataIO
-    regCtrlIO <> io.decToExeCtrlIO.bits
+    regCtrlIO_r <> io.decToExeCtrlIO.bits
   }
+  val regCtrlIO = Mux(regIsUpdated, regCtrlIO_r, decToExeCtrlIO.init)
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------alu start--------------
@@ -119,7 +126,7 @@ class executeTOP extends Module
 
 //--------------stall&kill start--------------
   val stall = false.B
-  val regIsUpdated = RegInit(false.B)
+  //val regIsUpdated = RegInit(false.B)
   when (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready)
     {regIsUpdated := true.B}.
   elsewhen (io.exeToMemCtrlIO.valid && io.exeToMemCtrlIO.ready)

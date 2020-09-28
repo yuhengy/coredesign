@@ -19,3 +19,12 @@ class exeToMemCtrlIO extends Bundle()
     cs_val_inst := false.B
   }
 }
+
+object exeToMemCtrlIO
+{
+  val init = {
+    val temp = Wire(new exeToMemCtrlIO)
+    temp.init
+    temp
+  }
+}
