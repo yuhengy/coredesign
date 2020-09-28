@@ -4,7 +4,7 @@ package decode
 import scala.language.reflectiveCalls
 
 import chisel3._
-import chisel3.util.ListLookup
+import chisel3.util._
 
 import common.constants._
 import common.instructions._
@@ -25,9 +25,10 @@ class decoder extends Module
                             List(N, BR_N  , OP1_X  , OP2_X     , OEN_0, OEN_0, ALU_X     , WB_X  , REN_0, MRD_0, MWR_0, MSK_X ,    N, N),
                Array(     /* val  |  BR   |   op1  |    op2    |  R1  |  R2  |    ALU    |  wb   | rf   | mem  | mem  | mask | csr  | fence.i */
                           /* inst | type  |   sel  |    sel    |  oen |  oen |    fcn    |  sel  | wen  |  rd  |  wr  | type | cmd  |         */
-                  LW     -> List(Y, BR_N  , OP1_RS1, OP2_ITYPE , OEN_1, OEN_0, ALU_ADD   , WB_MEM, REN_1, MRD_1, MWR_0, MSK_W,     N, N),
-                  SW     -> List(Y, BR_N  , OP1_RS1, OP2_STYPE , OEN_1, OEN_1, ALU_ADD   , WB_X  , REN_0, MRD_0, MWR_1, MSK_W,     N, N),
-                  LUI    -> List(Y, BR_N  , OP1_X  , OP2_UTYPE , OEN_0, OEN_0, ALU_COPY_2, WB_ALU, REN_1, MRD_0, MWR_0, MSK_X,     N, N)
+                  //LW     -> List(Y, BR_N  , OP1_RS1, OP2_ITYPE , OEN_1, OEN_0, ALU_ADD   , WB_MEM, REN_1, MRD_1, MWR_0, MSK_W,     N, N),
+                  //SW     -> List(Y, BR_N  , OP1_RS1, OP2_STYPE , OEN_1, OEN_1, ALU_ADD   , WB_X  , REN_0, MRD_0, MWR_1, MSK_W,     N, N),
+                  LUI    -> List(Y, BR_N  , OP1_X  , OP2_UTYPE , OEN_0, OEN_0, ALU_COPY_2, WB_ALU, REN_1, MRD_0, MWR_0, MSK_X,     N, N),
+                  JAL    -> List(Y, BR_J  , OP1_X  , OP2_UJTYPE, OEN_0, OEN_0, ALU_COPY_2, WB_PC4, REN_1, MRD_0, MWR_0, MSK_X,     N, N)
                   ))
 
   // Put these control signals in variables
@@ -45,9 +46,11 @@ class decoder extends Module
   io.allCtrlIO.memRd := temp_memRd
   io.allCtrlIO.memWr := temp_memWr
   io.allCtrlIO.memMask := temp_memMask
+  io.allCtrlIO.cs_val_inst := cs_val_inst
 
   if (DEBUG) {
     printf(p"The value of decoder.io = ${io}\n")
-    //assert(cs_val_inst === Y)
   }
+
+
 }

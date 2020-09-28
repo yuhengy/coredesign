@@ -19,8 +19,19 @@ int main(int argc, char** argv)
   verilatorResult_c* verilatorResult = new verilatorResult_c(ram);
   nemuResult_c* nemuResult = new nemuResult_c(ram);
 
+  printf("                          **************************************************************\n");
+  printf("                          ***************Reset Stage of Verilator RegFile***************\n");
+  printf("                          **************************************************************\n");
+  verilatorResult->getDiffTestResult(verilatorResultIO);
+  verilatorResultIO->dump();
+
   while (!Verilated::gotFinish()) {
+    verilatorResult->step(1);
+    verilatorResult->getDiffTestResult(verilatorResultIO);
+    nemuResult->step(1);
+    nemuResult->getDiffTestResult(nemuResultIO);
     verilatorResultIO->dump();
+    
     if (verilatorResultIO->compareWith(nemuResultIO)) {
       printf("                          **************************************************************\n");
       printf("                          ***************Compare Verilator and Nemu Error***************\n");
@@ -30,11 +41,6 @@ int main(int argc, char** argv)
       nemuResultIO->dump();
       break;
     }
-
-    verilatorResult->step(1);
-    verilatorResult->getDiffTestResult(verilatorResultIO);
-    nemuResult->step(1);
-    nemuResult->getDiffTestResult(nemuResultIO);
 
 #ifdef DEBUG
     if (nemuResult->getCycleCounter() == 10) {

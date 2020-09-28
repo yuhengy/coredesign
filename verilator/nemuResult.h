@@ -29,4 +29,5 @@ private:
   // --------------APT End--------------
   ram_c* ram;
   int cycleCounter;
+  wordLen_t commitedPC = ADDR_START;
 };

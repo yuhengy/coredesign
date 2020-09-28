@@ -18,6 +18,9 @@ class instFetchTOP extends Module
   //ifToDecCtrl
     val ifToDecCtrlIO = Decoupled(new Bundle{})
 
+  //exeOutKill
+    val exeOutKill  = Input(Bool())
+
   //exeToIfFeedback
     val brjmpTarget = Input(UInt(XLEN.W))
     val jmpRTarget  = Input(UInt(XLEN.W))
@@ -28,7 +31,7 @@ class instFetchTOP extends Module
   })
 
 //--------------instFetch global status start--------------
-  val regPC           = RegInit(UInt(XLEN.W), ADDR_START.U) 
+  val regPC           = RegInit(UInt(XLEN.W), ADDR_START.U - 4.U)
 //^^^^^^^^^^^^^^instFetch global status end^^^^^^^^^^^^^^
 
 //--------------PC update start--------------
@@ -54,9 +57,8 @@ class instFetchTOP extends Module
 //output
   val resetDelay0 = RegInit(false.B)
   val resetDelay1 = RegNext(resetDelay0, true.B)
-  val resetDelay2 = RegNext(resetDelay1, true.B)
 //private
-  io.instReadIO.addr := regPC
+  io.instReadIO.addr := PCNext
   io.instReadIO.en   := true.B
 //^^^^^^^^^^^^^^inst read end^^^^^^^^^^^^^^
 
@@ -65,7 +67,7 @@ class instFetchTOP extends Module
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
-  io.ifToDecCtrlIO.valid := !resetDelay2
+  io.ifToDecCtrlIO.valid := !resetDelay1 && !io.exeOutKill
   
   io.ifToDecDataIO.PC   := regPC
   io.ifToDecDataIO.inst := io.instReadIO.data  //TODO: inst should be 32

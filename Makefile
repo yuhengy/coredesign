@@ -8,7 +8,7 @@ PWD := $(shell pwd)## In principle, this is useless,
 #***************** You Need Overwrite Them from Command Line *****************
 #*****************************************************************************
 testName ?= myTest/singleLUI
-#testName ?= rv64ui-p-lui
+#testName ?= officialTest/rv64ui-p-lui
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 

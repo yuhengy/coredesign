@@ -20,6 +20,7 @@ class mycoreTOP extends Module
   val memoryTOP = Module(new memoryTOP)
   val writeBackTOP = Module(new writeBackTOP)
 
+  instFetchTOP.io.exeOutKill  := executeTOP.io.exeOutKill
   instFetchTOP.io.brjmpTarget := executeTOP.io.brjmpTarget
   instFetchTOP.io.jmpRTarget  := executeTOP.io.jmpRTarget
   instFetchTOP.io.PCSel       := executeTOP.io.PCSel
@@ -27,6 +28,7 @@ class mycoreTOP extends Module
 
   decodeTOP.io.ifToDecDataIO <> instFetchTOP.io.ifToDecDataIO
   decodeTOP.io.ifToDecCtrlIO <> instFetchTOP.io.ifToDecCtrlIO
+  decodeTOP.io.exeOutKill    := executeTOP.io.exeOutKill
   decodeTOP.io.exeDest       <> executeTOP.io.exeDest
   decodeTOP.io.memDest       <> memoryTOP.io.memDest
   decodeTOP.io.wbToDecWbAddr := writeBackTOP.io.wbToDecWbAddr

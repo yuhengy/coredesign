@@ -18,6 +18,8 @@ verilatorResult_c::verilatorResult_c(ram_c* inputRam)
   }
   simTOP->reset = 0;
 
+  step(1);
+
 }
 
 void verilatorResult_c::step(int i)

@@ -36,14 +36,15 @@ class memoryTOP extends Module
 
 //--------------execute global status start--------------
   val regDataIO = Reg(new exeToMemDataIO)
-  regDataIO <> io.exeToMemDataIO
-
   val regCtrlIO = RegInit({
     val temp = Wire(new exeToMemCtrlIO)
     temp.init
     temp
   })
-  regCtrlIO <> io.exeToMemCtrlIO.bits
+  when (io.exeToMemCtrlIO.valid && io.exeToMemCtrlIO.ready) {
+    regDataIO <> io.exeToMemDataIO
+    regCtrlIO <> io.exeToMemCtrlIO.bits
+  }
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------writeBack data start--------------
@@ -60,9 +61,9 @@ class memoryTOP extends Module
   val stall = false.B
   val regIsUpdated = RegInit(false.B)
   when (io.exeToMemCtrlIO.valid && io.exeToMemCtrlIO.ready)
-  {regIsUpdated := true.B}.
+    {regIsUpdated := true.B}.
   elsewhen (io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready)
-  {regIsUpdated := false.B}  //TODO: check otherwise can be left
+    {regIsUpdated := false.B}  //TODO: check otherwise can be left
 
   io.exeToMemCtrlIO.ready := true.B
   io.memToWbCtrlIO.valid := regIsUpdated && !stall
@@ -76,6 +77,7 @@ class memoryTOP extends Module
 
 //memToWbCtrl
   io.memToWbCtrlIO.bits.rfWen := regCtrlIO.rfWen
+  io.memToWbCtrlIO.bits.cs_val_inst := regCtrlIO.cs_val_inst
 
 //exeToDecFeedback
   io.memDest.bits  := regDataIO.wbAddr

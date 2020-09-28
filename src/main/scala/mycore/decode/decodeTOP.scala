@@ -24,7 +24,10 @@ class decodeTOP extends Module
   //decToExeCtrl
     val decToExeCtrlIO = Decoupled(new decToExeCtrlIO)
 
-  //*ToDexFeedback
+  //exeOutKill
+    val exeOutKill  = Input(Bool())
+
+  //*ToDecFeedback
     val exeDest = Flipped(Valid(UInt(WID_REG_ADDR.W)))
     val memDest = Flipped(Valid(UInt(WID_REG_ADDR.W)))
     
@@ -36,7 +39,9 @@ class decodeTOP extends Module
 
 //--------------decode global status start--------------
   val regDataIO = Reg(new ifToDecDataIO)
-  regDataIO <> io.ifToDecDataIO
+  when (io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready) {
+    regDataIO <> io.ifToDecDataIO
+  }
 //^^^^^^^^^^^^^^decode global status end^^^^^^^^^^^^^^
 
 //--------------inst decode start--------------
@@ -132,12 +137,12 @@ class decodeTOP extends Module
                                    (decoder.io.allCtrlIO.op1Sel===OP1_RS1) && io.wbToDecWbAddr===decRsAddr1)
   val regIsUpdated = RegInit(false.B)
   when (io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready)
-  {regIsUpdated := true.B}.
-  elsewhen (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready)
-  {regIsUpdated := false.B}  //TODO: check otherwise can be left
+    {regIsUpdated := true.B}.
+  elsewhen (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready || io.exeOutKill)
+    {regIsUpdated := false.B}  //TODO: check otherwise can be left
 
   io.ifToDecCtrlIO.ready := true.B
-  io.decToExeCtrlIO.valid := regIsUpdated && !stall
+  io.decToExeCtrlIO.valid := regIsUpdated && !stall && !io.exeOutKill
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
@@ -147,13 +152,14 @@ class decodeTOP extends Module
   io.decToExeDataIO.aluop2    := aluop2
   io.decToExeDataIO.rfRs2Data := rfRs2Data
   io.decToExeDataIO.wbAddr    := wbAddr
-  io.decToExeCtrlIO.bits.brType    := decoder.io.allCtrlIO.brType
-  io.decToExeCtrlIO.bits.aluFunc   := decoder.io.allCtrlIO.aluFunc
-  io.decToExeCtrlIO.bits.wbSel     := decoder.io.allCtrlIO.wbSel
-  io.decToExeCtrlIO.bits.rfWen     := decoder.io.allCtrlIO.rfWen && wbAddr=/=0.U  //sothat stall judgement donot consider io.wbToDecWbAddr===0.U
-  io.decToExeCtrlIO.bits.memRd     := decoder.io.allCtrlIO.memRd
-  io.decToExeCtrlIO.bits.memWr     := decoder.io.allCtrlIO.memWr
-  io.decToExeCtrlIO.bits.memMask   := decoder.io.allCtrlIO.memMask
+  io.decToExeCtrlIO.bits.brType      := decoder.io.allCtrlIO.brType
+  io.decToExeCtrlIO.bits.aluFunc     := decoder.io.allCtrlIO.aluFunc
+  io.decToExeCtrlIO.bits.wbSel       := decoder.io.allCtrlIO.wbSel
+  io.decToExeCtrlIO.bits.rfWen       := decoder.io.allCtrlIO.rfWen && wbAddr=/=0.U  //sothat stall judgement donot consider io.wbToDecWbAddr===0.U
+  io.decToExeCtrlIO.bits.memRd       := decoder.io.allCtrlIO.memRd
+  io.decToExeCtrlIO.bits.memWr       := decoder.io.allCtrlIO.memWr
+  io.decToExeCtrlIO.bits.memMask     := decoder.io.allCtrlIO.memMask
+  io.decToExeCtrlIO.bits.cs_val_inst := decoder.io.allCtrlIO.cs_val_inst
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

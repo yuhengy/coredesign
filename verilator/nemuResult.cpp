@@ -44,11 +44,16 @@ int nemuResult_c::getCycleCounter()
 void nemuResult_c::getDiffTestResult(diffTestIO_c* diffTestIO)
 {
   refGetregs(diffTestIO->regFile);  //32 regs and followed &(diffTestIO->PC)
+  wordLen_t temp = diffTestIO->PC;
+  diffTestIO->PC = commitedPC;
+  commitedPC = temp;
+
 }
 
 void nemuResult_c::setDiffTestStatus(diffTestIO_c* diffTestIO)
 {
   refSetregs(diffTestIO->regFile);  //32 regs and followed &(diffTestIO->PC)
+  commitedPC = diffTestIO->PC;
 }
 
 #endif

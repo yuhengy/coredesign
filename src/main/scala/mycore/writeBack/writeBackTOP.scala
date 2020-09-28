@@ -29,17 +29,24 @@ class writeBackTOP extends Module
 
 //--------------execute global status start--------------
   val regDataIO = Reg(new memToWbDataIO)
-  regDataIO <> io.memToWbDataIO
-
   val regCtrlIO = RegInit({
     val temp = Wire(new memToWbCtrlIO)
     temp.init
     temp
   })
-  regCtrlIO <> io.memToWbCtrlIO.bits
+  when (io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready) {
+    regDataIO <> io.memToWbDataIO
+    regCtrlIO <> io.memToWbCtrlIO.bits
+  }
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------stall&kill start--------------
+  val regIsUpdated = RegInit(false.B)
+  when (io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready)
+    {regIsUpdated := true.B}.
+  otherwise
+    {regIsUpdated := false.B}  //TODO: check otherwise can be left
+
   io.memToWbCtrlIO.ready := true.B
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 
@@ -52,5 +59,11 @@ class writeBackTOP extends Module
   val commitedPC = RegNext(regDataIO.PC, 0.U)
   BoringUtils.addSource(io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready, "diffTestCommit")
   BoringUtils.addSource(commitedPC, "diffTestPC")
+
+
+  if (DEBUG) {
+    printf(s"PC to update regFile = 0x%x; stageValid = %d; instValid = %d\n", regDataIO.PC, regIsUpdated, regCtrlIO.cs_val_inst)
+    assert(!(regIsUpdated && !regCtrlIO.cs_val_inst))
+  }
 
 }

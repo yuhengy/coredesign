@@ -30,6 +30,8 @@ class executeTOP extends Module
     val brjmpTarget = Output(UInt(XLEN.W))
     val jmpRTarget  = Output(UInt(XLEN.W))
     val PCSel       = Output(UInt(PCSel_w.W))
+  //exeOutKill
+    val exeOutKill  = Output(Bool())
 
   //exeToDecFeedback
     val exeDest = Valid(UInt(WID_REG_ADDR.W))
@@ -44,14 +46,15 @@ class executeTOP extends Module
 
 //--------------execute global status start--------------
   val regDataIO = Reg(new decToExeDataIO)
-  regDataIO <> io.decToExeDataIO
-
   val regCtrlIO = RegInit({
     val temp = Wire(new decToExeCtrlIO)
     temp.init
     temp
   })
-  regCtrlIO <> io.decToExeCtrlIO.bits
+  when (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready) {
+    regDataIO <> io.decToExeDataIO
+    regCtrlIO <> io.decToExeCtrlIO.bits
+  }
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------alu start--------------
@@ -118,9 +121,9 @@ class executeTOP extends Module
   val stall = false.B
   val regIsUpdated = RegInit(false.B)
   when (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready)
-  {regIsUpdated := true.B}.
+    {regIsUpdated := true.B}.
   elsewhen (io.exeToMemCtrlIO.valid && io.exeToMemCtrlIO.ready)
-  {regIsUpdated := false.B}  //TODO: check otherwise can be left
+    {regIsUpdated := false.B}  //TODO: check otherwise can be left
 
   io.decToExeCtrlIO.ready := true.B
   io.exeToMemCtrlIO.valid := regIsUpdated && !stall
@@ -136,11 +139,14 @@ class executeTOP extends Module
 //decToExeCtrl
   io.exeToMemCtrlIO.bits.wbSel := regCtrlIO.wbSel
   io.exeToMemCtrlIO.bits.rfWen := regCtrlIO.rfWen
+  io.exeToMemCtrlIO.bits.cs_val_inst := regCtrlIO.cs_val_inst
 
 //exeToIfFeedback
   io.brjmpTarget := brjmpTarget
   io.jmpRTarget  := jmpRTarget
   io.PCSel       := PCSel
+//exeOutKill
+  io.exeOutKill  := (PCSel =/= PC_4) && regIsUpdated
 
 //exeToDecFeedback
   io.exeDest.bits  := regDataIO.wbAddr
