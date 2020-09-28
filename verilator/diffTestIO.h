@@ -34,6 +34,12 @@ public:
 
   bool compareWith(diffTestIO_c* diffTestIO);
   void dump();
+
+  // =0 means pure virtual function, i.e., subclass must implement it
+  // alternatively, can just use virtual function `virtual void getDiffTestResult(){};`
+  // Noting that virtual function must have a body, even is empty,
+  // otherwise will `undefined reference to `vtable for diffTestIO_c'`
+  virtual void getDiffTestResult()=0;
 };
 
 #endif

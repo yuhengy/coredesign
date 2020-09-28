@@ -2,13 +2,12 @@
 #include "ram.h"
 #include "diffTestIO.h"
 
-class nemuResult_c {
+class nemuResult_c : public diffTestIO_c {
 public:
   nemuResult_c(ram_c* inputRam);
   void step(int i);
   int getCycleCounter();
-  void getDiffTestResult(diffTestIO_c* diffTestIO);
-  void setDiffTestStatus(diffTestIO_c* diffTestIO);
+  void setDiffTestStatus();
 
 
 
@@ -30,4 +29,5 @@ private:
   ram_c* ram;
   int cycleCounter;
   wordLen_t commitedPC = ADDR_START;
+  void getDiffTestResult() override;
 };

@@ -1,9 +1,9 @@
 digraph G {
   "configurations.h" -> "common.h";
   "constants.h" -> "common.h";
-  "common.h" -> "diffTestIO.h/cpp", "nemuResult.h/cpp", "ram.h/cpp";
-  "diffTestIO.h/cpp" -> "verilatorResult.h/cpp", "nemuResult.h/cpp", "main.h/cpp";
-  "verilatorResult.h/cpp" -> "main.h/cpp", "ram.h/cpp";
+  "common.h" -> "diffTestIO.h/cpp", "nemuResult.h/cpp";
+  "diffTestIO.h/cpp" -> "verilatorResult.h/cpp", "nemuResult.h/cpp";
+  "verilatorResult.h/cpp" -> "main.h/cpp";
 
   "VsimTOP.h" [style=bold];
   "VsimTOP.h" -> "verilatorResult.h/cpp";
@@ -26,7 +26,7 @@ digraph G {
   "stdio.h" -> "ram.h/cpp";
   "assert.h" -> "ram.h/cpp";
 
-  "ram.h/cpp" -> "main.h/cpp", "nemuResult.h/cpp";
+  "ram.h/cpp" -> "main.h/cpp", "nemuResult.h/cpp", "verilatorResult.h/cpp";
   "nemuResult.h/cpp" -> "main.h/cpp";
 
 

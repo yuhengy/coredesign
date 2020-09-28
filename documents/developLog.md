@@ -140,7 +140,10 @@ This commit adds chisel pipeline stall. And correct step(1) for verilator, which
 
 To implement stall, we use Decoupled(). To read this abstraction easier, we should remember Decoupled will change the Bundle into an **Output** direction, thus Output valid and Input ready. So, to make Bundle more connected with the Output direction, I move `*IO`s to the packages of the classes that Output these `*IO`s.
 
-### Sep28, 2020 commit-
+### Sep28, 2020 commit-9caae58
 This commit adds JAL instruction. Which means, pipeline kill is implemented becuase meeting JAL at execute stage will kill the instruction in IF, DEC. Besides, there are two tricky part we solve:
 + How to make sure the first instruction at 0x80000000 get to the Decode stage with the `ifToDecCtrlIO.valid` signal.
 + It's convienient to use regFile and the commited PC updated it as the state for Chisel, while, nemu provides the regFIle and the new PC which is going to update it as the trace.
+
+### Sep28, 2020 commit-
+This commit makes cpp verilator/nemuResult inherient from diffTestIO_c, which not only make main.cpp clearer, but also is consistent with the inherit in Chisel.

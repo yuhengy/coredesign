@@ -34,6 +34,7 @@ void nemuResult_c::step(int i)
 {
   cycleCounter += i;
   refStep(i);
+  getDiffTestResult();
 }
 
 int nemuResult_c::getCycleCounter()
@@ -41,19 +42,19 @@ int nemuResult_c::getCycleCounter()
   return cycleCounter;
 }
 
-void nemuResult_c::getDiffTestResult(diffTestIO_c* diffTestIO)
+void nemuResult_c::getDiffTestResult()
 {
-  refGetregs(diffTestIO->regFile);  //32 regs and followed &(diffTestIO->PC)
-  wordLen_t temp = diffTestIO->PC;
-  diffTestIO->PC = commitedPC;
+  refGetregs(regFile);  //32 regs and followed &(PC)
+  wordLen_t temp = PC;
+  PC = commitedPC;
   commitedPC = temp;
 
 }
 
-void nemuResult_c::setDiffTestStatus(diffTestIO_c* diffTestIO)
+void nemuResult_c::setDiffTestStatus()
 {
-  refSetregs(diffTestIO->regFile);  //32 regs and followed &(diffTestIO->PC)
-  commitedPC = diffTestIO->PC;
+  refSetregs(regFile);  //32 regs and followed &(PC)
+  commitedPC = PC;
 }
 
 #endif
