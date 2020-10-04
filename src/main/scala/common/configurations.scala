@@ -9,7 +9,7 @@ object configurations extends
 
 trait TODOConfigurations
 {
-  val XLEN = 64
+  val XLEN = 64  //TODO: for now, signed/unsigned extend do not use this configuration
 }
 
 trait debugConfigurations

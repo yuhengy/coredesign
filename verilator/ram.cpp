@@ -57,7 +57,7 @@ void ram_c::DataReadReq(wordLen_t addr, bool en)
 wordLen_t ram_c::InstReadResp()
 {
   if (instReadReqBuff.en) {
-    return memRead(instReadReqBuff.addr) >> ((instReadReqBuff.addr % sizeof(wordLen_t)) * 8);
+    return memRead(instReadReqBuff.addr) >> ((instReadReqBuff.addr % sizeof(wordLen_t)) * 8);  //TODO: maybe need implemented in Chisel
   } else {
     return 0;
   }
@@ -66,7 +66,7 @@ wordLen_t ram_c::InstReadResp()
 wordLen_t ram_c::DataReadResp()
 {
   if (dataReadReqBuff.en) {
-    return memRead(dataReadReqBuff.addr);
+    return memRead(dataReadReqBuff.addr) >> ((dataReadReqBuff.addr % sizeof(wordLen_t)) * 8);  //TODO: maybe need implemented in Chisel
   } else {
     return 0;
   }
@@ -90,10 +90,14 @@ void ram_c::DataWrite(wordLen_t addr, wordLen_t data, bool en, mask_t mask)
 
 wordLen_t ram_c::memRead(wordLen_t addr)
 {
-  assert(ADDR_START <= addr 
+  if (ADDR_START <= addr 
                    && addr <= ADDR_START + RAMSIZE / sizeof(wordLen_t)
-        && "Addr out of range");
-  return ram[(addr - ADDR_START) / sizeof(wordLen_t)];
+        && "Addr out of range") {
+    return ram[(addr - ADDR_START) / sizeof(wordLen_t)];
+  } else {
+    printf("Warning: Addr out of range!!!\n");
+    return 0;
+  }
 }
 
 void ram_c::memWrite(wordLen_t addr, wordLen_t data)

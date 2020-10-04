@@ -89,6 +89,17 @@ class executeTOP extends Module
   wbData := Mux((regCtrlIO.wbSel === WB_PC4), PCPlus4, aluOut)
 //^^^^^^^^^^^^^^writeBack data end^^^^^^^^^^^^^^
 
+//--------------memWrite data start--------------
+//output
+  val memWriteData  = MuxCase(regDataIO.rfRs2Data, Array(
+                      (regCtrlIO.memMask === MSK_B) -> Fill(8, regDataIO.rfRs2Data(7,0)),
+                      (regCtrlIO.memMask === MSK_H) -> Fill(4, regDataIO.rfRs2Data(15,0)),
+                      (regCtrlIO.memMask === MSK_W) -> Fill(2, regDataIO.rfRs2Data(31,0)),
+                      (regCtrlIO.memMask === MSK_D) ->         regDataIO.rfRs2Data
+                      ))
+  val memWriteMask  = regCtrlIO.memMask << aluOut(2,0)
+//^^^^^^^^^^^^^^memWrite data end^^^^^^^^^^^^^^
+
 //--------------branch/jump target start--------------
 //input 
   // adderOut
@@ -146,6 +157,8 @@ class executeTOP extends Module
 //decToExeCtrl
   io.exeToMemCtrlIO.bits.wbSel := regCtrlIO.wbSel
   io.exeToMemCtrlIO.bits.rfWen := regCtrlIO.rfWen
+  io.exeToMemCtrlIO.bits.memMask := regCtrlIO.memMask
+  io.exeToMemCtrlIO.bits.memExt  := regCtrlIO.memExt
   io.exeToMemCtrlIO.bits.cs_val_inst := regCtrlIO.cs_val_inst
 
 //exeToIfFeedback
@@ -163,8 +176,8 @@ class executeTOP extends Module
   io.dataReadIO.addr  := aluOut
   io.dataReadIO.en    := regCtrlIO.memRd
   io.dataWriteIO.addr := aluOut
-  io.dataWriteIO.data := regDataIO.rfRs2Data
-  io.dataWriteIO.mask := regCtrlIO.memMask
+  io.dataWriteIO.data := memWriteData
+  io.dataWriteIO.mask := memWriteMask
   io.dataWriteIO.en   := regCtrlIO.memWr
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 

@@ -82,8 +82,8 @@ class decodeTOP extends Module
 //private
    val imm_itype  = regDataIO.inst(31,20)
    val imm_stype  = Cat(regDataIO.inst(31,25), regDataIO.inst(11,7))
-   val imm_sbtype = Cat(regDataIO.inst(31), regDataIO.inst(7), regDataIO.inst(30, 25), regDataIO.inst(11,8))
-   val imm_utype  = regDataIO.inst(31, 12)
+   val imm_sbtype = Cat(regDataIO.inst(31), regDataIO.inst(7), regDataIO.inst(30,25), regDataIO.inst(11,8))
+   val imm_utype  = regDataIO.inst(31,12)
    val imm_ujtype = Cat(regDataIO.inst(31), regDataIO.inst(19,12), regDataIO.inst(20), regDataIO.inst(30,21))
 
    immZ          := Cat(Fill(59,0.U), regDataIO.inst(19,15))
@@ -102,9 +102,10 @@ class decodeTOP extends Module
   // dec_reg_pc
 //output
   val aluop1 = MuxCase(0.U, Array(
-               (decoder.io.allCtrlIO.op1Sel === OP1_RS1) -> rfRs1Data,
-               (decoder.io.allCtrlIO.op1Sel === OP1_IMZ) -> immZ,
-               (decoder.io.allCtrlIO.op1Sel === OP1_PC)  -> regDataIO.PC
+               (decoder.io.allCtrlIO.op1Sel === OP1_RS1)  -> rfRs1Data,
+               (decoder.io.allCtrlIO.op1Sel === OP1_RS1W) -> Cat(Fill(32,0.U), rfRs1Data(31,0)),
+               (decoder.io.allCtrlIO.op1Sel === OP1_IMZ)  -> immZ,
+               (decoder.io.allCtrlIO.op1Sel === OP1_PC)   -> regDataIO.PC
                ))
 //^^^^^^^^^^^^^^operand1 end^^^^^^^^^^^^^^
 
@@ -120,6 +121,7 @@ class decodeTOP extends Module
 //output
   val aluop2 = MuxCase(0.U, Array(
               (decoder.io.allCtrlIO.op2Sel === OP2_RS2)    -> rfRs2Data,
+              (decoder.io.allCtrlIO.op2Sel === OP2_RS2W)   -> Cat(Fill(32,0.U), rfRs2Data(31,0)),
               (decoder.io.allCtrlIO.op2Sel === OP2_ITYPE)  -> immItypeSext,
               (decoder.io.allCtrlIO.op2Sel === OP2_STYPE)  -> immStypeSext,
               (decoder.io.allCtrlIO.op2Sel === OP2_SBTYPE) -> immSbtypeSext,
@@ -129,12 +131,12 @@ class decodeTOP extends Module
 //^^^^^^^^^^^^^^operand2 end^^^^^^^^^^^^^^
 
 //--------------stall&kill start--------------
-  val stall = io.exeDest.valid && ((decoder.io.allCtrlIO.op2Sel===OP2_RS2) && io.exeDest.bits===decRsAddr2 ||
-                                   (decoder.io.allCtrlIO.op1Sel===OP1_RS1) && io.exeDest.bits===decRsAddr1) ||
-              io.memDest.valid && ((decoder.io.allCtrlIO.op2Sel===OP2_RS2) && io.memDest.bits===decRsAddr2 ||
-                                   (decoder.io.allCtrlIO.op1Sel===OP1_RS1) && io.memDest.bits===decRsAddr1) ||
-              io.wbToDecWRfWen && ((decoder.io.allCtrlIO.op2Sel===OP2_RS2) && io.wbToDecWbAddr===decRsAddr2 ||
-                                   (decoder.io.allCtrlIO.op1Sel===OP1_RS1) && io.wbToDecWbAddr===decRsAddr1)
+  val stall = io.exeDest.valid && ((decoder.io.allCtrlIO.cs_rs2_oen===OEN_1) && io.exeDest.bits===decRsAddr2 ||
+                                   (decoder.io.allCtrlIO.cs_rs1_oen===OEN_1) && io.exeDest.bits===decRsAddr1) ||
+              io.memDest.valid && ((decoder.io.allCtrlIO.cs_rs2_oen===OEN_1) && io.memDest.bits===decRsAddr2 ||
+                                   (decoder.io.allCtrlIO.cs_rs1_oen===OEN_1) && io.memDest.bits===decRsAddr1) ||
+              io.wbToDecWRfWen && ((decoder.io.allCtrlIO.cs_rs2_oen===OEN_1) && io.wbToDecWbAddr===decRsAddr2 ||
+                                   (decoder.io.allCtrlIO.cs_rs1_oen===OEN_1) && io.wbToDecWbAddr===decRsAddr1)
   val regIsUpdated = RegInit(false.B)
   when (io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready)
     {regIsUpdated := true.B}.
@@ -159,6 +161,7 @@ class decodeTOP extends Module
   io.decToExeCtrlIO.bits.memRd       := decoder.io.allCtrlIO.memRd
   io.decToExeCtrlIO.bits.memWr       := decoder.io.allCtrlIO.memWr
   io.decToExeCtrlIO.bits.memMask     := decoder.io.allCtrlIO.memMask
+  io.decToExeCtrlIO.bits.memExt      := decoder.io.allCtrlIO.memExt
   io.decToExeCtrlIO.bits.cs_val_inst := decoder.io.allCtrlIO.cs_val_inst
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 

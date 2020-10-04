@@ -76,17 +76,19 @@ trait opSelConstants
 {
   val op1Sel_w = 2
   val OP1_RS1  = 0.asUInt(op1Sel_w.W) // Register Source #1
-  val OP1_PC   = 1.asUInt(op1Sel_w.W) // PC
-  val OP1_IMZ  = 2.asUInt(op1Sel_w.W) // Zero-extended Immediate from RS1 field, for use by CSRI instructions
+  val OP1_RS1W = 1.asUInt(op1Sel_w.W) // Register Source #1 cut for 32 bit
+  val OP1_PC   = 2.asUInt(op1Sel_w.W) // PC
+  val OP1_IMZ  = 3.asUInt(op1Sel_w.W) // Zero-extended Immediate from RS1 field, for use by CSRI instructions
   val OP1_X    = 0.asUInt(op1Sel_w.W)
 
   val op2Sel_w   = 3
   val OP2_RS2    = 0.asUInt(op2Sel_w.W) // Register Source #2
-  val OP2_ITYPE  = 1.asUInt(op2Sel_w.W) // immediate, I-type
-  val OP2_STYPE  = 2.asUInt(op2Sel_w.W) // immediate, S-type
-  val OP2_SBTYPE = 3.asUInt(op2Sel_w.W) // immediate, B
-  val OP2_UTYPE  = 4.asUInt(op2Sel_w.W) // immediate, U-type
-  val OP2_UJTYPE = 5.asUInt(op2Sel_w.W) // immediate, J-type
+  val OP2_RS2W   = 1.asUInt(op2Sel_w.W) // Register Source #2 cut for 32 bit
+  val OP2_ITYPE  = 2.asUInt(op2Sel_w.W) // immediate, I-type
+  val OP2_STYPE  = 3.asUInt(op2Sel_w.W) // immediate, S-type
+  val OP2_SBTYPE = 4.asUInt(op2Sel_w.W) // immediate, B
+  val OP2_UTYPE  = 5.asUInt(op2Sel_w.W) // immediate, U-type
+  val OP2_UJTYPE = 6.asUInt(op2Sel_w.W) // immediate, J-type
   val OP2_X      = 0.asUInt(op2Sel_w.W)
 }
 
@@ -101,11 +103,12 @@ trait regfileConstants
   val REN_1 = true.B
 
   // Writeback Select Signal
-  val wbSel_w = 2
+  val wbSel_w = 3
   val WB_ALU  = 0.asUInt(wbSel_w.W)
-  val WB_MEM  = 1.asUInt(wbSel_w.W)
-  val WB_PC4  = 2.asUInt(wbSel_w.W)
-  val WB_CSR  = 3.asUInt(wbSel_w.W)
+  val WB_ALUW = 1.asUInt(wbSel_w.W)
+  val WB_MEM  = 2.asUInt(wbSel_w.W)
+  val WB_PC4  = 3.asUInt(wbSel_w.W)
+  val WB_CSR  = 4.asUInt(wbSel_w.W)
   val WB_X    = 0.asUInt(wbSel_w.W)
 }
 
@@ -117,13 +120,14 @@ trait aluFuncConstants
   val ALU_SLL    = 2.asUInt(aluFunc_w.W)
   val ALU_SRL    = 3.asUInt(aluFunc_w.W)
   val ALU_SRA    = 4.asUInt(aluFunc_w.W)
-  val ALU_AND    = 5.asUInt(aluFunc_w.W)
-  val ALU_OR     = 6.asUInt(aluFunc_w.W)
-  val ALU_XOR    = 7.asUInt(aluFunc_w.W)
-  val ALU_SLT    = 8.asUInt(aluFunc_w.W)
-  val ALU_SLTU   = 9.asUInt(aluFunc_w.W)
-  val ALU_COPY_1 = 10.asUInt(aluFunc_w.W)
-  val ALU_COPY_2 = 11.asUInt(aluFunc_w.W)
+  val ALU_SRAW   = 5.asUInt(aluFunc_w.W)
+  val ALU_AND    = 6.asUInt(aluFunc_w.W)
+  val ALU_OR     = 7.asUInt(aluFunc_w.W)
+  val ALU_XOR    = 8.asUInt(aluFunc_w.W)
+  val ALU_SLT    = 9.asUInt(aluFunc_w.W)
+  val ALU_SLTU   = 10.asUInt(aluFunc_w.W)
+  val ALU_COPY_1 = 11.asUInt(aluFunc_w.W)
+  val ALU_COPY_2 = 12.asUInt(aluFunc_w.W)
   val ALU_X      = 0.asUInt(aluFunc_w.W)
 }
 
@@ -142,14 +146,20 @@ trait memTypeConstants
   // Memory Mask Type Signal
   val memMask_w = XLEN / 8
   val MSK_B     = Integer.parseInt("1", 2).asUInt(memMask_w.W)
-  val MSK_BU    = Integer.parseInt("1", 2).asUInt(memMask_w.W)
   val MSK_H     = Integer.parseInt("11", 2).asUInt(memMask_w.W)
-  val MSK_HU    = Integer.parseInt("11", 2).asUInt(memMask_w.W)
   val MSK_W     = Integer.parseInt("1111", 2).asUInt(memMask_w.W)
-  val MSK_WU    = Integer.parseInt("1111", 2).asUInt(memMask_w.W)
   val MSK_D     = Integer.parseInt("11111111", 2).asUInt(memMask_w.W)
   val MSK_X     = Integer.parseInt("11111111", 2).asUInt(memMask_w.W)  //TODO: How to be compatibale with 32bit machine?
 
+  val memExt_w = 3
+  val EXT_BS   = 0.asUInt(memExt_w.W)
+  val EXT_BU   = 1.asUInt(memExt_w.W)
+  val EXT_HS   = 2.asUInt(memExt_w.W)
+  val EXT_HU   = 3.asUInt(memExt_w.W)
+  val EXT_WS   = 4.asUInt(memExt_w.W)
+  val EXT_WU   = 5.asUInt(memExt_w.W)
+  val EXT_D    = 6.asUInt(memExt_w.W)
+  val EXT_X    = 0.asUInt(memExt_w.W)
 }
 
 

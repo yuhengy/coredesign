@@ -8,7 +8,41 @@ PWD := $(shell pwd)## In principle, this is useless,
 #***************** You Need Overwrite Them from Command Line *****************
 #*****************************************************************************
 #testName ?= myTest/singleLUI
-testName ?= AMCPUTest/dummy-riscv64-nutshell
+
+#testName ?= AMCPUTest/add-longlong-riscv64-nutshell  #done
+#testName ?= AMCPUTest/add-riscv64-nutshell  #done
+#testName ?= AMCPUTest/bit-riscv64-nutshell  #done
+#testName ?= AMCPUTest/bubble-sort-riscv64-nutshell  #done
+#testName ?= AMCPUTest/div-riscv64-nutshell
+#testName ?= AMCPUTest/dummy-riscv64-nutshell  #done
+#testName ?= AMCPUTest/fact-riscv64-nutshell
+#testName ?= AMCPUTest/fib-riscv64-nutshell  #done
+#testName ?= AMCPUTest/goldbach-riscv64-nutshell
+#testName ?= AMCPUTest/hello-str-riscv64-nutshell
+#testName ?= AMCPUTest/if-else-riscv64-nutshell  #done
+#testName ?= AMCPUTest/leap-year-riscv64-nutshell
+#testName ?= AMCPUTest/load-store-riscv64-nutshell  #done
+#testName ?= AMCPUTest/matrix-mul-riscv64-nutshell
+#testName ?= AMCPUTest/max-riscv64-nutshell  #done
+#testName ?= AMCPUTest/min3-riscv64-nutshell  #done
+#testName ?= AMCPUTest/mov-c-riscv64-nutshell  #done
+#testName ?= AMCPUTest/movsx-riscv64-nutshell  #done
+#testName ?= AMCPUTest/mul-longlong-riscv64-nutshell
+#testName ?= AMCPUTest/pascal-riscv64-nutshell  #done
+#testName ?= AMCPUTest/prime-riscv64-nutshell
+#testName ?= AMCPUTest/quick-sort-riscv64-nutshell  #done
+#testName ?= AMCPUTest/recursion-riscv64-nutshell
+#testName ?= AMCPUTest/select-sort-riscv64-nutshell  #done
+#testName ?= AMCPUTest/shift-riscv64-nutshell  #done
+#testName ?= AMCPUTest/shuixianhua-riscv64-nutshell
+#testName ?= AMCPUTest/string-riscv64-nutshell  #done
+#testName ?= AMCPUTest/sub-longlong-riscv64-nutshell  #done
+#testName ?= AMCPUTest/sum-riscv64-nutshell  #done
+#testName ?= AMCPUTest/switch-riscv64-nutshell  #done
+#testName ?= AMCPUTest/to-lower-case-riscv64-nutshell  #done
+#testName ?= AMCPUTest/unalign-riscv64-nutshell  #done
+#testName ?= AMCPUTest/wanshu-riscv64-nutshell
+
 #testName ?= officialTest/rv64ui-p-lui
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -50,11 +50,22 @@ class memoryTOP extends Module
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------writeBack data start--------------
+//private
+  val maskedReadData = MuxCase(io.dataReadIO.data, Array(
+                       (regCtrlIO.memExt === EXT_BS) -> Cat(Fill(56, io.dataReadIO.data( 7)), io.dataReadIO.data(7,0)),
+                       (regCtrlIO.memExt === EXT_BU) -> Cat(Fill(56, 0.U                   ), io.dataReadIO.data(7,0)),
+                       (regCtrlIO.memExt === EXT_HS) -> Cat(Fill(48, io.dataReadIO.data(15)), io.dataReadIO.data(15,0)),
+                       (regCtrlIO.memExt === EXT_HU) -> Cat(Fill(48, 0.U                   ), io.dataReadIO.data(15,0)),
+                       (regCtrlIO.memExt === EXT_WS) -> Cat(Fill(32, io.dataReadIO.data(31)), io.dataReadIO.data(31,0)),
+                       (regCtrlIO.memExt === EXT_WU) -> Cat(Fill(32, 0.U                   ), io.dataReadIO.data(31,0)),
+                       (regCtrlIO.memExt === EXT_D ) ->                                       io.dataReadIO.data
+                       ))
 //output
   val wbData = MuxCase(regDataIO.wbData, Array(
-              (regCtrlIO.wbSel === WB_ALU) -> regDataIO.wbData,
-              (regCtrlIO.wbSel === WB_PC4) -> regDataIO.wbData,
-              (regCtrlIO.wbSel === WB_MEM) -> io.dataReadIO.data,
+              (regCtrlIO.wbSel === WB_ALU)  -> regDataIO.wbData,
+              (regCtrlIO.wbSel === WB_ALUW) -> Cat(Fill(32,regDataIO.wbData(31)), regDataIO.wbData(31,0)),
+              (regCtrlIO.wbSel === WB_PC4)  -> regDataIO.wbData,
+              (regCtrlIO.wbSel === WB_MEM)  -> maskedReadData,
               //(regCtrlIO.wbSel === WB_CSR) -> csr.io.rw.rdata
               ))
 //^^^^^^^^^^^^^^writeBack data end^^^^^^^^^^^^^^

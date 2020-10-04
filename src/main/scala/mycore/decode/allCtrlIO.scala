@@ -16,5 +16,8 @@ class allCtrlIO extends Bundle()
   val memRd       = Bool()
   val memWr       = Bool()
   val memMask     = UInt(memMask_w.W)
+  val memExt      = UInt(memExt_w.W)
   val cs_val_inst = Bool()
+  val cs_rs1_oen  = Bool()
+  val cs_rs2_oen  = Bool()
 }

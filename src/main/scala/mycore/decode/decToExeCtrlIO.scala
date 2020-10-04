@@ -15,6 +15,7 @@ class decToExeCtrlIO extends Bundle()
   val memRd       = Bool()
   val memWr       = Bool()
   val memMask     = UInt(memMask_w.W)
+  val memExt      = UInt(memExt_w.W)
   val cs_val_inst = Bool()
 
   def init = {
@@ -27,6 +28,7 @@ class decToExeCtrlIO extends Bundle()
     aluFunc     := ALU_X
     wbSel       := WB_X
     memMask     := MSK_X
+    memExt      := EXT_X
     cs_val_inst := false.B
   }
   
