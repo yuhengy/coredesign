@@ -35,6 +35,13 @@ myTestBuildDir = $(PWD)/build/testbench/myTest
 myTestBinFile = $(myTestSFile:$(myTestSFileDir)/%.S=$(myTestBuildDir)/%.bin)
 #----------MyTest File End-------------
 
+#----------AM cputests File Begin-------------
+AMCPUTestBuildDir = $(PWD)/build/testbench/AMCPUTest
+#AMCPUTestDumpFile := $(shell find $(officialTestBuildDir) -name '*.txt')
+#AMCPUTestObjFile := $(officialTestDumpFile:%.txt=%.elf)
+#AMCPUTestBinFile := $(officialTestObjFile:%.elf=%.bin)
+#----------M cputests File End-------------
+
 #----------Official riscv-tests File Begin-------------
 officialTestBuildDir = $(PWD)/build/testbench/officialTest
 officialTestDumpFile := $(shell find $(officialTestBuildDir) -name '*.dump')
@@ -101,9 +108,21 @@ cleanMyTestbench :
 	rm -rf $(myTestBuildDir)
 #---------Testbench-MyTest .S to .bin End-------------
 
+#---------Get AM cputests Begin-------------
+## TODO: for now, this should be done manully
+AMCPUTESTS_HOME = $(PWD)/../nexus-am
+getFromAMRepo:
+	make -C $(AMCPUTESTS_HOME)/tests/cputest ARCH=riscv64-nutshell
+	mkdir -p $(AMCPUTestBuildDir)
+	cp $(AMCPUTESTS_HOME)/tests/cputest/build/*-riscv64-nutshell* $(AMCPUTestBuildDir)
+
+cleanAMCPUTestbench:
+	rm -rf $(AMCPUTestBuildDir)
+#---------Get AM cputests End-------------
+
 #---------Get Official riscv-tests Begin-------------
 ## TODO: for now, this should be done manully
-RISCVTESTS_HOME = /coredesign-env/riscv-tests
+RISCVTESTS_HOME = $(PWD)/../riscv-tests
 getFromOfficialRepo:
 	cd $(RISCVTESTS_HOME) && autoconf && ./configure --prefix=$(RISCVTESTS_HOME)/install
 	make -C $(RISCVTESTS_HOME) install
