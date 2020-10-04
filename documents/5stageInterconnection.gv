@@ -1,13 +1,15 @@
 digraph G {
 
+  "preInstFetch" -> "instFetch" [style="bold", color="red"];
   "instFetch" -> "decode" [style="bold", color="red"];
   "decode" -> "execute" [style="bold", color="red"];
   "execute" -> "memory" [style="bold", color="red"];
   "memory" -> "writeBack" [style="bold", color="red"];
 
 
+  "execute" -> "preInstFetch" [label="PCSel\nB/J-PC"];
+
   "execute" -> "instFetch" [label="exeOutKill"];
-  "execute" -> "instFetch" [label="PCSel\nB/J-PC"];
 
   "execute" -> "decode" [label="exeOutKill"];
   "execute" -> "decode" [label="exeDest"];
@@ -19,7 +21,7 @@ digraph G {
   "instRam" [style="dotted"];
   "dataRam" [style="dotted"];
 
-  "instFetch" -> "instRam" [label="readReq", style="dotted"];
+  "preInstFetch" -> "instRam" [label="readReq", style="dotted"];
   "instRam" -> "instFetch" [label="readResp", style="dotted"];
 
   "execute" -> "dataRam" [label="read/write\nReq", style="dotted"];

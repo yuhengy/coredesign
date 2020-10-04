@@ -132,7 +132,7 @@ class executeTOP extends Module
   elsewhen (io.exeToMemCtrlIO.valid && io.exeToMemCtrlIO.ready)
     {regIsUpdated := false.B}  //TODO: check otherwise can be left
 
-  io.decToExeCtrlIO.ready := true.B
+  io.decToExeCtrlIO.ready := !stall
   io.exeToMemCtrlIO.valid := regIsUpdated && !stall
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 

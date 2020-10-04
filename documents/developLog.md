@@ -151,5 +151,8 @@ This commit makes cpp verilator/nemuResult inherient from diffTestIO_c, which no
 ### Sep28, 2020 commit-58fa394
 This commit implements ADDI. And, mask the `regCtrlIO` for each pipeline stage with the related `regIsUpdated`.
 
-### Oct4, 2020 commit-
+### Oct4, 2020 commit-2066159
 This commit adds cputest from AM.
+
+### Oct4, 2020 commit-
+This commit passes AMCPUTest/dummy-riscv64-nutshell. And the vcd wave is dumped into `./build/generated-cpp/myVCD.vcd`

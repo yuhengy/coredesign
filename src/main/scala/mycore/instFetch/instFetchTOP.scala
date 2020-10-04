@@ -9,10 +9,16 @@ import chisel3.util._
 import common.constants._
 import common.configurations._
 import common.memReadIO
+import mycore.preInstFetch.preifToIfDataIO
 
 class instFetchTOP extends Module
 {
   val io = IO(new Bundle{
+  //preifToIfData
+    val preifToIfDataIO = Input(new preifToIfDataIO)
+  //preifToIfCtrl
+    val preifToIfCtrlIO = Flipped(Decoupled(new Bundle{}))
+
   //ifToDecData
     val ifToDecDataIO = Output(new ifToDecDataIO)
   //ifToDecCtrl
@@ -21,56 +27,46 @@ class instFetchTOP extends Module
   //exeOutKill
     val exeOutKill  = Input(Bool())
 
-  //exeToIfFeedback
-    val brjmpTarget = Input(UInt(XLEN.W))
-    val jmpRTarget  = Input(UInt(XLEN.W))
-    val PCSel       = Input(UInt(PCSel_w.W))
-
-  //toRam
-    val instReadIO  = new memReadIO
+  //fromRam
+    val instReadIO = new Bundle{
+      val data = Input(UInt(XLEN.W))
+    }
   })
 
 //--------------instFetch global status start--------------
-  val regPC           = RegInit(UInt(XLEN.W), ADDR_START.U - 4.U)
+  val regDataIO = Reg(new preifToIfDataIO)
+  when (io.preifToIfCtrlIO.valid && io.preifToIfCtrlIO.ready) {
+    regDataIO <> io.preifToIfDataIO
+  }
 //^^^^^^^^^^^^^^instFetch global status end^^^^^^^^^^^^^^
 
-//--------------PC update start--------------
-//input
-  val exceptionTarget = Wire(UInt(XLEN.W))  //TODO: this does not have signal now
-  exceptionTarget := 0.U
-//private
-  val PC4             = Wire(UInt(XLEN.W))
-  val PCNext          = Wire(UInt(XLEN.W))
-
-  when (true.B) {
-    regPC := PCNext
-  }
-  PCNext := Mux(io.PCSel === PC_4,      PC4,
-            Mux(io.PCSel === PC_BRJMP,  io.brjmpTarget,
-            Mux(io.PCSel === PC_JALR,   io.jmpRTarget,
-          /*Mux(io.PCSel === PC_EXC,*/  exceptionTarget)))
-
-  PC4 := regPC + 4.asUInt(XLEN.W)
-//^^^^^^^^^^^^^^PC update end^^^^^^^^^^^^^^
-
-//--------------inst read start--------------
-//output
-  val resetDelay0 = RegInit(false.B)
-  val resetDelay1 = RegNext(resetDelay0, true.B)
-//private
-  io.instReadIO.addr := PCNext
-  io.instReadIO.en   := true.B
-//^^^^^^^^^^^^^^inst read end^^^^^^^^^^^^^^
-
 //--------------stall&kill start--------------
+  val stall = !io.ifToDecCtrlIO.ready
+  val regIsUpdated = RegInit(false.B)
+  when (io.preifToIfCtrlIO.valid && io.preifToIfCtrlIO.ready)
+    {regIsUpdated := true.B}.
+  elsewhen (io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready || io.exeOutKill)
+    {regIsUpdated := false.B}  //TODO: check otherwise can be left
+  val resultIsBuffered = RegInit(false.B)
+  when (io.exeOutKill)
+    {resultIsBuffered := false.B}.
+  elsewhen (regIsUpdated && !(io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready))
+    {resultIsBuffered := true.B}.
+  elsewhen (io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready)
+    {resultIsBuffered := false.B}  //TODO: check otherwise can be left
 
+  io.preifToIfCtrlIO.ready := !stall || io.exeOutKill
+  io.ifToDecCtrlIO.valid := regIsUpdated && !stall && !io.exeOutKill
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
-  io.ifToDecCtrlIO.valid := !resetDelay1 && !io.exeOutKill
-  
-  io.ifToDecDataIO.PC   := regPC
-  io.ifToDecDataIO.inst := io.instReadIO.data  //TODO: inst should be 32
+  val regOutput = Reg(UInt(XLEN.W))  //Only reg those output that may change
+  when (!resultIsBuffered) {
+    regOutput := io.instReadIO.data
+  }
+
+  io.ifToDecDataIO.PC   := regDataIO.PC
+  io.ifToDecDataIO.inst := Mux(resultIsBuffered, regOutput, io.instReadIO.data)  //TODO: inst should be 32
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

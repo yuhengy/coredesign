@@ -67,7 +67,7 @@ class memoryTOP extends Module
   elsewhen (io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready)
     {regIsUpdated := false.B}  //TODO: check otherwise can be left
 
-  io.exeToMemCtrlIO.ready := true.B
+  io.exeToMemCtrlIO.ready := !stall
   io.memToWbCtrlIO.valid := regIsUpdated && !stall
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 

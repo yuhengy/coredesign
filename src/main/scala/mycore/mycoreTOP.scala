@@ -4,6 +4,7 @@ import scala.language.reflectiveCalls
 
 import chisel3._
 
+import mycore.preInstFetch.preInstFetchTOP
 import mycore.instFetch.instFetchTOP
 import mycore.decode.decodeTOP
 import mycore.execute.executeTOP
@@ -14,17 +15,23 @@ class mycoreTOP extends Module
 {
   val io = IO(new mycoreTOPIO)
 
+  val preInstFetchTOP = Module(new preInstFetchTOP)
   val instFetchTOP = Module(new instFetchTOP)
   val decodeTOP = Module(new decodeTOP)
   val executeTOP = Module(new executeTOP)
   val memoryTOP = Module(new memoryTOP)
   val writeBackTOP = Module(new writeBackTOP)
 
-  instFetchTOP.io.exeOutKill  := executeTOP.io.exeOutKill
-  instFetchTOP.io.brjmpTarget := executeTOP.io.brjmpTarget
-  instFetchTOP.io.jmpRTarget  := executeTOP.io.jmpRTarget
-  instFetchTOP.io.PCSel       := executeTOP.io.PCSel
-  instFetchTOP.io.instReadIO  <> io.instReadIO
+  preInstFetchTOP.io.brjmpTarget := executeTOP.io.brjmpTarget
+  preInstFetchTOP.io.jmpRTarget  := executeTOP.io.jmpRTarget
+  preInstFetchTOP.io.PCSel       := executeTOP.io.PCSel
+  io.instReadIO.addr             := preInstFetchTOP.io.instReadIO.addr
+  io.instReadIO.en               := preInstFetchTOP.io.instReadIO.en
+
+  instFetchTOP.io.preifToIfDataIO <> preInstFetchTOP.io.preifToIfDataIO
+  instFetchTOP.io.preifToIfCtrlIO <> preInstFetchTOP.io.preifToIfCtrlIO
+  instFetchTOP.io.exeOutKill      := executeTOP.io.exeOutKill
+  instFetchTOP.io.instReadIO.data := io.instReadIO.data
 
   decodeTOP.io.ifToDecDataIO <> instFetchTOP.io.ifToDecDataIO
   decodeTOP.io.ifToDecCtrlIO <> instFetchTOP.io.ifToDecCtrlIO

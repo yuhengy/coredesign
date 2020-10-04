@@ -9,8 +9,10 @@ public:
   void* getImgStart();
   int getImgSize();
 
-  wordLen_t InstRead(wordLen_t addr, bool en);
-  wordLen_t DataRead(wordLen_t addr, bool en);
+  void InstReadReq(wordLen_t addr, bool en);
+  void DataReadReq(wordLen_t addr, bool en);
+  wordLen_t InstReadResp();
+  wordLen_t DataReadResp();
   void DataWrite(wordLen_t addr, wordLen_t data, bool en, mask_t mask);
 
 
@@ -18,6 +20,11 @@ public:
 private:
   wordLen_t ram[RAMSIZE / sizeof(wordLen_t)];
   int imgSize;
+  struct readReqBuffer {
+    wordLen_t addr;
+    bool en;
+  };
+  struct readReqBuffer instReadReqBuff, dataReadReqBuff;
 
   //This is a quick version, for read, it return ram[addr-ADDR_START]
   wordLen_t memRead(wordLen_t addr);

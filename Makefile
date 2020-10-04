@@ -7,7 +7,8 @@ PWD := $(shell pwd)## In principle, this is useless,
 #******************** Here We Start the Command Line Envs ********************
 #***************** You Need Overwrite Them from Command Line *****************
 #*****************************************************************************
-testName ?= myTest/singleLUI
+#testName ?= myTest/singleLUI
+testName ?= AMCPUTest/dummy-riscv64-nutshell
 #testName ?= officialTest/rv64ui-p-lui
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -142,6 +143,7 @@ cleanOfficialTestbench:
 $(verilatorRunable): $(verilatorHFile) $(verilatorCppFile) $(verilogFile) $(NEMU_SO)
 	verilator --cc \
 		--Mdir $(verilatorDir) \
+		--trace \
 		--exe $(verilatorCppFile) \
 		-CFLAGS "-g -DNEMU_SO=\\\"$(NEMU_SO)\\\"" \
 		-LDFLAGS "-ldl" \

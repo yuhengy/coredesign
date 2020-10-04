@@ -22,5 +22,7 @@ typedef uint32_t mask_t;
 #include "configurations.h"
 #include "constants.h"
 
+#define vcdTrace true
+
 
 #endif

@@ -42,19 +42,31 @@ int ram_c::getImgSize()
 }
 
 
-wordLen_t ram_c::InstRead(wordLen_t addr, bool en)
+void ram_c::InstReadReq(wordLen_t addr, bool en)
 {
-  if (en) {
-    return memRead(addr);
+  instReadReqBuff.en   = en;
+  instReadReqBuff.addr = addr;
+}
+
+void ram_c::DataReadReq(wordLen_t addr, bool en)
+{
+  dataReadReqBuff.en   = en;
+  dataReadReqBuff.addr = addr;
+}
+
+wordLen_t ram_c::InstReadResp()
+{
+  if (instReadReqBuff.en) {
+    return memRead(instReadReqBuff.addr) >> ((instReadReqBuff.addr % sizeof(wordLen_t)) * 8);
   } else {
     return 0;
   }
 }
 
-wordLen_t ram_c::DataRead(wordLen_t addr, bool en)
+wordLen_t ram_c::DataReadResp()
 {
-  if (en) {
-    return memRead(addr);
+  if (dataReadReqBuff.en) {
+    return memRead(dataReadReqBuff.addr);
   } else {
     return 0;
   }

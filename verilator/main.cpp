@@ -6,14 +6,15 @@
 #include <stdio.h>
 #include <verilated.h>
 
+long sc_time = 0;
 double sc_time_stamp () {       // Called by $time in Verilog
-    return 0;
+    return sc_time;
 }
 
 int main(int argc, char** argv)
 {
   ram_c* ram = new ram_c(argv[1]);
-  verilatorResult_c* verilatorResult = new verilatorResult_c(ram);
+  verilatorResult_c* verilatorResult = new verilatorResult_c(ram, &sc_time);
   nemuResult_c* nemuResult = new nemuResult_c(ram);
 
   printf("                          **************************************************************\n");

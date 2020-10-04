@@ -141,7 +141,7 @@ class decodeTOP extends Module
   elsewhen (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready || io.exeOutKill)
     {regIsUpdated := false.B}  //TODO: check otherwise can be left
 
-  io.ifToDecCtrlIO.ready := true.B
+  io.ifToDecCtrlIO.ready := !stall || io.exeOutKill
   io.decToExeCtrlIO.valid := regIsUpdated && !stall && !io.exeOutKill
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 

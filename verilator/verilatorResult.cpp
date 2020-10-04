@@ -1,22 +1,40 @@
 #include "diffTestIO.h"
 #include "VsimTOP.h"
+#include "verilated_vcd_c.h"
 #include "verilatorResult.h"
 
-verilatorResult_c::verilatorResult_c(ram_c* inputRam)
+verilatorResult_c::verilatorResult_c(ram_c* inputRam, long* inputSc_time)
 {
   ram = inputRam;
+  sc_time = inputSc_time;
   cycleCounter = 0;
   
   simTOP = new VsimTOP;
+
+  if(vcdTrace)
+  {
+    Verilated::traceEverOn(true);
+
+    tfp = new VerilatedVcdC;
+    simTOP->trace(tfp, 99);
+
+    tfp->open("build/generated-cpp/myVCD.vcd");
+  }
+
+
   simTOP->eval();
   simTOP->eval();
   simTOP->clock = 0;
   simTOP->reset = 1;
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 9; i++) {
     simTOP->clock = simTOP->clock ? 0 : 1;
     simTOP->eval();
+    cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
   }
+  simTOP->clock = 0;
   simTOP->reset = 0;
+  simTOP->eval();
+  cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
 
   step(1);
   getDiffTestResult();
@@ -26,35 +44,26 @@ void verilatorResult_c::step(int i)
 {
   for (; i > 0; i--) {
     while (!simTOP->io_diffTestIO_commit) {
-      cycleCounter++;
-      simTOP->clock = simTOP->clock ? 0 : 1;
+      simTOP->clock = 1;
       simTOP->eval();
-      simTOP->clock = simTOP->clock ? 0 : 1;
+      evalRam();
+      simTOP->eval();  //TODO: Why this eval can be will be done implicitly?
+      cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
+      
+      simTOP->clock = 0;
       simTOP->eval();
-
-      simTOP->io_mycoreTOPIO_instReadIO_data = 
-        ram->InstRead(simTOP->io_mycoreTOPIO_instReadIO_addr, simTOP->io_mycoreTOPIO_instReadIO_en);
-      simTOP->io_mycoreTOPIO_dataReadIO_data = 
-        ram->DataRead(simTOP->io_mycoreTOPIO_dataReadIO_addr, simTOP->io_mycoreTOPIO_dataReadIO_en);
-      ram->DataWrite(simTOP->io_mycoreTOPIO_dataWriteIO_addr, 
-                     simTOP->io_mycoreTOPIO_dataWriteIO_data, 
-                     simTOP->io_mycoreTOPIO_dataWriteIO_en, 
-                     simTOP->io_mycoreTOPIO_dataWriteIO_mask);
+      cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
     }
-    cycleCounter++;
-    simTOP->clock = simTOP->clock ? 0 : 1;
-    simTOP->eval();
-    simTOP->clock = simTOP->clock ? 0 : 1;
-    simTOP->eval();
 
-    simTOP->io_mycoreTOPIO_instReadIO_data = 
-      ram->InstRead(simTOP->io_mycoreTOPIO_instReadIO_addr, simTOP->io_mycoreTOPIO_instReadIO_en);
-    simTOP->io_mycoreTOPIO_dataReadIO_data = 
-      ram->DataRead(simTOP->io_mycoreTOPIO_dataReadIO_addr, simTOP->io_mycoreTOPIO_dataReadIO_en);
-    ram->DataWrite(simTOP->io_mycoreTOPIO_dataWriteIO_addr, 
-                   simTOP->io_mycoreTOPIO_dataWriteIO_data, 
-                   simTOP->io_mycoreTOPIO_dataWriteIO_en, 
-                   simTOP->io_mycoreTOPIO_dataWriteIO_mask);
+    simTOP->clock = 1;
+    simTOP->eval();
+    evalRam();
+    simTOP->eval();
+    cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
+      
+    simTOP->clock = 0;
+    simTOP->eval();
+    cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
   }
   getDiffTestResult();
 }
@@ -103,13 +112,24 @@ void verilatorResult_c::getDiffTestResult()
 
 verilatorResult_c::~verilatorResult_c()
 {
+  tfp->close();
   simTOP->final();
   delete simTOP;
 }
 
+void verilatorResult_c::evalRam()
+{
+  simTOP->io_mycoreTOPIO_instReadIO_data = ram->InstReadResp();
+  simTOP->io_mycoreTOPIO_dataReadIO_data = ram->DataReadResp();
 
+  ram->InstReadReq(simTOP->io_mycoreTOPIO_instReadIO_addr, simTOP->io_mycoreTOPIO_instReadIO_en);
+  ram->DataReadReq(simTOP->io_mycoreTOPIO_dataReadIO_addr, simTOP->io_mycoreTOPIO_dataReadIO_en);
+  ram->DataWrite(simTOP->io_mycoreTOPIO_dataWriteIO_addr, 
+                 simTOP->io_mycoreTOPIO_dataWriteIO_data, 
+                 simTOP->io_mycoreTOPIO_dataWriteIO_en, 
+                 simTOP->io_mycoreTOPIO_dataWriteIO_mask);
 
-
+}
 
 
 

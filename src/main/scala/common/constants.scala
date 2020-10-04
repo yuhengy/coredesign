@@ -3,6 +3,8 @@ package common
 import chisel3._
 import chisel3.util.log2Ceil
 
+import configurations._
+
 object constants extends
   commonConstants with
   RISCVConstants with
@@ -138,13 +140,15 @@ trait memTypeConstants
   val MWR_X = false.B
 
   // Memory Mask Type Signal
-  val memMask_w = 3
-  val MSK_B     = 0.asUInt(memMask_w.W)
-  val MSK_BU    = 1.asUInt(memMask_w.W)
-  val MSK_H     = 2.asUInt(memMask_w.W)
-  val MSK_HU    = 3.asUInt(memMask_w.W)
-  val MSK_W     = 4.asUInt(memMask_w.W)
-  val MSK_X     = 4.asUInt(memMask_w.W)
+  val memMask_w = XLEN / 8
+  val MSK_B     = Integer.parseInt("1", 2).asUInt(memMask_w.W)
+  val MSK_BU    = Integer.parseInt("1", 2).asUInt(memMask_w.W)
+  val MSK_H     = Integer.parseInt("11", 2).asUInt(memMask_w.W)
+  val MSK_HU    = Integer.parseInt("11", 2).asUInt(memMask_w.W)
+  val MSK_W     = Integer.parseInt("1111", 2).asUInt(memMask_w.W)
+  val MSK_WU    = Integer.parseInt("1111", 2).asUInt(memMask_w.W)
+  val MSK_D     = Integer.parseInt("11111111", 2).asUInt(memMask_w.W)
+  val MSK_X     = Integer.parseInt("11111111", 2).asUInt(memMask_w.W)  //TODO: How to be compatibale with 32bit machine?
 
 }
 
