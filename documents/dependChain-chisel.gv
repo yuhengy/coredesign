@@ -3,23 +3,23 @@ digraph G {
   //"common.constants" -> "mycore.decode.regfile", "sim.diffTestIO", "mycore.instFetch.instFetchTOP", "mycore.decode.decoder", "mycore.decode.decodeTOP";
   "common.instructions" -> "mycore.decode.decoder";
   "mycore.decode.regfile" -> "mycore.decode.decodeTOP";
-  "mycore.mycoreTOP" -> "sim.simTOP";
-  "sim.diffTestIO" -> "sim.simTOP";
+  "mycore.mycoreTOP" -> "sim.verilatorTOP";
+  "sim.diffTestIO" -> "sim.verilatorTOP";
 
   "common.memReadIO" -> "mycore.mycoreTOPIO", "mycore.instFetch.instFetchTOP", "mycore.execute.executeTOP";
   "common.memWriteIO" -> "mycore.mycoreTOPIO", "mycore.execute.executeTOP";
-  "mycore.mycoreTOPIO" -> "mycore.mycoreTOP", "sim.simTOP";
+  "mycore.mycoreTOPIO" -> "mycore.mycoreTOP", "sim.verilatorTOP";
 
   "chisel3.util.experimental.BoringUtils" [style=dotted];
   //"chisel3.util.log2Ceil" [style=dotted];
   "chisel3.util.ListLookup" [style=dotted];
   "chisel3.util.MuxCase" [style=dotted];
-  "chisel3.util.experimental.BoringUtils" -> "mycore.decode.regfile", "sim.simTOP" [style=dotted];
+  "chisel3.util.experimental.BoringUtils" -> "mycore.decode.regfile", "sim.verilatorTOP" [style=dotted];
   //"chisel3.util.log2Ceil" -> "common.constants" [style=dotted];
   "chisel3.util.ListLookup" -> "mycore.decode.decoder" [style=dotted];
   "chisel3.util.MuxCase" -> "mycore.decode.decodeTOP" [style=dotted];
 
-  "sim.simTOP" [style=filled];
+  "sim.verilatorTOP" [style=filled];
   "mycore.mycoreTOP" [style=filled];
   "mycore.instFetch.instFetchTOP" [style=filled];
   "mycore.decode.decodeTOP" [style=filled];

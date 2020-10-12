@@ -154,6 +154,7 @@ class decodeTOP extends Module
   io.decToExeDataIO.aluop2    := aluop2
   io.decToExeDataIO.rfRs2Data := rfRs2Data
   io.decToExeDataIO.wbAddr    := wbAddr
+  
   io.decToExeCtrlIO.bits.brType      := decoder.io.allCtrlIO.brType
   io.decToExeCtrlIO.bits.aluFunc     := decoder.io.allCtrlIO.aluFunc
   io.decToExeCtrlIO.bits.wbSel       := decoder.io.allCtrlIO.wbSel
@@ -163,6 +164,9 @@ class decodeTOP extends Module
   io.decToExeCtrlIO.bits.memMask     := decoder.io.allCtrlIO.memMask
   io.decToExeCtrlIO.bits.memExt      := decoder.io.allCtrlIO.memExt
   io.decToExeCtrlIO.bits.cs_val_inst := decoder.io.allCtrlIO.cs_val_inst
+  if (DEBUG) {
+    io.decToExeCtrlIO.bits.goodTrapNemu := decoder.io.allCtrlIO.goodTrapNemu
+  }
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

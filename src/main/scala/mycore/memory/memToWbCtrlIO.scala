@@ -3,12 +3,16 @@ package memory
 
 import chisel3._
 
+import common.configurations._
 import common.constants._
 
 class memToWbCtrlIO extends Bundle()
 {
   val rfWen       = Bool()
   val cs_val_inst = Bool()
+  //if (DEBUG) {
+    val goodTrapNemu = Bool()
+  //}
 
   def init = {
     rfWen := REN_0
@@ -16,6 +20,9 @@ class memToWbCtrlIO extends Bundle()
 
     //TODO: following init is useless
     cs_val_inst := false.B
+    if (DEBUG) {
+      goodTrapNemu := false.B
+    }
   }
 }
 

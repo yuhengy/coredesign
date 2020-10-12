@@ -27,5 +27,7 @@ class regfile extends Module {
     regfile(io.wAddr) := io.wData
   }
 
-  BoringUtils.addSource(VecInit((0 to NUM_REG-1).map(i => regfile(i.U))), "diffTestRegfile")
+  if (DEBUG) {
+    BoringUtils.addSource(VecInit((0 to NUM_REG-1).map(i => regfile(i.U))), "diffTestRegfile")
+  }
 } 

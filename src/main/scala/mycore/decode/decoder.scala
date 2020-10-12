@@ -73,6 +73,7 @@ class decoder extends Module
                   SRLW   -> List(Y, BR_N  , OP1_RS1W, OP2_RS2   , OEN_1, OEN_1, ALU_SRL   , WB_ALUW, REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,    N, N),
                   SRAW   -> List(Y, BR_N  , OP1_RS1W, OP2_RS2   , OEN_1, OEN_1, ALU_SRAW  , WB_ALUW, REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,    N, N),
 
+                  // if (DEBUG)
                   NEMUHALT->List(Y, BR_N  , OP1_X   , OP2_X     , OEN_0, OEN_0, ALU_X     , WB_X   , REN_0, MRD_0, MWR_0, MSK_X, EXT_X ,    N, N)  //For AMCPUTest
                   ))
 
@@ -95,5 +96,7 @@ class decoder extends Module
   io.allCtrlIO.cs_val_inst := cs_val_inst
   io.allCtrlIO.cs_rs1_oen  := cs_rs1_oen
   io.allCtrlIO.cs_rs2_oen  := cs_rs2_oen
-
+  if (DEBUG) { 
+    io.allCtrlIO.goodTrapNemu := NEMUHALT === io.inst
+  }
 }

@@ -3,6 +3,7 @@ package execute
 
 import chisel3._
 
+import common.configurations._
 import common.constants._
 
 class exeToMemCtrlIO extends Bundle()
@@ -12,6 +13,9 @@ class exeToMemCtrlIO extends Bundle()
   val memMask     = UInt(memMask_w.W)
   val memExt      = UInt(memExt_w.W)
   val cs_val_inst = Bool()
+  //if (DEBUG) {
+    val goodTrapNemu = Bool()
+  //}
 
   def init = {
     rfWen := REN_0
@@ -21,6 +25,9 @@ class exeToMemCtrlIO extends Bundle()
     memMask     := MSK_X
     memExt      := EXT_X
     cs_val_inst := false.B
+    if (DEBUG) {
+      goodTrapNemu := false.B
+    }
   }
 }
 

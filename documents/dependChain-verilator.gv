@@ -5,8 +5,8 @@ digraph G {
   "diffTestIO.h/cpp" -> "verilatorResult.h/cpp", "nemuResult.h/cpp";
   "verilatorResult.h/cpp" -> "main.h/cpp";
 
-  "VsimTOP.h" [style=bold];
-  "VsimTOP.h" -> "verilatorResult.h/cpp";
+  "VverilatorTOP.h" [style=bold];
+  "VverilatorTOP.h" -> "verilatorResult.h/cpp";
 
   "nemuResult.h/cpp" [style=filled];
   "verilatorResult.h/cpp" [style=filled];

@@ -3,6 +3,7 @@ package decode
 
 import chisel3._
 
+import common.configurations._
 import common.constants._
 
 class allCtrlIO extends Bundle()
@@ -20,4 +21,7 @@ class allCtrlIO extends Bundle()
   val cs_val_inst = Bool()
   val cs_rs1_oen  = Bool()
   val cs_rs2_oen  = Bool()
+  //if (DEBUG) {
+    val goodTrapNemu = Bool()
+  //}
 }

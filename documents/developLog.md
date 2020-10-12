@@ -157,5 +157,8 @@ This commit adds cputest from AM.
 ### Oct4, 2020 commit-c38b115
 This commit passes AMCPUTest/dummy-riscv64-nutshell. And the vcd wave is dumped into `./build/generated-cpp/myVCD.vcd`
 
-### Oct5, 2020 commit-
+### Oct5, 2020 commit-110b0f0
 This commit passes most AMCPUTest except mul/div.
+
+### Oct12, 2020 commit-
+This commit adds a better terminal output to tell you `Hit Good Trap` and can run many testbench with a single command. However, for now, all testbenches will be run anyway, even some of them fail, which make a harder to find the error.

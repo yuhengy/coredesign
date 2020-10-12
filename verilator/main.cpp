@@ -22,7 +22,7 @@ int main(int argc, char** argv)
   printf("                          **************************************************************\n");
   verilatorResult->dump();
 
-  while (!Verilated::gotFinish()) {
+  while (!verilatorResult->hitGoodTrap()) {
     verilatorResult->step(1);
     nemuResult->step(1);
     verilatorResult->dump();
@@ -42,6 +42,13 @@ int main(int argc, char** argv)
       break;
     }
 #endif
+  }
+
+  if (verilatorResult->hitGoodTrap()) {
+    nemuResult->step(1);  //so that nemu can print `Hit Good Trap`
+    printf("                          **************************************************************\n");
+    printf("                          ************************Hit Good Trap*************************\n");
+    printf("                          **************************************************************\n");
   }
 
   delete ram;

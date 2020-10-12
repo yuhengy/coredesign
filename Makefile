@@ -7,43 +7,43 @@ PWD := $(shell pwd)## In principle, this is useless,
 #******************** Here We Start the Command Line Envs ********************
 #***************** You Need Overwrite Them from Command Line *****************
 #*****************************************************************************
-#testName ?= myTest/singleLUI
+#testName_all += myTest/singleLUI
 
-#testName ?= AMCPUTest/add-longlong-riscv64-nutshell  #done
-#testName ?= AMCPUTest/add-riscv64-nutshell  #done
-#testName ?= AMCPUTest/bit-riscv64-nutshell  #done
-#testName ?= AMCPUTest/bubble-sort-riscv64-nutshell  #done
-#testName ?= AMCPUTest/div-riscv64-nutshell
-#testName ?= AMCPUTest/dummy-riscv64-nutshell  #done
-#testName ?= AMCPUTest/fact-riscv64-nutshell
-#testName ?= AMCPUTest/fib-riscv64-nutshell  #done
-#testName ?= AMCPUTest/goldbach-riscv64-nutshell
-#testName ?= AMCPUTest/hello-str-riscv64-nutshell
-#testName ?= AMCPUTest/if-else-riscv64-nutshell  #done
-#testName ?= AMCPUTest/leap-year-riscv64-nutshell
-#testName ?= AMCPUTest/load-store-riscv64-nutshell  #done
-#testName ?= AMCPUTest/matrix-mul-riscv64-nutshell
-#testName ?= AMCPUTest/max-riscv64-nutshell  #done
-#testName ?= AMCPUTest/min3-riscv64-nutshell  #done
-#testName ?= AMCPUTest/mov-c-riscv64-nutshell  #done
-#testName ?= AMCPUTest/movsx-riscv64-nutshell  #done
-#testName ?= AMCPUTest/mul-longlong-riscv64-nutshell
-#testName ?= AMCPUTest/pascal-riscv64-nutshell  #done
-#testName ?= AMCPUTest/prime-riscv64-nutshell
-#testName ?= AMCPUTest/quick-sort-riscv64-nutshell  #done
-#testName ?= AMCPUTest/recursion-riscv64-nutshell
-#testName ?= AMCPUTest/select-sort-riscv64-nutshell  #done
-#testName ?= AMCPUTest/shift-riscv64-nutshell  #done
-#testName ?= AMCPUTest/shuixianhua-riscv64-nutshell
-#testName ?= AMCPUTest/string-riscv64-nutshell  #done
-#testName ?= AMCPUTest/sub-longlong-riscv64-nutshell  #done
-#testName ?= AMCPUTest/sum-riscv64-nutshell  #done
-#testName ?= AMCPUTest/switch-riscv64-nutshell  #done
-#testName ?= AMCPUTest/to-lower-case-riscv64-nutshell  #done
-#testName ?= AMCPUTest/unalign-riscv64-nutshell  #done
-#testName ?= AMCPUTest/wanshu-riscv64-nutshell
+testName_all += AMCPUTest/add-longlong-riscv64-nutshell#done
+testName_all += AMCPUTest/add-riscv64-nutshell#done
+testName_all += AMCPUTest/bit-riscv64-nutshell#done
+testName_all += AMCPUTest/bubble-sort-riscv64-nutshell#done
+#testName_all += AMCPUTest/div-riscv64-nutshell
+testName_all += AMCPUTest/dummy-riscv64-nutshell#done
+#testName_all += AMCPUTest/fact-riscv64-nutshell
+testName_all += AMCPUTest/fib-riscv64-nutshell#done
+#testName_all += AMCPUTest/goldbach-riscv64-nutshell
+#testName_all += AMCPUTest/hello-str-riscv64-nutshell
+testName_all += AMCPUTest/if-else-riscv64-nutshell#done
+#testName_all += AMCPUTest/leap-year-riscv64-nutshell
+testName_all += AMCPUTest/load-store-riscv64-nutshell#done
+#testName_all += AMCPUTest/matrix-mul-riscv64-nutshell
+testName_all += AMCPUTest/max-riscv64-nutshell#done
+testName_all += AMCPUTest/min3-riscv64-nutshell#done
+testName_all += AMCPUTest/mov-c-riscv64-nutshell#done
+testName_all += AMCPUTest/movsx-riscv64-nutshell#done
+#testName_all += AMCPUTest/mul-longlong-riscv64-nutshell
+testName_all += AMCPUTest/pascal-riscv64-nutshell#done
+#testName_all += AMCPUTest/prime-riscv64-nutshell
+testName_all += AMCPUTest/quick-sort-riscv64-nutshell#done
+#testName_all += AMCPUTest/recursion-riscv64-nutshell
+testName_all += AMCPUTest/select-sort-riscv64-nutshell#done
+testName_all += AMCPUTest/shift-riscv64-nutshell#done
+#testName_all += AMCPUTest/shuixianhua-riscv64-nutshell
+testName_all += AMCPUTest/string-riscv64-nutshell#done
+testName_all += AMCPUTest/sub-longlong-riscv64-nutshell#done
+testName_all += AMCPUTest/sum-riscv64-nutshell#done
+testName_all += AMCPUTest/switch-riscv64-nutshell#done
+testName_all += AMCPUTest/to-lower-case-riscv64-nutshell#done
+testName_all += AMCPUTest/unalign-riscv64-nutshell#done
+#testName_all += AMCPUTest/wanshu-riscv64-nutshell
 
-#testName ?= officialTest/rv64ui-p-lui
+#testName_all += officialTest/rv64ui-p-lui
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -51,7 +51,7 @@ PWD := $(shell pwd)## In principle, this is useless,
 #********************** Here We Start the Files ***********************
 #* You Need Not Worry About These If You are Using docker-compose.yml *
 #**********************************************************************
-topModuleName = simTOP
+topModuleName = verilatorTOP
 
 #---------Chisel File Begin-------------
 chiselFile = $(shell find $(PWD)/src -name '*.scala')
@@ -186,8 +186,11 @@ $(verilatorRunable): $(verilatorHFile) $(verilatorCppFile) $(verilogFile) $(NEMU
 
 getVerilator: $(verilatorRunable)
 
-runVerilator: $(verilatorRunable) $(PWD)/build/testbench/$(testName).bin
-	$(verilatorRunable) $(PWD)/build/testbench/$(testName).bin
+runVerilator: $(verilatorRunable) ${foreach testName, $(testName_all), $(PWD)/build/testbench/$(testName).bin}
+	#TODO: this should break immediately when meet error
+	for testName in `echo $(testName_all) | cut -d' ' -f 1-`; do\
+		$(verilatorRunable) $(PWD)/build/testbench/$${testName}.bin;\
+	done
 
 cleanVerilator:
 	rm -rf $(verilatorDir)

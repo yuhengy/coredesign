@@ -91,6 +91,9 @@ class memoryTOP extends Module
 //memToWbCtrl
   io.memToWbCtrlIO.bits.rfWen := regCtrlIO.rfWen
   io.memToWbCtrlIO.bits.cs_val_inst := regCtrlIO.cs_val_inst
+  if (DEBUG) {
+    io.memToWbCtrlIO.bits.goodTrapNemu := regCtrlIO.goodTrapNemu
+  }
 
 //exeToDecFeedback
   io.memDest.bits  := regDataIO.wbAddr

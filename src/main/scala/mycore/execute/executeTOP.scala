@@ -160,6 +160,9 @@ class executeTOP extends Module
   io.exeToMemCtrlIO.bits.memMask := regCtrlIO.memMask
   io.exeToMemCtrlIO.bits.memExt  := regCtrlIO.memExt
   io.exeToMemCtrlIO.bits.cs_val_inst := regCtrlIO.cs_val_inst
+  if (DEBUG) {
+    io.exeToMemCtrlIO.bits.goodTrapNemu := regCtrlIO.goodTrapNemu
+  }
 
 //exeToIfFeedback
   io.brjmpTarget := brjmpTarget

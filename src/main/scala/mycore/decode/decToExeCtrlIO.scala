@@ -17,6 +17,9 @@ class decToExeCtrlIO extends Bundle()
   val memMask     = UInt(memMask_w.W)
   val memExt      = UInt(memExt_w.W)
   val cs_val_inst = Bool()
+  //if (DEBUG) {
+    val goodTrapNemu = Bool()
+  //}
 
   def init = {
     brType := BR_N
@@ -30,6 +33,9 @@ class decToExeCtrlIO extends Bundle()
     memMask     := MSK_X
     memExt      := EXT_X
     cs_val_inst := false.B
+    if (DEBUG) {
+      goodTrapNemu := false.B
+    }
   }
   
 }

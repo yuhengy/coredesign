@@ -58,14 +58,15 @@ class writeBackTOP extends Module
   io.wbToDecWRfWen := regCtrlIO.rfWen
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
-  val commitedPC = RegNext(regDataIO.PC, 0.U)
-  BoringUtils.addSource(io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready, "diffTestCommit")
-  BoringUtils.addSource(commitedPC, "diffTestPC")
-
-
   if (DEBUG) {
     printf(s"PC to update regFile = 0x%x; stageValid = %d; instValid = %d\n", regDataIO.PC, regIsUpdated, regCtrlIO.cs_val_inst)
     assert(!(regIsUpdated && !regCtrlIO.cs_val_inst))
+    
+    BoringUtils.addSource(regCtrlIO.goodTrapNemu, "GoodTrapNemu")
+
+    val commitedPC = RegNext(regDataIO.PC, 0.U)
+    BoringUtils.addSource(io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready, "diffTestCommit")
+    BoringUtils.addSource(commitedPC, "diffTestPC")
   }
 
 }
