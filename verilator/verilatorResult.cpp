@@ -3,13 +3,26 @@
 #include "verilated_vcd_c.h"
 #include "verilatorResult.h"
 
-verilatorResult_c::verilatorResult_c(ram_c* inputRam, long* inputSc_time)
+verilatorResult_c::verilatorResult_c(char* imgPath, long* inputSc_time)
 {
-  ram = inputRam;
   sc_time = inputSc_time;
-  cycleCounter = 0;
   
   verilatorTOP = new VverilatorTOP;
+  struct CPU_RAM_IO_t CPU_RAM_IO = {
+    .instReadIO_addr = &(verilatorTOP->io_mycoreTOPIO_instReadIO_addr),
+    .instReadIO_data = &(verilatorTOP->io_mycoreTOPIO_instReadIO_data),
+    .instReadIO_en = (bool*)&(verilatorTOP->io_mycoreTOPIO_instReadIO_en),
+    
+    .dataReadIO_addr = &(verilatorTOP->io_mycoreTOPIO_dataReadIO_addr),
+    .dataReadIO_data = &(verilatorTOP->io_mycoreTOPIO_dataReadIO_data),
+    .dataReadIO_en = (bool*)&(verilatorTOP->io_mycoreTOPIO_dataReadIO_en),
+
+    .dataWriteIO_addr = &(verilatorTOP->io_mycoreTOPIO_dataWriteIO_addr),
+    .dataWriteIO_data = &(verilatorTOP->io_mycoreTOPIO_dataWriteIO_data),
+    .dataWriteIO_en = (bool*)&(verilatorTOP->io_mycoreTOPIO_dataWriteIO_en),
+    .dataWriteIO_mask = (mask_t*)&(verilatorTOP->io_mycoreTOPIO_dataWriteIO_mask)
+  };
+  ram = new ram_c(imgPath, CPU_RAM_IO);
 
   if(vcdTrace)
   {
@@ -21,20 +34,17 @@ verilatorResult_c::verilatorResult_c(ram_c* inputRam, long* inputSc_time)
     tfp->open("build/generated-cpp/myVCD.vcd");
   }
 
-
-  verilatorTOP->eval();
-  verilatorTOP->eval();
   verilatorTOP->clock = 0;
   verilatorTOP->reset = 1;
   for (int i = 0; i < 9; i++) {
     verilatorTOP->clock = verilatorTOP->clock ? 0 : 1;
     verilatorTOP->eval();
-    cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
+    (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
   }
   verilatorTOP->clock = 0;
   verilatorTOP->reset = 0;
   verilatorTOP->eval();
-  cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
+  (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
 
   step(1);
   getDiffTestResult();
@@ -46,31 +56,25 @@ void verilatorResult_c::step(int i)
     while (!verilatorTOP->io_diffTestIO_commit) {
       verilatorTOP->clock = 1;
       verilatorTOP->eval();
-      evalRam();
-      verilatorTOP->eval();  //TODO: Why this eval can be will be done implicitly?
-      cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
+      ram->eval();
+      //`verilatorTOP->eval()` is called implicitly before tfp->dump
+      (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
       
       verilatorTOP->clock = 0;
       verilatorTOP->eval();
-      cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
+      (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
     }
 
     verilatorTOP->clock = 1;
     verilatorTOP->eval();
-    evalRam();
-    verilatorTOP->eval();
-    cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
+    ram->eval();
+    (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
       
     verilatorTOP->clock = 0;
     verilatorTOP->eval();
-    cycleCounter++; (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
+    (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
   }
   getDiffTestResult();
-}
-
-int verilatorResult_c::getCycleCounter()
-{
-  return cycleCounter;
 }
 
 void verilatorResult_c::getDiffTestResult()
@@ -110,27 +114,6 @@ void verilatorResult_c::getDiffTestResult()
   PC = verilatorTOP->io_diffTestIO_PC;
 }
 
-verilatorResult_c::~verilatorResult_c()
-{
-  tfp->close();
-  verilatorTOP->final();
-  delete verilatorTOP;
-}
-
-void verilatorResult_c::evalRam()
-{
-  verilatorTOP->io_mycoreTOPIO_instReadIO_data = ram->InstReadResp();
-  verilatorTOP->io_mycoreTOPIO_dataReadIO_data = ram->DataReadResp();
-
-  ram->InstReadReq(verilatorTOP->io_mycoreTOPIO_instReadIO_addr, verilatorTOP->io_mycoreTOPIO_instReadIO_en);
-  ram->DataReadReq(verilatorTOP->io_mycoreTOPIO_dataReadIO_addr, verilatorTOP->io_mycoreTOPIO_dataReadIO_en);
-  ram->DataWrite(verilatorTOP->io_mycoreTOPIO_dataWriteIO_addr, 
-                 verilatorTOP->io_mycoreTOPIO_dataWriteIO_data, 
-                 verilatorTOP->io_mycoreTOPIO_dataWriteIO_en, 
-                 verilatorTOP->io_mycoreTOPIO_dataWriteIO_mask);
-
-}
-
 bool verilatorResult_c::hitGoodTrap()
 {
   if (verilatorTOP->io_goodTrapIO_nemu == true) {
@@ -139,6 +122,9 @@ bool verilatorResult_c::hitGoodTrap()
   return false;
 }
 
-
-
-
+verilatorResult_c::~verilatorResult_c()
+{
+  tfp->close();
+  verilatorTOP->final();
+  delete verilatorTOP;
+}

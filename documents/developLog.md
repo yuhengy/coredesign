@@ -160,5 +160,12 @@ This commit passes AMCPUTest/dummy-riscv64-nutshell. And the vcd wave is dumped 
 ### Oct5, 2020 commit-110b0f0
 This commit passes most AMCPUTest except mul/div.
 
-### Oct12, 2020 commit-
+### Oct12, 2020 commit-08618c7
 This commit adds a better terminal output to tell you `Hit Good Trap` and can run many testbench with a single command. However, for now, all testbenches will be run anyway, even some of them fail, which make a harder to find the error.
+
+### Oct12, 2020 commit-
+This commit rewrite the part in `verilatorResult.cpp`, which deals with the interference between two logic modules(`verilatorTOP` and `ram`). To illustrate the process of cpp simulatioin of a logic module, the figure below shows the 3 steps and related dependency.
+
+<img src="interfaceCPU-RAM.png" alt="interfaceCPU-RAM" style="zoom:50%;" />
+
+However, in verilator, the 3 steps for the CPU is wrapped into a single interface called eval(), in the sequence of **3-1-2**. So, we add three steps to evaluate RAM after the call of `verilatorTOP->eval()` and the dependency holds. Besides, becuase the update logic for RAM is very simple, `oldReg` and `newReg` could be the same data structure. But to keep the logic consistent, we still use two data structure.

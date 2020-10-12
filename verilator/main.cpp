@@ -13,9 +13,9 @@ double sc_time_stamp () {       // Called by $time in Verilog
 
 int main(int argc, char** argv)
 {
-  ram_c* ram = new ram_c(argv[1]);
-  verilatorResult_c* verilatorResult = new verilatorResult_c(ram, &sc_time);
-  nemuResult_c* nemuResult = new nemuResult_c(ram);
+  char* imgPath = argv[1];
+  verilatorResult_c* verilatorResult = new verilatorResult_c(imgPath, &sc_time);
+  nemuResult_c* nemuResult = new nemuResult_c(imgPath);
 
   printf("                          **************************************************************\n");
   printf("                          ***************Reset Stage of Verilator RegFile***************\n");
@@ -51,7 +51,6 @@ int main(int argc, char** argv)
     printf("                          **************************************************************\n");
   }
 
-  delete ram;
   delete verilatorResult;
   delete nemuResult;
   return 0;

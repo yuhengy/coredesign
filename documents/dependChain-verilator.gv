@@ -24,7 +24,7 @@ digraph G {
   "stdio.h" -> "main.h/cpp" [style=dotted];
   "assert.h" -> "ram.h/cpp" [style=dotted];
 
-  "ram.h/cpp" -> "main.h/cpp", "nemuResult.h/cpp", "verilatorResult.h/cpp";
+  "ram.h/cpp" -> "verilatorResult.h/cpp";
   "nemuResult.h/cpp" -> "main.h/cpp";
 
 

@@ -4,7 +4,7 @@
 
 class nemuResult_c : public diffTestIO_c {
 public:
-  nemuResult_c(ram_c* inputRam);
+  nemuResult_c(char* imgPath);
   void step(int i);
   int getCycleCounter();
   void setDiffTestStatus();
@@ -26,7 +26,6 @@ private:
   refStep_t refStep;
   refInit_t refInit;
   // --------------APT End--------------
-  ram_c* ram;
   int cycleCounter;
   wordLen_t commitedPC = ADDR_START;
   void getDiffTestResult() override;

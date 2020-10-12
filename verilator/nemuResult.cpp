@@ -8,9 +8,8 @@
 
 #include <dlfcn.h>
 
-nemuResult_c::nemuResult_c(ram_c* inputRam)
+nemuResult_c::nemuResult_c(char* imgPath)
 {
-  ram = inputRam;
   cycleCounter = 0;
 
   #ifndef NEMU_SO
@@ -27,7 +26,10 @@ nemuResult_c::nemuResult_c(ram_c* inputRam)
   // --------------APT End--------------
 
   refInit();
-  refMemcpyFromDUT(ADDR_START, ram->getImgStart(), ram->getImgSize());
+  wordLen_t* array = new wordLen_t[RAMSIZE / sizeof(wordLen_t)];
+  int imgSize = readImage(array, imgPath);
+  refMemcpyFromDUT(ADDR_START, array, imgSize);
+  delete array;
 }
 
 void nemuResult_c::step(int i)
