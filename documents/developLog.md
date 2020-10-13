@@ -170,6 +170,42 @@ This commit rewrite the part in `verilatorResult.cpp`, which deals with the inte
 
 However, in verilator, the 3 steps for the CPU is wrapped into a single interface called eval(), in the sequence of **3-1-2**. So, we add three steps to evaluate RAM after the call of `verilatorTOP->eval()` and the dependency holds. Besides, becuase the update logic for RAM is very simple, `oldReg` and `newReg` could be the same data structure. But to keep the logic consistent, we still use two data structure.
 
-
-### Oct14, 2020 commit-
+### Oct14, 2020 commit-4c407c9
 This commit makes sure chisel ram request will have 64bit aligned address.
+
+### Oct15, 2020 commit-
+This commit launch the test on pynq.
+
+#### Environment setup:
++ in the docker, can run `ssh myUbuntu` to connect to a server with `vivado`2020.1
++ in the docker, can run `ssh myPynq` to connect to the root of pynq
+
+#### Manual steps to launch the test on pynq, which is helpful to understand what makefile is doing:
++ Use vivado to create a block design and generate .bit and .hwh files
++ Copy .bit and .hwh(containing name information for python object) in to `myPynq:$(pynqProjectDir)/$(vivadoBitfileName)`
++ Copy the whole `coredesign` project to `myPynq:$(pynqProjectDir)/`
++ Run `fpga/runTest.py` to launch the test.
+
+#### What is the vivado block design like?
++ submodules:
+	+ A module to represent Arm processor on the pynq
+	+ `fpgaTOP.v` generated from chisel
+	+ Inst BRAM, Data BRAM
+	+ A BRAM to buffer the PC trace
++ connections:
+	+ `fpgaTOP.v` reset and hitGoodTrap is connected to Arm GPIO
+	+ `fpgaTOP.v` is connected to BRAM, especially, PC is write to PCTrace BRAM when an instruction commits
+	+ Inst BRAM, Data BRAM, PCTrace BRAM are connected to Arm AXI Master
+
+#### How to redo the block design manually?
++ Run `make getVerilogFPGA` in `./` and get the fpgaTOP module at `./build/generated-verilog/fpgaTOP.v`
++ Create a vivado project manually and add the source `fpgaTOP.v`.
++ Run tcl command in vivado `source ./fpga/design_1.tcl`. This will recreate the block design. TODO: This is not enough, you need config the bram PORTB data width by connecting them with axi_bram_ctrl manually and automodify the data width (you cannot change the data width manually). pdf of Block design is saved in `./documents/vivadoBlockDesign.pdf`
++ Wrap the block design and generate bitstream. If your project name isproject_coredesign, you can find .bit at `./project_coredesign/project_coredesign.runs/impl_1/design_1_wrapper.bit` and .hwh at `./project_coredesign/project_coredesign.srcs/sources_1/bd/design_1/hw_handoff/design_1.hwh`
+
+#### Where is the `./fpga/design_1.tcl` from? It seems to complex to be written manually.
++ I create a new block design in vivado and create modules with GUI. Then, vivado can export a tcl script percisely describing what I have done in the GUI.
+
+#### What is the `runTest.py` doing?
++ Pynq framework gives us these useful API, to access BRAM, GPIO as an python object. (implemented as MMIO inside)
++ Thus, it's easy to use python to load image into InstBRAM, reset the Chisel CPU, check whether hitGoodTrap, and finally, dump the PC trace.

@@ -190,6 +190,7 @@ getVerilator: $(verilatorRunable)
 runVerilator: $(verilatorRunable) ${foreach testName, $(testName_all), $(PWD)/build/testbench/$(testName).bin}
 	#TODO: this should break immediately when meet error
 	for testName in `echo $(testName_all) | cut -d' ' -f 1-`; do\
+		echo "---------TEST ON $${testName}.bin---------";\
 		$(verilatorRunable) $(PWD)/build/testbench/$${testName}.bin;\
 	done
 
@@ -203,14 +204,33 @@ cleanVerilator:
 
 getDocuments: $(documentsPDF)
 #---------et Documents PDF End-------------
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+#**************************************************************
+#***************** Here We Start the Commands *****************
+#*************** This is about fpga verification **************
+#**************************************************************
+
+pynqProjectDir = /home/xilinx/jupyter_notebooks/project_coredesign
+vivadoBitfileName = coredesign.bit
+
+#---------Chisel to verilog FOR FPGA Begin-------------
+getVerilogFPGA: $(chiselFile)
+	sbt "runMain sim.elaborateFPGA -td $(verilogDir) --full-stacktrace"
+#---------Chisel to verilog FOR FPGA End-------------
+
+#---------Run FPGA Simulation Begin-------------
+sendToPynqAndRun: ${foreach testName, $(testName_all), $(PWD)/build/testbench/$(testName).bin}
+	tar -zcf ../coredesign.tar.gz ../coredesign
+	scp ../coredesign.tar.gz myPynq:$(pynqProjectDir)/coredesign.tar.gz
+	ssh myPynq "cd $(pynqProjectDir) && tar -zxf coredesign.tar.gz"
+	ssh myPynq " cd $(pynqProjectDir)/coredesign/fpga &&\
+		python3 runTest.py ../../$(vivadoBitfileName) ${foreach testName, $(testName_all), ../build/testbench/$(testName).bin}\
+		"
+#---------Run FPGA Simulation End-------------
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 clean:
 	sbt "clean"
 	rm -rf $(PWD)/build
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-#cd riscv-tests
-#git submodule update --init --recursive
-#autoconf
-#./configure --prefix=/coredesign-env/coredesign/build/testbench
-#make install
