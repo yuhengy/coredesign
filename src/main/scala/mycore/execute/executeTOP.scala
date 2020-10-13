@@ -149,10 +149,11 @@ class executeTOP extends Module
 
 //--------------io.output start--------------
 //exeToMemData
-  io.exeToMemDataIO.PC     := regDataIO.PC
-  io.exeToMemDataIO.inst   := regDataIO.inst
-  io.exeToMemDataIO.wbData := wbData
-  io.exeToMemDataIO.wbAddr := regDataIO.wbAddr
+  io.exeToMemDataIO.PC        := regDataIO.PC
+  io.exeToMemDataIO.inst      := regDataIO.inst
+  io.exeToMemDataIO.wbData    := wbData
+  io.exeToMemDataIO.wbAddr    := regDataIO.wbAddr
+  io.exeToMemDataIO.addrAlign := aluOut(addrAlign_w-1, 0)
 
 //decToExeCtrl
   io.exeToMemCtrlIO.bits.wbSel := regCtrlIO.wbSel
@@ -176,9 +177,9 @@ class executeTOP extends Module
   io.exeDest.valid := regCtrlIO.rfWen
 
 //toRam
-  io.dataReadIO.addr  := aluOut
+  io.dataReadIO.addr  := Cat(aluOut(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
   io.dataReadIO.en    := regCtrlIO.memRd
-  io.dataWriteIO.addr := aluOut
+  io.dataWriteIO.addr := Cat(aluOut(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
   io.dataWriteIO.data := memWriteData
   io.dataWriteIO.mask := memWriteMask
   io.dataWriteIO.en   := regCtrlIO.memWr

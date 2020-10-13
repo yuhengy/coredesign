@@ -47,10 +47,12 @@ void ram_c::eval()
 
   //STEP2 Compute IO
   if (instReadReqBuff_old.en) {
-    *(CPU_RAM_IO.instReadIO_data) = memRead(instReadReqBuff_old.addr) >> ((instReadReqBuff_old.addr % sizeof(wordLen_t)) * 8);  //TODO: maybe need implemented in Chisel
+    //*(CPU_RAM_IO.instReadIO_data) = memRead(instReadReqBuff_old.addr) >> ((instReadReqBuff_old.addr % sizeof(wordLen_t)) * 8);  //TODO: maybe need implemented in Chisel
+    *(CPU_RAM_IO.instReadIO_data) = memRead(instReadReqBuff_old.addr);
   }
   if (dataReadReqBuff_old.en) {
-    *(CPU_RAM_IO.dataReadIO_data) = memRead(dataReadReqBuff_old.addr) >> ((dataReadReqBuff_old.addr % sizeof(wordLen_t)) * 8);  //TODO: maybe need implemented in Chisel
+    //*(CPU_RAM_IO.dataReadIO_data) = memRead(dataReadReqBuff_old.addr) >> ((dataReadReqBuff_old.addr % sizeof(wordLen_t)) * 8);  //TODO: maybe need implemented in Chisel
+    *(CPU_RAM_IO.dataReadIO_data) = memRead(dataReadReqBuff_old.addr);
   }
 
   //STEP3 Compute logic
@@ -75,6 +77,8 @@ void ram_c::eval()
 
 wordLen_t ram_c::memRead(wordLen_t addr)
 {
+  assert((addr % sizeof(wordLen_t)) == 0
+        && "Ram Addr should be aligned");
   if (ADDR_START <= addr 
                    && addr <= ADDR_START + RAMSIZE / sizeof(wordLen_t)
         && "Addr out of range") {
@@ -87,6 +91,8 @@ wordLen_t ram_c::memRead(wordLen_t addr)
 
 void ram_c::memWrite(wordLen_t addr, wordLen_t data)
 {
+  assert((addr % sizeof(wordLen_t)) == 0
+        && "Ram Addr should be aligned");
   assert(ADDR_START <= addr 
                    && addr <= ADDR_START + RAMSIZE / sizeof(wordLen_t)
         && "Addr out of range");

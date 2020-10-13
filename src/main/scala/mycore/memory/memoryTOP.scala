@@ -51,14 +51,15 @@ class memoryTOP extends Module
 
 //--------------writeBack data start--------------
 //private
-  val maskedReadData = MuxCase(io.dataReadIO.data, Array(
-                       (regCtrlIO.memExt === EXT_BS) -> Cat(Fill(56, io.dataReadIO.data( 7)), io.dataReadIO.data(7,0)),
-                       (regCtrlIO.memExt === EXT_BU) -> Cat(Fill(56, 0.U                   ), io.dataReadIO.data(7,0)),
-                       (regCtrlIO.memExt === EXT_HS) -> Cat(Fill(48, io.dataReadIO.data(15)), io.dataReadIO.data(15,0)),
-                       (regCtrlIO.memExt === EXT_HU) -> Cat(Fill(48, 0.U                   ), io.dataReadIO.data(15,0)),
-                       (regCtrlIO.memExt === EXT_WS) -> Cat(Fill(32, io.dataReadIO.data(31)), io.dataReadIO.data(31,0)),
-                       (regCtrlIO.memExt === EXT_WU) -> Cat(Fill(32, 0.U                   ), io.dataReadIO.data(31,0)),
-                       (regCtrlIO.memExt === EXT_D ) ->                                       io.dataReadIO.data
+  val dataAlign      = io.dataReadIO.data >> (regDataIO.addrAlign << 3.U)
+  val maskedReadData = MuxCase(dataAlign, Array(
+                       (regCtrlIO.memExt === EXT_BS) -> Cat(Fill(56, dataAlign( 7)), dataAlign(7,0)),
+                       (regCtrlIO.memExt === EXT_BU) -> Cat(Fill(56, 0.U          ), dataAlign(7,0)),
+                       (regCtrlIO.memExt === EXT_HS) -> Cat(Fill(48, dataAlign(15)), dataAlign(15,0)),
+                       (regCtrlIO.memExt === EXT_HU) -> Cat(Fill(48, 0.U          ), dataAlign(15,0)),
+                       (regCtrlIO.memExt === EXT_WS) -> Cat(Fill(32, dataAlign(31)), dataAlign(31,0)),
+                       (regCtrlIO.memExt === EXT_WU) -> Cat(Fill(32, 0.U          ), dataAlign(31,0)),
+                       (regCtrlIO.memExt === EXT_D ) ->                              dataAlign
                        ))
 //output
   val wbData = MuxCase(regDataIO.wbData, Array(

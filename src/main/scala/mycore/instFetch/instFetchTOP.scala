@@ -60,13 +60,14 @@ class instFetchTOP extends Module
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
+  val dataAlign = io.instReadIO.data >> (regDataIO.addrAlign << 3.U)
   val regOutput = Reg(UInt(XLEN.W))  //Only reg those output that may change
   when (!resultIsBuffered) {
-    regOutput := io.instReadIO.data
+    regOutput := dataAlign
   }
 
   io.ifToDecDataIO.PC   := regDataIO.PC
-  io.ifToDecDataIO.inst := Mux(resultIsBuffered, regOutput, io.instReadIO.data)  //TODO: inst should be 32
+  io.ifToDecDataIO.inst := Mux(resultIsBuffered, regOutput, dataAlign)  //TODO: inst should be 32
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

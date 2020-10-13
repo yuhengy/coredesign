@@ -55,6 +55,10 @@ void verilatorResult_c::step(int i)
   for (; i > 0; i--) {
     while (!verilatorTOP->io_diffTestIO_commit) {
       verilatorTOP->clock = 1;
+
+      // Here, we want to simulate the interference between two logic modules(`verilatorTOP` and `ram`)
+      // These two line of eval() include more programing logic them they seem to
+      // To learn more, please check the develop log for `commit-bfbad1b` in documents/developLog.md
       verilatorTOP->eval();
       ram->eval();
       //`verilatorTOP->eval()` is called implicitly before tfp->dump

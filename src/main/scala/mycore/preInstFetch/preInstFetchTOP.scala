@@ -60,7 +60,7 @@ class preInstFetchTOP extends Module
   val resetDelay1 = RegNext(resetDelay0, true.B)
   val resetDelay2 = RegNext(resetDelay1, true.B)
 //private
-  io.instReadIO.addr := PCNext
+  io.instReadIO.addr := Cat(PCNext(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
   io.instReadIO.en   := !resetDelay1
 //^^^^^^^^^^^^^^inst read end^^^^^^^^^^^^^^
 
@@ -71,7 +71,8 @@ class preInstFetchTOP extends Module
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
-  io.preifToIfDataIO.PC   := PCNext
+  io.preifToIfDataIO.PC        := PCNext
+  io.preifToIfDataIO.addrAlign := PCNext(addrAlign_w-1, 0)
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }
