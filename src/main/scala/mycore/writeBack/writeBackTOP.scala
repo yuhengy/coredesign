@@ -5,6 +5,7 @@ import scala.language.reflectiveCalls
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental.ChiselEnum
 import chisel3.util.experimental.BoringUtils
 
 import common.constants._
@@ -17,9 +18,9 @@ class writeBackTOP extends Module
 {
   val io = IO(new Bundle{
   //memTowbData
-    val memToWbDataIO = Input(new memToWbDataIO)
+    val inDataIO = Input(new memToWbDataIO)
   //memToWbCtrl
-    val memToWbCtrlIO = Flipped(Decoupled(new memToWbCtrlIO))
+    val inCtrlIO = Flipped(Decoupled(new memToWbCtrlIO))
 
   //wbToDecRegWrite
     val wbToDecWbAddr = Output(UInt(WID_REG_ADDR.W))
@@ -29,28 +30,50 @@ class writeBackTOP extends Module
 
 //--------------execute global status start--------------
 //input
-  val regIsUpdated = RegInit(false.B)
+  object stateEnum extends ChiselEnum {
+    val reset, idle, regIsUpdated = Value
+  }
+  val state = RegInit(stateEnum.reset)
 //output
   val regDataIO = Reg(new memToWbDataIO)
   // regCtrlIO
 //private
   val regCtrlIO_r = RegInit(memToWbCtrlIO.init)
-  when (io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready) {
-    regDataIO <> io.memToWbDataIO
-    regCtrlIO_r <> io.memToWbCtrlIO.bits
+  when (io.inCtrlIO.valid && io.inCtrlIO.ready) {
+    regDataIO <> io.inDataIO
+    regCtrlIO_r <> io.inCtrlIO.bits
   }
-  val regCtrlIO = Mux(regIsUpdated, regCtrlIO_r, memToWbCtrlIO.init)
+  val regCtrlIO = Mux(state === stateEnum.regIsUpdated, regCtrlIO_r, memToWbCtrlIO.init)
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
-//--------------stall&kill start--------------
-  //val regIsUpdated = RegInit(false.B)
-  when (io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready)
-    {regIsUpdated := true.B}.
-  otherwise
-    {regIsUpdated := false.B}  //TODO: check otherwise can be left
+//--------------state machine start--------------
+//output
+  //object stateEnum extends ChiselEnum {
+  //  val reset, idle, regIsUpdated = Value
+  //}
+  //val state = RegInit(stateEnum.reset)
 
-  io.memToWbCtrlIO.ready := true.B
-//^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
+//private
+  switch (state) {
+    is (stateEnum.reset) {
+      state := stateEnum.idle
+    }
+    is (stateEnum.idle) {
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}
+    }
+    is (stateEnum.regIsUpdated) {
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}.
+      otherwise
+        {state := stateEnum.idle}
+    }
+  }
+//^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
+
+//--------------control signal start--------------
+  io.inCtrlIO.ready := true.B
+//^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
   io.wbToDecWbAddr := regDataIO.wbAddr
@@ -59,13 +82,13 @@ class writeBackTOP extends Module
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
   if (DEBUG) {
-    printf(s"PC to update regFile = 0x%x; stageValid = %d; instValid = %d\n", regDataIO.PC, regIsUpdated, regCtrlIO.cs_val_inst)
-    assert(!(regIsUpdated && !regCtrlIO.cs_val_inst))
+    printf(s"PC to update regFile = 0x%x; stageValid = %d; instValid = %d\n", regDataIO.PC, state === stateEnum.regIsUpdated, regCtrlIO.cs_val_inst)
+    assert(!(state === stateEnum.regIsUpdated && !regCtrlIO.cs_val_inst))
     
     BoringUtils.addSource(regCtrlIO.goodTrapNemu, "GoodTrapNemu")
 
     val commitedPC = RegNext(regDataIO.PC, 0.U)
-    BoringUtils.addSource(io.memToWbCtrlIO.valid && io.memToWbCtrlIO.ready, "diffTestCommit")
+    BoringUtils.addSource(io.inCtrlIO.valid && io.inCtrlIO.ready, "diffTestCommit")
     BoringUtils.addSource(commitedPC, "diffTestPC")
   }
 

@@ -76,7 +76,7 @@ AMCPUTestBuildDir = $(PWD)/build/testbench/AMCPUTest
 #AMCPUTestDumpFile := $(shell find $(officialTestBuildDir) -name '*.txt')
 #AMCPUTestObjFile := $(officialTestDumpFile:%.txt=%.elf)
 #AMCPUTestBinFile := $(officialTestObjFile:%.elf=%.bin)
-#----------M cputests File End-------------
+#----------AM cputests File End-------------
 
 #----------Official riscv-tests File Begin-------------
 officialTestBuildDir = $(PWD)/build/testbench/officialTest
@@ -202,7 +202,7 @@ cleanVerilator:
 %.pdf: %.gv
 	dot -Tpdf $^ -o $@
 
-getDocuments: $(documentsPDF)
+doc: $(documentsPDF)
 #---------et Documents PDF End-------------
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

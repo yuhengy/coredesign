@@ -5,6 +5,7 @@ import scala.language.reflectiveCalls
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental.ChiselEnum
 
 import common.constants._
 import common.configurations._
@@ -17,14 +18,14 @@ class executeTOP extends Module
 {
   val io = IO(new Bundle{
   //decToExeData
-    val decToExeDataIO = Input(new decToExeDataIO)
+    val inDataIO = Input(new decToExeDataIO)
   //decToExeCtrl
-    val decToExeCtrlIO = Flipped(Decoupled(new decToExeCtrlIO))
+    val inCtrlIO = Flipped(Decoupled(new decToExeCtrlIO))
 
   //exeToMemData
-    val exeToMemDataIO = Output(new exeToMemDataIO)
+    val outDataIO = Output(new exeToMemDataIO)
   //exeToMenCtrl
-    val exeToMemCtrlIO = Decoupled(new exeToMemCtrlIO)
+    val outCtrlIO = Decoupled(new exeToMemCtrlIO)
 
   //exeToIfFeedback
     val brjmpTarget = Output(UInt(XLEN.W))
@@ -46,22 +47,20 @@ class executeTOP extends Module
 
 //--------------execute global status start--------------
 //input
-  val regIsUpdated = RegInit(false.B)
+  object stateEnum extends ChiselEnum {
+    val reset, idle, regIsUpdated = Value
+  }
+  val state = RegInit(stateEnum.reset)
 //output
   val regDataIO = Reg(new decToExeDataIO)
   // regCtrlIO
 //private
-  val regCtrlIO_init = {
-    val temp = Wire(new decToExeCtrlIO)
-    temp.init
-    temp
-  }
   val regCtrlIO_r = RegInit(decToExeCtrlIO.init)
-  when (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready) {
-    regDataIO <> io.decToExeDataIO
-    regCtrlIO_r <> io.decToExeCtrlIO.bits
+  when (io.inCtrlIO.valid && io.inCtrlIO.ready) {
+    regDataIO <> io.inDataIO
+    regCtrlIO_r <> io.inCtrlIO.bits
   }
-  val regCtrlIO = Mux(regIsUpdated, regCtrlIO_r, decToExeCtrlIO.init)
+  val regCtrlIO = Mux(state === stateEnum.regIsUpdated, regCtrlIO_r, decToExeCtrlIO.init)
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------alu start--------------
@@ -135,34 +134,54 @@ class executeTOP extends Module
            )))))))))//)
 //^^^^^^^^^^^^^^branch/jump select end^^^^^^^^^^^^^^
 
-//--------------stall&kill start--------------
-  val stall = false.B
-  //val regIsUpdated = RegInit(false.B)
-  when (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready)
-    {regIsUpdated := true.B}.
-  elsewhen (io.exeToMemCtrlIO.valid && io.exeToMemCtrlIO.ready)
-    {regIsUpdated := false.B}  //TODO: check otherwise can be left
+//--------------state machine start--------------
+//output
+  //object stateEnum extends ChiselEnum {
+  //  val reset, idle, regIsUpdated = Value
+  //}
+  //val state = RegInit(stateEnum.reset)
 
-  io.decToExeCtrlIO.ready := !stall
-  io.exeToMemCtrlIO.valid := regIsUpdated && !stall
-//^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
+//private
+  switch (state) {
+    is (stateEnum.reset) {
+      state := stateEnum.idle
+    }
+    is (stateEnum.idle) {
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}
+    }
+    is (stateEnum.regIsUpdated) {
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}.
+      elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready)
+        {state := stateEnum.idle}
+    }
+  }
+//^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
+
+//--------------control signal start--------------
+  val stall = false.B
+
+  io.inCtrlIO.ready := !stall
+  io.outCtrlIO.valid := state === stateEnum.regIsUpdated && !stall
+//^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
 //exeToMemData
-  io.exeToMemDataIO.PC        := regDataIO.PC
-  io.exeToMemDataIO.inst      := regDataIO.inst
-  io.exeToMemDataIO.wbData    := wbData
-  io.exeToMemDataIO.wbAddr    := regDataIO.wbAddr
-  io.exeToMemDataIO.addrAlign := aluOut(addrAlign_w-1, 0)
+  io.outDataIO.PC        := regDataIO.PC
+  io.outDataIO.inst      := regDataIO.inst
+  io.outDataIO.wbData    := wbData
+  io.outDataIO.wbAddr    := regDataIO.wbAddr
+  io.outDataIO.addrAlign := aluOut(addrAlign_w-1, 0)
 
 //decToExeCtrl
-  io.exeToMemCtrlIO.bits.wbSel := regCtrlIO.wbSel
-  io.exeToMemCtrlIO.bits.rfWen := regCtrlIO.rfWen
-  io.exeToMemCtrlIO.bits.memMask := regCtrlIO.memMask
-  io.exeToMemCtrlIO.bits.memExt  := regCtrlIO.memExt
-  io.exeToMemCtrlIO.bits.cs_val_inst := regCtrlIO.cs_val_inst
+  io.outCtrlIO.bits.wbSel := regCtrlIO.wbSel
+  io.outCtrlIO.bits.rfWen := regCtrlIO.rfWen
+  io.outCtrlIO.bits.memMask := regCtrlIO.memMask
+  io.outCtrlIO.bits.memExt  := regCtrlIO.memExt
+  io.outCtrlIO.bits.cs_val_inst := regCtrlIO.cs_val_inst
   if (DEBUG) {
-    io.exeToMemCtrlIO.bits.goodTrapNemu := regCtrlIO.goodTrapNemu
+    io.outCtrlIO.bits.goodTrapNemu := regCtrlIO.goodTrapNemu
   }
 
 //exeToIfFeedback
@@ -170,7 +189,7 @@ class executeTOP extends Module
   io.jmpRTarget  := jmpRTarget
   io.PCSel       := PCSel
 //exeOutKill
-  io.exeOutKill  := (PCSel =/= PC_4) && regIsUpdated
+  io.exeOutKill  := (PCSel =/= PC_4) && state === stateEnum.regIsUpdated
 
 //exeToDecFeedback
   io.exeDest.bits  := regDataIO.wbAddr

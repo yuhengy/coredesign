@@ -1,0 +1,15 @@
+digraph G {
+
+  # Stage 0
+  reset -> idle [label="NULL"];
+
+  # Stage 1
+  idle -> regIsUpdated [label="inValid &&\ninReady"];
+
+  # Stage 2
+  regIsUpdated -> "inValid &&\ninReady" [style=dotted];
+    # Logic a
+    "inValid &&\ninReady" [style=dotted, shape=box];
+    "inValid &&\ninReady" -> regIsUpdated [label="true"];
+    "inValid &&\ninReady" -> idle [label="flase"];
+}

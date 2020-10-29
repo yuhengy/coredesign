@@ -5,6 +5,7 @@ import scala.language.reflectiveCalls
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental.ChiselEnum
 
 import common.constants._
 import common.configurations._
@@ -14,9 +15,9 @@ class preInstFetchTOP extends Module
 {
   val io = IO(new Bundle{
   //preifToIfData
-    val preifToIfDataIO = Output(new preifToIfDataIO)
+    val outDataIO = Output(new preifToIfDataIO)
   //preifToIfCtrl
-    val preifToIfCtrlIO = Decoupled(new Bundle{})
+    val outCtrlIO = Decoupled(new Bundle{})
 
   //exeToIfFeedback
     val brjmpTarget = Input(UInt(XLEN.W))
@@ -54,25 +55,38 @@ class preInstFetchTOP extends Module
   PC4 := regPC + 4.asUInt(XLEN.W)
 //^^^^^^^^^^^^^^PC update end^^^^^^^^^^^^^^
 
-//--------------inst read start--------------
+//--------------state machine start--------------
 //output
-  val resetDelay0 = RegInit(false.B)
-  val resetDelay1 = RegNext(resetDelay0, true.B)
-  val resetDelay2 = RegNext(resetDelay1, true.B)
+  object stateEnum extends ChiselEnum {
+    val reset, canSend = Value
+  }
+  val state = RegInit(stateEnum.reset)
+
 //private
-  io.instReadIO.addr := Cat(PCNext(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
-  io.instReadIO.en   := !resetDelay1
-//^^^^^^^^^^^^^^inst read end^^^^^^^^^^^^^^
+  switch (state) {
+    is (stateEnum.reset) {
+      state := stateEnum.canSend
+    }
+    is (stateEnum.canSend) {
+      state := stateEnum.canSend
+    }
+  }
+//^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
 
-//--------------stall&kill start--------------
-  stall := !io.preifToIfCtrlIO.ready
-
-  io.preifToIfCtrlIO.valid := !resetDelay1
+//--------------control signal start--------------
+  stall := !io.outCtrlIO.ready
+  
+  io.outCtrlIO.valid := state === stateEnum.canSend
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
 
-//--------------io.output start--------------
-  io.preifToIfDataIO.PC        := PCNext
-  io.preifToIfDataIO.addrAlign := PCNext(addrAlign_w-1, 0)
+//--------------control signal start--------------
+//preifToIfData
+  io.outDataIO.PC        := PCNext
+  io.outDataIO.addrAlign := PCNext(addrAlign_w-1, 0)
+
+//toRam
+  io.instReadIO.addr := Cat(PCNext(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
+  io.instReadIO.en   := state === stateEnum.canSend
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

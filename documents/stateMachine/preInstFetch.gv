@@ -1,0 +1,4 @@
+digraph G {
+  reset -> canSend [label="NULL"];
+  canSend -> canSend [label="NULL"];
+}

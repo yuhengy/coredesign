@@ -28,13 +28,13 @@ class mycoreTOP extends Module
   io.instReadIO.addr             := preInstFetchTOP.io.instReadIO.addr
   io.instReadIO.en               := preInstFetchTOP.io.instReadIO.en
 
-  instFetchTOP.io.preifToIfDataIO <> preInstFetchTOP.io.preifToIfDataIO
-  instFetchTOP.io.preifToIfCtrlIO <> preInstFetchTOP.io.preifToIfCtrlIO
+  instFetchTOP.io.inDataIO <> preInstFetchTOP.io.outDataIO
+  instFetchTOP.io.inCtrlIO <> preInstFetchTOP.io.outCtrlIO
   instFetchTOP.io.exeOutKill      := executeTOP.io.exeOutKill
   instFetchTOP.io.instReadIO.data := io.instReadIO.data
 
-  decodeTOP.io.ifToDecDataIO <> instFetchTOP.io.ifToDecDataIO
-  decodeTOP.io.ifToDecCtrlIO <> instFetchTOP.io.ifToDecCtrlIO
+  decodeTOP.io.inDataIO <> instFetchTOP.io.outDataIO
+  decodeTOP.io.inCtrlIO <> instFetchTOP.io.outCtrlIO
   decodeTOP.io.exeOutKill    := executeTOP.io.exeOutKill
   decodeTOP.io.exeDest       <> executeTOP.io.exeDest
   decodeTOP.io.memDest       <> memoryTOP.io.memDest
@@ -42,18 +42,18 @@ class mycoreTOP extends Module
   decodeTOP.io.wbToDecWbdata := writeBackTOP.io.wbToDecWbdata
   decodeTOP.io.wbToDecWRfWen := writeBackTOP.io.wbToDecWRfWen
 
-  executeTOP.io.decToExeDataIO  <> decodeTOP.io.decToExeDataIO
-  executeTOP.io.decToExeCtrlIO  <> decodeTOP.io.decToExeCtrlIO
+  executeTOP.io.inDataIO  <> decodeTOP.io.outDataIO
+  executeTOP.io.inCtrlIO  <> decodeTOP.io.outCtrlIO
   io.dataReadIO.addr            := executeTOP.io.dataReadIO.addr
   io.dataReadIO.en              := executeTOP.io.dataReadIO.en
   executeTOP.io.dataWriteIO     <> io.dataWriteIO
 
-  memoryTOP.io.exeToMemDataIO  <> executeTOP.io.exeToMemDataIO
-  memoryTOP.io.exeToMemCtrlIO  <> executeTOP.io.exeToMemCtrlIO
+  memoryTOP.io.inDataIO  <> executeTOP.io.outDataIO
+  memoryTOP.io.inCtrlIO  <> executeTOP.io.outCtrlIO
   memoryTOP.io.dataReadIO.data := io.dataReadIO.data
 
-  writeBackTOP.io.memToWbDataIO <> memoryTOP.io.memToWbDataIO
-  writeBackTOP.io.memToWbCtrlIO <> memoryTOP.io.memToWbCtrlIO
+  writeBackTOP.io.inDataIO <> memoryTOP.io.outDataIO
+  writeBackTOP.io.inCtrlIO <> memoryTOP.io.outCtrlIO
 
 
 }

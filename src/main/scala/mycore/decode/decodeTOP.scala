@@ -5,6 +5,7 @@ import scala.language.reflectiveCalls
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental.ChiselEnum
 
 import common.configurations._
 import common.constants._
@@ -15,14 +16,14 @@ class decodeTOP extends Module
 {
   val io = IO(new Bundle{
   //ifToDecData
-    val ifToDecDataIO = Input(new ifToDecDataIO)
+    val inDataIO = Input(new ifToDecDataIO)
   //ifToDecCtrl
-    val ifToDecCtrlIO = Flipped(Decoupled(new Bundle{}))
+    val inCtrlIO = Flipped(Decoupled(new Bundle{}))
 
   //decToExeData
-    val decToExeDataIO = Output(new decToExeDataIO)
+    val outDataIO = Output(new decToExeDataIO)
   //decToExeCtrl
-    val decToExeCtrlIO = Decoupled(new decToExeCtrlIO)
+    val outCtrlIO = Decoupled(new decToExeCtrlIO)
 
   //exeOutKill
     val exeOutKill  = Input(Bool())
@@ -39,8 +40,8 @@ class decodeTOP extends Module
 
 //--------------decode global status start--------------
   val regDataIO = Reg(new ifToDecDataIO)
-  when (io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready) {
-    regDataIO <> io.ifToDecDataIO
+  when (io.inCtrlIO.valid && io.inCtrlIO.ready) {
+    regDataIO <> io.inDataIO
   }
 //^^^^^^^^^^^^^^decode global status end^^^^^^^^^^^^^^
 
@@ -130,7 +131,32 @@ class decodeTOP extends Module
               ))
 //^^^^^^^^^^^^^^operand2 end^^^^^^^^^^^^^^
 
-//--------------stall&kill start--------------
+//--------------state machine start--------------
+//output
+  object stateEnum extends ChiselEnum {
+    val reset, idle, regIsUpdated = Value
+  }
+  val state = RegInit(stateEnum.reset)
+
+//private
+  switch (state) {
+    is (stateEnum.reset) {
+      state := stateEnum.idle
+    }
+    is (stateEnum.idle) {
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}
+    }
+    is (stateEnum.regIsUpdated) {
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}.
+      elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready || io.exeOutKill)
+        {state := stateEnum.idle}
+    }
+  }
+//^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
+
+//--------------control signal start--------------
   val stall = io.exeDest.valid && ((decoder.io.allCtrlIO.cs_rs2_oen===OEN_1) && io.exeDest.bits===decRsAddr2 ||
                                    (decoder.io.allCtrlIO.cs_rs1_oen===OEN_1) && io.exeDest.bits===decRsAddr1) ||
               io.memDest.valid && ((decoder.io.allCtrlIO.cs_rs2_oen===OEN_1) && io.memDest.bits===decRsAddr2 ||
@@ -138,34 +164,34 @@ class decodeTOP extends Module
               io.wbToDecWRfWen && ((decoder.io.allCtrlIO.cs_rs2_oen===OEN_1) && io.wbToDecWbAddr===decRsAddr2 ||
                                    (decoder.io.allCtrlIO.cs_rs1_oen===OEN_1) && io.wbToDecWbAddr===decRsAddr1)
   val regIsUpdated = RegInit(false.B)
-  when (io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready)
+  when (io.inCtrlIO.valid && io.inCtrlIO.ready)
     {regIsUpdated := true.B}.
-  elsewhen (io.decToExeCtrlIO.valid && io.decToExeCtrlIO.ready || io.exeOutKill)
+  elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready || io.exeOutKill)
     {regIsUpdated := false.B}  //TODO: check otherwise can be left
 
-  io.ifToDecCtrlIO.ready := !stall || io.exeOutKill
-  io.decToExeCtrlIO.valid := regIsUpdated && !stall && !io.exeOutKill
-//^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
+  io.inCtrlIO.ready := !stall || io.exeOutKill
+  io.outCtrlIO.valid := state === stateEnum.regIsUpdated && !stall && !io.exeOutKill
+//^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
-  io.decToExeDataIO.PC        := regDataIO.PC
-  io.decToExeDataIO.inst      := regDataIO.inst
-  io.decToExeDataIO.aluop1    := aluop1
-  io.decToExeDataIO.aluop2    := aluop2
-  io.decToExeDataIO.rfRs2Data := rfRs2Data
-  io.decToExeDataIO.wbAddr    := wbAddr
+  io.outDataIO.PC        := regDataIO.PC
+  io.outDataIO.inst      := regDataIO.inst
+  io.outDataIO.aluop1    := aluop1
+  io.outDataIO.aluop2    := aluop2
+  io.outDataIO.rfRs2Data := rfRs2Data
+  io.outDataIO.wbAddr    := wbAddr
   
-  io.decToExeCtrlIO.bits.brType      := decoder.io.allCtrlIO.brType
-  io.decToExeCtrlIO.bits.aluFunc     := decoder.io.allCtrlIO.aluFunc
-  io.decToExeCtrlIO.bits.wbSel       := decoder.io.allCtrlIO.wbSel
-  io.decToExeCtrlIO.bits.rfWen       := decoder.io.allCtrlIO.rfWen && wbAddr=/=0.U  //sothat stall judgement donot consider io.wbToDecWbAddr===0.U
-  io.decToExeCtrlIO.bits.memRd       := decoder.io.allCtrlIO.memRd
-  io.decToExeCtrlIO.bits.memWr       := decoder.io.allCtrlIO.memWr
-  io.decToExeCtrlIO.bits.memMask     := decoder.io.allCtrlIO.memMask
-  io.decToExeCtrlIO.bits.memExt      := decoder.io.allCtrlIO.memExt
-  io.decToExeCtrlIO.bits.cs_val_inst := decoder.io.allCtrlIO.cs_val_inst
+  io.outCtrlIO.bits.brType      := decoder.io.allCtrlIO.brType
+  io.outCtrlIO.bits.aluFunc     := decoder.io.allCtrlIO.aluFunc
+  io.outCtrlIO.bits.wbSel       := decoder.io.allCtrlIO.wbSel
+  io.outCtrlIO.bits.rfWen       := decoder.io.allCtrlIO.rfWen && wbAddr=/=0.U  //sothat stall judgement donot consider io.wbToDecWbAddr===0.U
+  io.outCtrlIO.bits.memRd       := decoder.io.allCtrlIO.memRd
+  io.outCtrlIO.bits.memWr       := decoder.io.allCtrlIO.memWr
+  io.outCtrlIO.bits.memMask     := decoder.io.allCtrlIO.memMask
+  io.outCtrlIO.bits.memExt      := decoder.io.allCtrlIO.memExt
+  io.outCtrlIO.bits.cs_val_inst := decoder.io.allCtrlIO.cs_val_inst
   if (DEBUG) {
-    io.decToExeCtrlIO.bits.goodTrapNemu := decoder.io.allCtrlIO.goodTrapNemu
+    io.outCtrlIO.bits.goodTrapNemu := decoder.io.allCtrlIO.goodTrapNemu
   }
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 

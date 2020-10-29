@@ -5,6 +5,7 @@ import scala.language.reflectiveCalls
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental.ChiselEnum
 
 import common.constants._
 import common.configurations._
@@ -15,14 +16,14 @@ class instFetchTOP extends Module
 {
   val io = IO(new Bundle{
   //preifToIfData
-    val preifToIfDataIO = Input(new preifToIfDataIO)
+    val inDataIO = Input(new preifToIfDataIO)
   //preifToIfCtrl
-    val preifToIfCtrlIO = Flipped(Decoupled(new Bundle{}))
+    val inCtrlIO = Flipped(Decoupled(new Bundle{}))
 
   //ifToDecData
-    val ifToDecDataIO = Output(new ifToDecDataIO)
+    val outDataIO = Output(new ifToDecDataIO)
   //ifToDecCtrl
-    val ifToDecCtrlIO = Decoupled(new Bundle{})
+    val outCtrlIO = Decoupled(new Bundle{})
 
   //exeOutKill
     val exeOutKill  = Input(Bool())
@@ -35,39 +36,63 @@ class instFetchTOP extends Module
 
 //--------------instFetch global status start--------------
   val regDataIO = Reg(new preifToIfDataIO)
-  when (io.preifToIfCtrlIO.valid && io.preifToIfCtrlIO.ready) {
-    regDataIO <> io.preifToIfDataIO
+  when (io.inCtrlIO.valid && io.inCtrlIO.ready) {
+    regDataIO <> io.inDataIO
   }
 //^^^^^^^^^^^^^^instFetch global status end^^^^^^^^^^^^^^
 
-//--------------stall&kill start--------------
-  val stall = !io.ifToDecCtrlIO.ready
-  val regIsUpdated = RegInit(false.B)
-  when (io.preifToIfCtrlIO.valid && io.preifToIfCtrlIO.ready)
-    {regIsUpdated := true.B}.
-  elsewhen (io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready || io.exeOutKill)
-    {regIsUpdated := false.B}  //TODO: check otherwise can be left
-  val resultIsBuffered = RegInit(false.B)
-  when (io.exeOutKill)
-    {resultIsBuffered := false.B}.
-  elsewhen (regIsUpdated && !(io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready))
-    {resultIsBuffered := true.B}.
-  elsewhen (io.ifToDecCtrlIO.valid && io.ifToDecCtrlIO.ready)
-    {resultIsBuffered := false.B}  //TODO: check otherwise can be left
+//--------------state machine start--------------
+//output
+  object stateEnum extends ChiselEnum {
+    val reset, idle, regIsUpdated, resultIsBuffered = Value
+  }
+  val state = RegInit(stateEnum.reset)
 
-  io.preifToIfCtrlIO.ready := !stall || io.exeOutKill
-  io.ifToDecCtrlIO.valid := regIsUpdated && !stall && !io.exeOutKill
-//^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
+//private
+  switch (state) {
+    is (stateEnum.reset) {
+      state := stateEnum.idle
+    }
+    is (stateEnum.idle) {
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}
+    }
+    is (stateEnum.regIsUpdated) {
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}.
+      elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready || io.exeOutKill)
+        {state := stateEnum.idle}.
+      otherwise
+        {state := stateEnum.resultIsBuffered}
+    }
+    is (stateEnum.resultIsBuffered) {
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}.
+      elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready || io.exeOutKill)
+        {state := stateEnum.idle}.
+      otherwise
+        {state := stateEnum.resultIsBuffered}
+    }
+  }
+//^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
+
+//--------------control signal start--------------
+  val stall = !io.outCtrlIO.ready
+
+  io.inCtrlIO.ready := !stall || io.exeOutKill
+  io.outCtrlIO.valid := (state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered) &&
+                            !stall && !io.exeOutKill
+//^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
   val dataAlign = io.instReadIO.data >> (regDataIO.addrAlign << 3.U)
   val regOutput = Reg(UInt(XLEN.W))  //Only reg those output that may change
-  when (!resultIsBuffered) {
+  when (state =/= stateEnum.resultIsBuffered) {
     regOutput := dataAlign
   }
 
-  io.ifToDecDataIO.PC   := regDataIO.PC
-  io.ifToDecDataIO.inst := Mux(resultIsBuffered, regOutput, dataAlign)  //TODO: inst should be 32
+  io.outDataIO.PC   := regDataIO.PC
+  io.outDataIO.inst := Mux(state === stateEnum.resultIsBuffered, regOutput, dataAlign)  //TODO: inst should be 32
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }
