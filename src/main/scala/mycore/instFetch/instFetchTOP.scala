@@ -30,6 +30,7 @@ class instFetchTOP extends Module
 
   //fromRam
     val instReadIO = new Bundle{
+      val respValid = Input(Bool())
       val data = Input(UInt(XLEN.W))
     }
   })
@@ -44,7 +45,7 @@ class instFetchTOP extends Module
 //--------------state machine start--------------
 //output
   object stateEnum extends ChiselEnum {
-    val reset, idle, regIsUpdated, resultIsBuffered = Value
+    val reset, idle, regIsUpdated, resultIsBuffered, waitDummyResp = Value
   }
   val state = RegInit(stateEnum.reset)
 
@@ -77,13 +78,15 @@ class instFetchTOP extends Module
 //^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
 
 //--------------control signal start--------------
-  val stall = !io.outCtrlIO.ready
+  //val stall = (state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered ||
+  //             state === stateEnum.waitDummyResp) &&
+  val stall = false.B
 
   io.inCtrlIO.ready := state === stateEnum.reset || state === stateEnum.idle ||
                        io.outCtrlIO.ready && io.outCtrlIO.valid ||
                        io.exeOutKill
   io.outCtrlIO.valid := (state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered) &&
-                            !stall && !io.exeOutKill
+                        !stall && !io.exeOutKill
 //^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------

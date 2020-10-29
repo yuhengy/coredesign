@@ -50,6 +50,7 @@ verilatorResult_c::verilatorResult_c(char* imgPath, long* inputSc_time)
   verilatorTOP->clock = 0;
   verilatorTOP->reset = 0;
   verilatorTOP->eval();
+  ram->eval();
   (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
 
   step(1);
@@ -68,6 +69,7 @@ void verilatorResult_c::step(int i)
       verilatorTOP->eval();
       ram->eval();
       verilatorTOP->eval();
+      ram->eval_computeLogic();  // there sxists logic MEM-CPU-MEM
       (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
       
       verilatorTOP->clock = 0;
@@ -79,6 +81,7 @@ void verilatorResult_c::step(int i)
     verilatorTOP->eval();
     ram->eval();
     verilatorTOP->eval();
+    ram->eval_computeLogic();  // there sxists logic MEM-CPU-MEM
     (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
       
     verilatorTOP->clock = 0;

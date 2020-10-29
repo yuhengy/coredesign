@@ -26,6 +26,7 @@ class preInstFetchTOP extends Module
 
   //toRam
     val instReadIO = new Bundle{
+      val reqReady = Input(Bool())
       val addr = Output(UInt(XLEN.W))
       val en = Output(Bool())
     }
@@ -74,7 +75,11 @@ class preInstFetchTOP extends Module
 //^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
 
 //--------------control signal start--------------
-  stall := !io.outCtrlIO.ready
+  stall := !io.outCtrlIO.ready || !io.instReadIO.reqReady
+  //TODO: this stall is different from stall in other stage 
+  //      in the sense that it include !io.outCtrlIO.ready.
+  //      This is becuase this stall is used by reg update in this stage itself
+  //      This need be more consistent in future
   
   io.outCtrlIO.valid := state === stateEnum.canSend
 //^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^

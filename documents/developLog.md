@@ -230,7 +230,7 @@ I choose between these two methods under this principle:
 This priciple is from this observation:
 + If skip this assign statement is in a `else` statement, the `else` statement itself can also be skip. However, If skip this assign statement is in a `if` or `elif` statement, we need left a empty `if` or `elif` statement.
 
-## Oct29, 2020 commit-
+## Oct29, 2020 commit-17b9b06
 This commit adds latency to data read and write, excluding inst read. The memory will provide request ready and response valid. We will list restriction on this protocol and our limitation on testfile.
 
 ### Protocol restriction
@@ -239,9 +239,18 @@ To simpify the design on memory control (or bridge), we ask the CPU to following
 In fact, even these do not hold, the memory control may still work, but with these restrictionis, it can be easier to think how to design memory controler. And it is easy for CPU to hold these restricrtioins.
 
 Similarly, to simpify the design on CPU, we ask the memory controller to following these restrictions:
-+ Req ready will only go high when the previous resp valid is high in this cycle. CPU execute stage will treat Req ready as a fact that memory stage is ready in, in order to avoid logic `MEM-CPU-MEM`.
++ Req ready will only go high when the previous resp valid is high in this cycle. CPU execute stage will treat Req ready as a fact that memory stage is ready in, in order to avoid logic `MEM-CPU-MEM`. (UPDATE: this restriction was removed in next commit)
 
 ### Our limited test cases
 Our memory controler (implemeted in cpp) is a simple one, thus it only cover following cases:
 + The req ready goes up at the same cycle resp valid goes up.
 This can be dangerous, and needed to be tested in the future.
+
+## Oct29, 2020 commit-
+This commit removes one `Protocol restriction` involved in last commit. This in important for future delayed instruction read.
+
+That restriction is used to avoid a `MEM-CPU-MEM` logic and this commit solve `MEM-CPU-MEM` logic in this way: we eval() CPU and RAM twice.
+
+The reason that we need this logic is that:
++ For data, memory stage will not be stalled from reasons other than mem. Thus, CPU can send new request regardless whether mem can serve it, and when mem serve it, memory stage is not stalled.
++ For inst, instFetch stage can be stalled from many other reasons. Thus, preInstFetch stage need wait instFetch ready, and then send new request to mem. However, instFetch ready depend on mem resp valid.

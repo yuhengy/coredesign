@@ -43,12 +43,12 @@ ram_c::ram_c(char* imgPath, CPU_RAM_IO_t inputCPU_RAM_IO)
 
 void ram_c::eval()
 {
-  bool instRead_canFinish  = true;
-  //bool dataRead_canFinish  = true;
-  //bool dataWrite_canFinish = true;
-  //bool instRead_canFinish  = (rand() % 4) == 0;
-  bool dataRead_canFinish  = (rand() % 4) == 0;
-  bool dataWrite_canFinish = (rand() % 4) == 0;
+  instRead_canFinish  = true;
+  //dataRead_canFinish  = true;
+  //dataWrite_canFinish = true;
+  //instRead_canFinish  = (rand() % 4) == 0;
+  dataRead_canFinish  = (rand() % 4) == 0;
+  dataWrite_canFinish = (rand() % 4) == 0;
 
   // STEP1 Clock come, update status
   //       (Since reg_new do not depend on reg_old, we can merge reg_new and reg_old indeed)
@@ -89,6 +89,11 @@ void ram_c::eval()
   }
 
   //STEP3 Compute logic
+  eval_computeLogic();
+}
+
+void ram_c::eval_computeLogic()
+{
   if (instReadReqBuff_old.busy && !instRead_canFinish) {
     instReadReqBuff_new.busy = !instRead_canFinish;
   } else {

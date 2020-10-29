@@ -25,13 +25,15 @@ class mycoreTOP extends Module
   preInstFetchTOP.io.brjmpTarget := executeTOP.io.brjmpTarget
   preInstFetchTOP.io.jmpRTarget  := executeTOP.io.jmpRTarget
   preInstFetchTOP.io.PCSel       := executeTOP.io.PCSel
+  preInstFetchTOP.io.instReadIO.reqReady := io.instReadIO.reqReady
   io.instReadIO.addr             := preInstFetchTOP.io.instReadIO.addr
   io.instReadIO.en               := preInstFetchTOP.io.instReadIO.en
 
   instFetchTOP.io.inDataIO <> preInstFetchTOP.io.outDataIO
   instFetchTOP.io.inCtrlIO <> preInstFetchTOP.io.outCtrlIO
   instFetchTOP.io.exeOutKill      := executeTOP.io.exeOutKill
-  instFetchTOP.io.instReadIO.data := io.instReadIO.data
+  instFetchTOP.io.instReadIO.respValid := io.instReadIO.respValid
+  instFetchTOP.io.instReadIO.data      := io.instReadIO.data
 
   decodeTOP.io.inDataIO <> instFetchTOP.io.outDataIO
   decodeTOP.io.inCtrlIO <> instFetchTOP.io.outCtrlIO
@@ -55,8 +57,8 @@ class mycoreTOP extends Module
 
   memoryTOP.io.inDataIO  <> executeTOP.io.outDataIO
   memoryTOP.io.inCtrlIO  <> executeTOP.io.outCtrlIO
-  memoryTOP.io.dataReadIO.data := io.dataReadIO.data
-  memoryTOP.io.dataReadIO.respValid := io.dataReadIO.respValid
+  memoryTOP.io.dataReadIO.respValid  := io.dataReadIO.respValid
+  memoryTOP.io.dataReadIO.data       := io.dataReadIO.data
   memoryTOP.io.dataWriteIO.respValid := io.dataWriteIO.respValid
 
   writeBackTOP.io.inDataIO <> memoryTOP.io.outDataIO

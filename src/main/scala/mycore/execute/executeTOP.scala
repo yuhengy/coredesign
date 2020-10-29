@@ -168,10 +168,8 @@ class executeTOP extends Module
 
 //--------------control signal start--------------
   val stall = state === stateEnum.regIsUpdated &&
-              //(regCtrlIO.memRd && !(io.dataReadIO.reqReady && io.outCtrlIO.ready) ||
-              // regCtrlIO.memWr && !(io.dataWriteIO.reqReady && io.outCtrlIO.ready))
-              (regCtrlIO.memRd && !io.dataReadIO.reqReady ||
-               regCtrlIO.memWr && !io.dataWriteIO.reqReady)
+              (regCtrlIO.memRd && !(io.dataReadIO.reqReady && io.outCtrlIO.ready) ||
+               regCtrlIO.memWr && !(io.dataWriteIO.reqReady && io.outCtrlIO.ready))
 
   io.inCtrlIO.ready := state === stateEnum.reset || state === stateEnum.idle ||
                        io.outCtrlIO.ready && io.outCtrlIO.valid
@@ -211,11 +209,11 @@ class executeTOP extends Module
 
 //toRam
   io.dataReadIO.addr  := Cat(aluOut(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
-  io.dataReadIO.en    := regCtrlIO.memRd// && io.outCtrlIO.ready
+  io.dataReadIO.en    := regCtrlIO.memRd && io.outCtrlIO.ready
   io.dataWriteIO.addr := Cat(aluOut(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
   io.dataWriteIO.data := memWriteData
   io.dataWriteIO.mask := memWriteMask
-  io.dataWriteIO.en   := regCtrlIO.memWr// && io.outCtrlIO.ready
+  io.dataWriteIO.en   := regCtrlIO.memWr && io.outCtrlIO.ready
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

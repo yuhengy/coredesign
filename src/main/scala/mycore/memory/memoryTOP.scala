@@ -31,8 +31,8 @@ class memoryTOP extends Module
 
   //fromRam
     val dataReadIO = new Bundle{
-      val data = Input(UInt(XLEN.W))
       val respValid = Input(Bool())
+      val data = Input(UInt(XLEN.W))
     }
     val dataWriteIO = new Bundle{
       val respValid = Input(Bool())

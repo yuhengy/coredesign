@@ -30,6 +30,7 @@ class ram_c {
 public:
   ram_c(char* imgPath, CPU_RAM_IO_t inputCPU_RAM_IO);
   void eval();
+  void eval_computeLogic();
 
 
 private:
@@ -51,6 +52,9 @@ private:
                        instReadReqBuff_new, dataReadReqBuff_new;
   struct writeReqBuffer dataWriteReqBuff_old, dataWriteReqBuff_new;
 
+  bool instRead_canFinish;
+  bool dataRead_canFinish;
+  bool dataWrite_canFinish;
   bool busy = false;
 
   //This is a quick version, for read, it return ram[addr-ADDR_START]
