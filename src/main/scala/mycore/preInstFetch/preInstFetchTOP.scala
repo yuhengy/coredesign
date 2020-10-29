@@ -19,6 +19,9 @@ class preInstFetchTOP extends Module
   //preifToIfCtrl
     val outCtrlIO = Decoupled(new Bundle{})
 
+  //exeOutKill
+    val exeOutKill  = Input(Bool())
+
   //exeToIfFeedback
     val brjmpTarget = Input(UInt(XLEN.W))
     val jmpRTarget  = Input(UInt(XLEN.W))
@@ -36,62 +39,78 @@ class preInstFetchTOP extends Module
   val regPC           = RegInit(UInt(XLEN.W), ADDR_START.U - 8.U)
 //^^^^^^^^^^^^^^instFetch global status end^^^^^^^^^^^^^^
 
-//--------------PC update start--------------
+//--------------PC next start--------------
 //input
   val exceptionTarget = Wire(UInt(XLEN.W))  //TODO: this does not have signal now
   exceptionTarget := 0.U
-  val stall = Wire(Bool())
+  val donotSend = Wire(Bool())
 //private
   val PC4             = Wire(UInt(XLEN.W))
   val PCNext          = Wire(UInt(XLEN.W))
 
-  when (!stall) {
-    regPC := PCNext
-  }
   PCNext := Mux(io.PCSel === PC_4,      PC4,
             Mux(io.PCSel === PC_BRJMP,  io.brjmpTarget,
             Mux(io.PCSel === PC_JALR,   io.jmpRTarget,
           /*Mux(io.PCSel === PC_EXC,*/  exceptionTarget)))
 
   PC4 := regPC + 4.asUInt(XLEN.W)
-//^^^^^^^^^^^^^^PC update end^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^PC next end^^^^^^^^^^^^^^
 
-//--------------state machine start--------------
-//output
+//--------------PC update start--------------
+//input
   object stateEnum extends ChiselEnum {
-    val reset, canSend = Value
+    val reset, regIsUpdated, resultIsBuffered = Value
   }
   val state = RegInit(stateEnum.reset)
 
 //private
+  val regOutput = Reg(UInt(XLEN.W))
+  when (state =/= stateEnum.resultIsBuffered || io.exeOutKill) {
+    regOutput := PCNext
+  }
+
+  when (!donotSend) {
+    regPC := Mux(state === stateEnum.resultIsBuffered && !io.exeOutKill, regOutput, PCNext)
+  }
+//^^^^^^^^^^^^^^PC update end^^^^^^^^^^^^^^
+
+//--------------state machine start--------------
+//output
+  //object stateEnum extends ChiselEnum {
+  //  val reset, regIsUpdated, resultIsBuffered = Value
+  //}
+  //val state = RegInit(stateEnum.reset)
+
+//private
   switch (state) {
     is (stateEnum.reset) {
-      state := stateEnum.canSend
+      state := stateEnum.regIsUpdated
     }
-    is (stateEnum.canSend) {
-      state := stateEnum.canSend
+    is (stateEnum.regIsUpdated) {
+      when (donotSend)
+        {state := stateEnum.resultIsBuffered}
+    }
+    is (stateEnum.resultIsBuffered) {
+      when (!donotSend)
+        {state := stateEnum.regIsUpdated}
     }
   }
 //^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
 
 //--------------control signal start--------------
-  stall := !io.outCtrlIO.ready || !io.instReadIO.reqReady
-  //TODO: this stall is different from stall in other stage 
-  //      in the sense that it include !io.outCtrlIO.ready.
-  //      This is becuase this stall is used by reg update in this stage itself
-  //      This need be more consistent in future
+  donotSend := !io.outCtrlIO.ready || !io.instReadIO.reqReady
   
-  io.outCtrlIO.valid := state === stateEnum.canSend
-//^^^^^^^^^^^^^^stall&kill end^^^^^^^^^^^^^^
+  io.outCtrlIO.valid := state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered
+//^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^
 
-//--------------control signal start--------------
+//--------------io.output start--------------
 //preifToIfData
-  io.outDataIO.PC        := PCNext
-  io.outDataIO.addrAlign := PCNext(addrAlign_w-1, 0)
+  io.outDataIO.PC        := Mux(state === stateEnum.resultIsBuffered && !io.exeOutKill, regOutput, PCNext)
+  io.outDataIO.addrAlign := Mux(state === stateEnum.resultIsBuffered && !io.exeOutKill, regOutput, PCNext)(addrAlign_w-1, 0)
 
 //toRam
-  io.instReadIO.addr := Cat(PCNext(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
-  io.instReadIO.en   := state === stateEnum.canSend
+  io.instReadIO.addr := Cat(Mux(state === stateEnum.resultIsBuffered && !io.exeOutKill, regOutput, PCNext)(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
+  io.instReadIO.en   := (state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered) && io.outCtrlIO.ready
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

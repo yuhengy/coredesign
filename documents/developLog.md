@@ -246,7 +246,7 @@ Our memory controler (implemeted in cpp) is a simple one, thus it only cover fol
 + The req ready goes up at the same cycle resp valid goes up.
 This can be dangerous, and needed to be tested in the future.
 
-## Oct29, 2020 commit-
+## Oct29, 2020 commit-17b9b06
 This commit removes one `Protocol restriction` involved in last commit. This in important for future delayed instruction read.
 
 That restriction is used to avoid a `MEM-CPU-MEM` logic and this commit solve `MEM-CPU-MEM` logic in this way: we eval() CPU and RAM twice.
@@ -254,3 +254,6 @@ That restriction is used to avoid a `MEM-CPU-MEM` logic and this commit solve `M
 The reason that we need this logic is that:
 + For data, memory stage will not be stalled from reasons other than mem. Thus, CPU can send new request regardless whether mem can serve it, and when mem serve it, memory stage is not stalled.
 + For inst, instFetch stage can be stalled from many other reasons. Thus, preInstFetch stage need wait instFetch ready, and then send new request to mem. However, instFetch ready depend on mem resp valid.
+
+## Oct29, 2020 commit-
+This commit adds latency to inst read. DANGEROUS: The state machine is poorly tested. It seems some state can hardly reach.

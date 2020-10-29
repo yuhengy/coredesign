@@ -34,7 +34,7 @@ ram_c::ram_c(char* imgPath, CPU_RAM_IO_t inputCPU_RAM_IO)
 {
   readImage(ram, imgPath);
   CPU_RAM_IO = inputCPU_RAM_IO;
-  //srand(time(NULL));
+  srand(time(NULL));
 //#ifdef DEBUG
 //  printf("RAM: %x\n", (unsigned int)ram[0]);
 //#endif
@@ -43,10 +43,7 @@ ram_c::ram_c(char* imgPath, CPU_RAM_IO_t inputCPU_RAM_IO)
 
 void ram_c::eval()
 {
-  instRead_canFinish  = true;
-  //dataRead_canFinish  = true;
-  //dataWrite_canFinish = true;
-  //instRead_canFinish  = (rand() % 4) == 0;
+  instRead_canFinish  = (rand() % 16) == 0;
   dataRead_canFinish  = (rand() % 4) == 0;
   dataWrite_canFinish = (rand() % 4) == 0;
 

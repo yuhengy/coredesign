@@ -45,6 +45,7 @@ verilatorResult_c::verilatorResult_c(char* imgPath, long* inputSc_time)
   for (int i = 0; i < 9; i++) {
     verilatorTOP->clock = verilatorTOP->clock ? 0 : 1;
     verilatorTOP->eval();
+    ram->eval();
     (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
   }
   verilatorTOP->clock = 0;

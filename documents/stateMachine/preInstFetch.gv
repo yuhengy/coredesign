@@ -1,4 +1,5 @@
 digraph G {
-  reset -> canSend [label="NULL"];
-  canSend -> canSend [label="NULL"];
+  reset -> regIsUpdated [label="NULL"];
+  regIsUpdated -> resultIsBuffered [label="donotSend"];
+  resultIsBuffered -> regIsUpdated [label="!donotSend"];
 }

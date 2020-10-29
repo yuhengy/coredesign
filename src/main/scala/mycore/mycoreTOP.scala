@@ -22,6 +22,7 @@ class mycoreTOP extends Module
   val memoryTOP = Module(new memoryTOP)
   val writeBackTOP = Module(new writeBackTOP)
 
+  preInstFetchTOP.io.exeOutKill  := executeTOP.io.exeOutKill
   preInstFetchTOP.io.brjmpTarget := executeTOP.io.brjmpTarget
   preInstFetchTOP.io.jmpRTarget  := executeTOP.io.jmpRTarget
   preInstFetchTOP.io.PCSel       := executeTOP.io.PCSel

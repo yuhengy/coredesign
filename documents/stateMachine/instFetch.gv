@@ -16,8 +16,33 @@ digraph G {
     # Logic b
     "outValid &&\noutReady ||\nkill" [style=dotted, shape=box];
     "outValid &&\noutReady ||\nkill" -> idle [label="true"];
-    "outValid &&\noutReady ||\nkill" -> resultIsBuffered [label="false"];
+    "outValid &&\noutReady ||\nkill" -> "exeOutKill && !stall" [style=dotted, label="false"];
+
+    # Logic c
+    "exeOutKill && !stall" [style=dotted, shape=box];
+    "exeOutKill && !stall" -> idle [label="true"];
+    "exeOutKill && !stall" -> "io.exeOutKill" [style=dotted, label="false"];
+
+    # Logic d
+    "io.exeOutKill" [style=dotted, shape=box];
+    "io.exeOutKill" -> waitDummyResp [label="true"];
+    "io.exeOutKill" -> "!stall" [style=dotted, label="false"];
+
+    # Logic e
+    "!stall" [style=dotted, shape=box];
+    "!stall" -> resultIsBuffered [label="true"];
 
   # Stage 3
   resultIsBuffered -> "inValid &&\ninReady" [style=dotted];
+
+  # Stage 4
+  waitDummyResp -> "inValid &&\ninReady " [style=dotted];
+    # Logic a
+    "inValid &&\ninReady " [style=dotted, shape=box];
+    "inValid &&\ninReady " -> regIsUpdated [label="true"];
+    "inValid &&\ninReady " -> "!stall " [style=dotted, label="false"];
+
+    # Logic a
+    "!stall " [style=dotted, shape=box];
+    "!stall " -> idle [label="true"];
 }

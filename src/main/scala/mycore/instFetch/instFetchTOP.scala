@@ -43,6 +43,8 @@ class instFetchTOP extends Module
 //^^^^^^^^^^^^^^instFetch global status end^^^^^^^^^^^^^^
 
 //--------------state machine start--------------
+//input
+  val stall = Wire(Bool())
 //output
   object stateEnum extends ChiselEnum {
     val reset, idle, regIsUpdated, resultIsBuffered, waitDummyResp = Value
@@ -61,30 +63,44 @@ class instFetchTOP extends Module
     is (stateEnum.regIsUpdated) {
       when (io.inCtrlIO.valid && io.inCtrlIO.ready)
         {state := stateEnum.regIsUpdated}.
-      elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready || io.exeOutKill)
+      elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready)
         {state := stateEnum.idle}.
-      otherwise
+      elsewhen (io.exeOutKill && !stall)
+        {state := stateEnum.idle}.
+      elsewhen (io.exeOutKill)
+        {state := stateEnum.waitDummyResp}.
+      elsewhen (!stall)
         {state := stateEnum.resultIsBuffered}
     }
     is (stateEnum.resultIsBuffered) {
       when (io.inCtrlIO.valid && io.inCtrlIO.ready)
         {state := stateEnum.regIsUpdated}.
-      elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready || io.exeOutKill)
+      elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready)
         {state := stateEnum.idle}.
-      otherwise
+      elsewhen (io.exeOutKill && !stall)
+        {state := stateEnum.idle}.
+      elsewhen (io.exeOutKill)
+        {state := stateEnum.waitDummyResp}.
+      elsewhen (!stall)
         {state := stateEnum.resultIsBuffered}
+    }
+    is (stateEnum.waitDummyResp) {  //TODO: check what happen another kill arrive
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}.
+      elsewhen (!stall)
+        {state := stateEnum.idle}
     }
   }
 //^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
 
 //--------------control signal start--------------
-  //val stall = (state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered ||
-  //             state === stateEnum.waitDummyResp) &&
-  val stall = false.B
+  stall := (state === stateEnum.regIsUpdated || state === stateEnum.waitDummyResp) &&
+            !io.instReadIO.respValid
+  //val stall = false.B
 
   io.inCtrlIO.ready := state === stateEnum.reset || state === stateEnum.idle ||
                        io.outCtrlIO.ready && io.outCtrlIO.valid ||
-                       io.exeOutKill
+                       (state === stateEnum.waitDummyResp || io.exeOutKill) && !stall
   io.outCtrlIO.valid := (state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered) &&
                         !stall && !io.exeOutKill
 //^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^

@@ -170,6 +170,7 @@ class executeTOP extends Module
   val stall = state === stateEnum.regIsUpdated &&
               (regCtrlIO.memRd && !(io.dataReadIO.reqReady && io.outCtrlIO.ready) ||
                regCtrlIO.memWr && !(io.dataWriteIO.reqReady && io.outCtrlIO.ready))
+  //TODO: check whether stall need consider reset state
 
   io.inCtrlIO.ready := state === stateEnum.reset || state === stateEnum.idle ||
                        io.outCtrlIO.ready && io.outCtrlIO.valid
