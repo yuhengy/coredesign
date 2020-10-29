@@ -79,7 +79,9 @@ class instFetchTOP extends Module
 //--------------control signal start--------------
   val stall = !io.outCtrlIO.ready
 
-  io.inCtrlIO.ready := !stall || io.exeOutKill
+  io.inCtrlIO.ready := state === stateEnum.reset || state === stateEnum.idle ||
+                       io.outCtrlIO.ready && io.outCtrlIO.valid ||
+                       io.exeOutKill
   io.outCtrlIO.valid := (state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered) &&
                             !stall && !io.exeOutKill
 //^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^

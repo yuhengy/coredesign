@@ -163,13 +163,10 @@ class decodeTOP extends Module
                                    (decoder.io.allCtrlIO.cs_rs1_oen===OEN_1) && io.memDest.bits===decRsAddr1) ||
               io.wbToDecWRfWen && ((decoder.io.allCtrlIO.cs_rs2_oen===OEN_1) && io.wbToDecWbAddr===decRsAddr2 ||
                                    (decoder.io.allCtrlIO.cs_rs1_oen===OEN_1) && io.wbToDecWbAddr===decRsAddr1)
-  val regIsUpdated = RegInit(false.B)
-  when (io.inCtrlIO.valid && io.inCtrlIO.ready)
-    {regIsUpdated := true.B}.
-  elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready || io.exeOutKill)
-    {regIsUpdated := false.B}  //TODO: check otherwise can be left
 
-  io.inCtrlIO.ready := !stall || io.exeOutKill
+  io.inCtrlIO.ready := state === stateEnum.reset || state === stateEnum.idle ||
+                       io.outCtrlIO.ready && io.outCtrlIO.valid ||
+                       io.exeOutKill
   io.outCtrlIO.valid := state === stateEnum.regIsUpdated && !stall && !io.exeOutKill
 //^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^
 

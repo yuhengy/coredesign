@@ -212,7 +212,7 @@ This commit launch the test on pynq.
 + Pynq framework gives us these useful API, to access BRAM, GPIO as an python object. (implemented as MMIO inside)
 + Thus, it's easy to use python to load image into InstBRAM, reset the Chisel CPU, check whether hitGoodTrap, and finally, dump the PC trace.
 
-## Oct29, 2020 commit-
+## Oct29, 2020 commit-525dea3
 This commit replace old control registers into a uniform state machine.
 
 ### Trade-off between control register and state machine
@@ -229,3 +229,19 @@ I choose between these two methods under this principle:
 + When this assign statement is in a `else` statement (instead of `if` or `elif`), I skip it. Otherwise, keep a dummy one.
 This priciple is from this observation:
 + If skip this assign statement is in a `else` statement, the `else` statement itself can also be skip. However, If skip this assign statement is in a `if` or `elif` statement, we need left a empty `if` or `elif` statement.
+
+## Oct29, 2020 commit-
+This commit adds latency to data read and write, excluding inst read. The memory will provide request ready and response valid. We will list restriction on this protocol and our limitation on testfile.
+
+### Protocol restriction
+To simpify the design on memory control (or bridge), we ask the CPU to following these restrictions:
++ Once CPUenable is high nothing should change until MEMORYready is high. Then, memory control will feel free to buff input even it has not up the req ready.
+In fact, even these do not hold, the memory control may still work, but with these restrictionis, it can be easier to think how to design memory controler. And it is easy for CPU to hold these restricrtioins.
+
+Similarly, to simpify the design on CPU, we ask the memory controller to following these restrictions:
++ Req ready will only go high when the previous resp valid is high in this cycle. CPU execute stage will treat Req ready as a fact that memory stage is ready in, in order to avoid logic `MEM-CPU-MEM`.
+
+### Our limited test cases
+Our memory controler (implemeted in cpp) is a simple one, thus it only cover following cases:
++ The req ready goes up at the same cycle resp valid goes up.
+This can be dangerous, and needed to be tested in the future.

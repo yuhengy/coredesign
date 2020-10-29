@@ -10,6 +10,8 @@ class exeToMemCtrlIO extends Bundle()
 {
   val wbSel       = UInt(wbSel_w.W)
   val rfWen       = Bool()
+  val memRd       = Bool()
+  val memWr       = Bool()
   val memMask     = UInt(memMask_w.W)
   val memExt      = UInt(memExt_w.W)
   val cs_val_inst = Bool()
@@ -19,6 +21,8 @@ class exeToMemCtrlIO extends Bundle()
 
   def init = {
     rfWen := REN_0
+    memRd  := MRD_0
+    memWr  := MWR_0
 
     //TODO: following init is useless
     wbSel       := WB_X

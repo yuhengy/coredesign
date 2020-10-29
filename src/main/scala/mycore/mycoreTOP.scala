@@ -44,13 +44,20 @@ class mycoreTOP extends Module
 
   executeTOP.io.inDataIO  <> decodeTOP.io.outDataIO
   executeTOP.io.inCtrlIO  <> decodeTOP.io.outCtrlIO
-  io.dataReadIO.addr            := executeTOP.io.dataReadIO.addr
-  io.dataReadIO.en              := executeTOP.io.dataReadIO.en
-  executeTOP.io.dataWriteIO     <> io.dataWriteIO
+  executeTOP.io.dataReadIO.reqReady := io.dataReadIO.reqReady
+  io.dataReadIO.addr      := executeTOP.io.dataReadIO.addr
+  io.dataReadIO.en        := executeTOP.io.dataReadIO.en
+  executeTOP.io.dataWriteIO.reqReady := io.dataWriteIO.reqReady
+  io.dataWriteIO.addr     := executeTOP.io.dataWriteIO.addr
+  io.dataWriteIO.data     := executeTOP.io.dataWriteIO.data
+  io.dataWriteIO.mask     := executeTOP.io.dataWriteIO.mask
+  io.dataWriteIO.en       := executeTOP.io.dataWriteIO.en
 
   memoryTOP.io.inDataIO  <> executeTOP.io.outDataIO
   memoryTOP.io.inCtrlIO  <> executeTOP.io.outCtrlIO
   memoryTOP.io.dataReadIO.data := io.dataReadIO.data
+  memoryTOP.io.dataReadIO.respValid := io.dataReadIO.respValid
+  memoryTOP.io.dataWriteIO.respValid := io.dataWriteIO.respValid
 
   writeBackTOP.io.inDataIO <> memoryTOP.io.outDataIO
   writeBackTOP.io.inCtrlIO <> memoryTOP.io.outCtrlIO

@@ -18,11 +18,16 @@ digraph G {
   "verilated.h" [style=dotted];
   "dlfcn.h" [style=dotted];
   "stdio.h" [style=dotted];
+  "stdlib.h" [style=dotted];
+  "time.h" [style=dotted];
   "assert.h" [style=dotted];
   "verilated.h" -> "main.h/cpp" [style=dotted];
   "dlfcn.h" -> "nemuResult.h/cpp" [style=dotted];
   "stdio.h" -> "main.h/cpp" [style=dotted];
   "assert.h" -> "ram.h/cpp" [style=dotted];
+  "stdio.h" -> "ram.h/cpp" [style=dotted];
+  "stdlib.h" -> "ram.h/cpp" [style=dotted];
+  "time.h" -> "ram.h/cpp" [style=dotted];
 
   "ram.h/cpp" -> "verilatorResult.h/cpp";
   "nemuResult.h/cpp" -> "main.h/cpp";

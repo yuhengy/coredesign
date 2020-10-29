@@ -9,18 +9,24 @@ verilatorResult_c::verilatorResult_c(char* imgPath, long* inputSc_time)
   
   verilatorTOP = new VverilatorTOP;
   struct CPU_RAM_IO_t CPU_RAM_IO = {
+    .instReadIO_reqReady = (bool*)&(verilatorTOP->io_mycoreTOPIO_instReadIO_reqReady),
     .instReadIO_addr = &(verilatorTOP->io_mycoreTOPIO_instReadIO_addr),
-    .instReadIO_data = &(verilatorTOP->io_mycoreTOPIO_instReadIO_data),
     .instReadIO_en = (bool*)&(verilatorTOP->io_mycoreTOPIO_instReadIO_en),
+    .instReadIO_respValid = (bool*)&(verilatorTOP->io_mycoreTOPIO_instReadIO_respValid),
+    .instReadIO_data = &(verilatorTOP->io_mycoreTOPIO_instReadIO_data),
     
+    .dataReadIO_reqReady = (bool*)&(verilatorTOP->io_mycoreTOPIO_dataReadIO_reqReady),
     .dataReadIO_addr = &(verilatorTOP->io_mycoreTOPIO_dataReadIO_addr),
-    .dataReadIO_data = &(verilatorTOP->io_mycoreTOPIO_dataReadIO_data),
     .dataReadIO_en = (bool*)&(verilatorTOP->io_mycoreTOPIO_dataReadIO_en),
+    .dataReadIO_respValid = (bool*)&(verilatorTOP->io_mycoreTOPIO_dataReadIO_respValid),
+    .dataReadIO_data = &(verilatorTOP->io_mycoreTOPIO_dataReadIO_data),
 
+    .dataWriteIO_reqReady = (bool*)&(verilatorTOP->io_mycoreTOPIO_dataWriteIO_reqReady),
     .dataWriteIO_addr = &(verilatorTOP->io_mycoreTOPIO_dataWriteIO_addr),
     .dataWriteIO_data = &(verilatorTOP->io_mycoreTOPIO_dataWriteIO_data),
     .dataWriteIO_en = (bool*)&(verilatorTOP->io_mycoreTOPIO_dataWriteIO_en),
-    .dataWriteIO_mask = (mask_t*)&(verilatorTOP->io_mycoreTOPIO_dataWriteIO_mask)
+    .dataWriteIO_mask = (mask_t*)&(verilatorTOP->io_mycoreTOPIO_dataWriteIO_mask),
+    .dataWriteIO_respValid = (bool*)&(verilatorTOP->io_mycoreTOPIO_dataWriteIO_respValid)
   };
   ram = new ram_c(imgPath, CPU_RAM_IO);
 
@@ -61,7 +67,7 @@ void verilatorResult_c::step(int i)
       // To learn more, please check the develop log for `commit-bfbad1b` in documents/developLog.md
       verilatorTOP->eval();
       ram->eval();
-      //`verilatorTOP->eval()` is called implicitly before tfp->dump
+      verilatorTOP->eval();
       (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
       
       verilatorTOP->clock = 0;
@@ -72,6 +78,7 @@ void verilatorResult_c::step(int i)
     verilatorTOP->clock = 1;
     verilatorTOP->eval();
     ram->eval();
+    verilatorTOP->eval();
     (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
       
     verilatorTOP->clock = 0;

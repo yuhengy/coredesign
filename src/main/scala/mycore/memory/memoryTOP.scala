@@ -32,13 +32,17 @@ class memoryTOP extends Module
   //fromRam
     val dataReadIO = new Bundle{
       val data = Input(UInt(XLEN.W))
+      val respValid = Input(Bool())
+    }
+    val dataWriteIO = new Bundle{
+      val respValid = Input(Bool())
     }
   })
 
 //--------------execute global status start--------------
 //input
   object stateEnum extends ChiselEnum {
-    val reset, idle, regIsUpdated = Value
+    val reset, idle, regIsUpdated, resultIsBuffered = Value
   }
   val state = RegInit(stateEnum.reset)
 //output
@@ -50,7 +54,8 @@ class memoryTOP extends Module
     regDataIO <> io.inDataIO
     regCtrlIO_r <> io.inCtrlIO.bits
   }
-  val regCtrlIO = Mux(state === stateEnum.regIsUpdated, regCtrlIO_r, exeToMemCtrlIO.init)
+  val regCtrlIO = Mux(state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered,
+                      regCtrlIO_r, exeToMemCtrlIO.init)
 //^^^^^^^^^^^^^^execute global status end^^^^^^^^^^^^^^
 
 //--------------writeBack data start--------------
@@ -76,6 +81,8 @@ class memoryTOP extends Module
 //^^^^^^^^^^^^^^writeBack data end^^^^^^^^^^^^^^
 
 //--------------state machine start--------------
+//input
+  val stall = Wire(Bool())
 //output
   //object stateEnum extends ChiselEnum {
   //  val reset, idle, regIsUpdated = Value
@@ -95,16 +102,28 @@ class memoryTOP extends Module
       when (io.inCtrlIO.valid && io.inCtrlIO.ready)
         {state := stateEnum.regIsUpdated}.
       elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready)
+        {state := stateEnum.idle}.
+      elsewhen (!stall)
+        {state := stateEnum.resultIsBuffered}
+    }
+    is (stateEnum.resultIsBuffered) {
+      when (io.inCtrlIO.valid && io.inCtrlIO.ready)
+        {state := stateEnum.regIsUpdated}.
+      elsewhen (io.outCtrlIO.valid && io.outCtrlIO.ready)
         {state := stateEnum.idle}
     }
   }
 //^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
 
 //--------------control signal start--------------
-  val stall = false.B
+  stall := state === stateEnum.regIsUpdated &&
+           (regCtrlIO.memRd && !io.dataReadIO.respValid ||
+            regCtrlIO.memWr && !io.dataWriteIO.respValid)
 
-  io.inCtrlIO.ready := !stall
-  io.outCtrlIO.valid := state === stateEnum.regIsUpdated && !stall
+  io.inCtrlIO.ready := state === stateEnum.reset || state === stateEnum.idle ||
+                       io.outCtrlIO.ready && io.outCtrlIO.valid
+  io.outCtrlIO.valid := state === stateEnum.regIsUpdated && !stall ||
+                        state === stateEnum.resultIsBuffered
 //^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------

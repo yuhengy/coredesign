@@ -39,10 +39,17 @@ class executeTOP extends Module
 
   //toRam
     val dataReadIO = new Bundle{
+      val reqReady = Input(Bool())
       val addr = Output(UInt(XLEN.W))
       val en = Output(Bool())
     }
-    val dataWriteIO = new memWriteIO
+    val dataWriteIO = new Bundle {
+      val reqReady = Input(Bool())
+      val addr = Output(UInt(XLEN.W))
+      val data = Output(UInt(XLEN.W))
+      val mask = Output(UInt((XLEN/8).W))
+      val en = Output(Bool())
+    }
   })
 
 //--------------execute global status start--------------
@@ -160,9 +167,14 @@ class executeTOP extends Module
 //^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
 
 //--------------control signal start--------------
-  val stall = false.B
+  val stall = state === stateEnum.regIsUpdated &&
+              //(regCtrlIO.memRd && !(io.dataReadIO.reqReady && io.outCtrlIO.ready) ||
+              // regCtrlIO.memWr && !(io.dataWriteIO.reqReady && io.outCtrlIO.ready))
+              (regCtrlIO.memRd && !io.dataReadIO.reqReady ||
+               regCtrlIO.memWr && !io.dataWriteIO.reqReady)
 
-  io.inCtrlIO.ready := !stall
+  io.inCtrlIO.ready := state === stateEnum.reset || state === stateEnum.idle ||
+                       io.outCtrlIO.ready && io.outCtrlIO.valid
   io.outCtrlIO.valid := state === stateEnum.regIsUpdated && !stall
 //^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^
 
@@ -177,6 +189,8 @@ class executeTOP extends Module
 //decToExeCtrl
   io.outCtrlIO.bits.wbSel := regCtrlIO.wbSel
   io.outCtrlIO.bits.rfWen := regCtrlIO.rfWen
+  io.outCtrlIO.bits.memRd := regCtrlIO.memRd
+  io.outCtrlIO.bits.memWr := regCtrlIO.memWr
   io.outCtrlIO.bits.memMask := regCtrlIO.memMask
   io.outCtrlIO.bits.memExt  := regCtrlIO.memExt
   io.outCtrlIO.bits.cs_val_inst := regCtrlIO.cs_val_inst
@@ -197,11 +211,11 @@ class executeTOP extends Module
 
 //toRam
   io.dataReadIO.addr  := Cat(aluOut(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
-  io.dataReadIO.en    := regCtrlIO.memRd
+  io.dataReadIO.en    := regCtrlIO.memRd// && io.outCtrlIO.ready
   io.dataWriteIO.addr := Cat(aluOut(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
   io.dataWriteIO.data := memWriteData
   io.dataWriteIO.mask := memWriteMask
-  io.dataWriteIO.en   := regCtrlIO.memWr
+  io.dataWriteIO.en   := regCtrlIO.memWr// && io.outCtrlIO.ready
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }
