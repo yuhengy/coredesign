@@ -14,7 +14,8 @@ object constants extends
   regfileConstants with
   aluFuncConstants with
   memTypeConstants with
-  opSelConstants
+  opSelConstants with
+  CSRConstants
 {
 }
 
@@ -120,14 +121,16 @@ trait aluFuncConstants
   val ALU_SLL    = 2.asUInt(aluFunc_w.W)
   val ALU_SRL    = 3.asUInt(aluFunc_w.W)
   val ALU_SRA    = 4.asUInt(aluFunc_w.W)
-  val ALU_SRAW   = 5.asUInt(aluFunc_w.W)
-  val ALU_AND    = 6.asUInt(aluFunc_w.W)
-  val ALU_OR     = 7.asUInt(aluFunc_w.W)
-  val ALU_XOR    = 8.asUInt(aluFunc_w.W)
-  val ALU_SLT    = 9.asUInt(aluFunc_w.W)
-  val ALU_SLTU   = 10.asUInt(aluFunc_w.W)
-  val ALU_COPY_1 = 11.asUInt(aluFunc_w.W)
-  val ALU_COPY_2 = 12.asUInt(aluFunc_w.W)
+  val ALU_SLLW   = 5.asUInt(aluFunc_w.W)
+  val ALU_SRLW   = 6.asUInt(aluFunc_w.W)
+  val ALU_SRAW   = 7.asUInt(aluFunc_w.W)
+  val ALU_AND    = 8.asUInt(aluFunc_w.W)
+  val ALU_OR     = 9.asUInt(aluFunc_w.W)
+  val ALU_XOR    = 10.asUInt(aluFunc_w.W)
+  val ALU_SLT    = 11.asUInt(aluFunc_w.W)
+  val ALU_SLTU   = 12.asUInt(aluFunc_w.W)
+  val ALU_COPY_1 = 13.asUInt(aluFunc_w.W)
+  val ALU_COPY_2 = 14.asUInt(aluFunc_w.W)
   val ALU_X      = 0.asUInt(aluFunc_w.W)
 }
 
@@ -162,6 +165,64 @@ trait memTypeConstants
   val EXT_X    = 0.asUInt(memExt_w.W)
 }
 
+trait CSRConstants
+{
+
+  val CSRWriteType_w = 3
+  val CSRWT_U = 0.asUInt(CSRWriteType_w.W)  //Unable
+  val CSRWT_W = 1.asUInt(CSRWriteType_w.W)  //Write
+  val CSRWT_S = 2.asUInt(CSRWriteType_w.W)  //Set
+  val CSRWT_C = 3.asUInt(CSRWriteType_w.W)  //Clear
+  val CSRWT_R = 3.asUInt(CSRWriteType_w.W)  //will read CSR
+  val CSRWT_X = 0.asUInt(CSRWriteType_w.W)
+
+  // Address of CSR
+  val CSR_ADDR_w = 12
+  // Machinne Information Registers
+  val mvendoridAddr = 0xf11.asUInt(CSR_ADDR_w.W)
+  val marchidAddr   = 0xf12.asUInt(CSR_ADDR_w.W)
+  val mimpidAddr    = 0xf13.asUInt(CSR_ADDR_w.W)
+  val mhartidAddr   = 0xf14.asUInt(CSR_ADDR_w.W)
+
+  // Machine Trap Setup
+  val mstatusAddr    = 0x300.asUInt(CSR_ADDR_w.W)
+  val misaAddr       = 0x301.asUInt(CSR_ADDR_w.W)
+  val medelegAddr    = 0x302.asUInt(CSR_ADDR_w.W)
+  val midelegAddr    = 0x303.asUInt(CSR_ADDR_w.W)
+  val mieAddr        = 0x304.asUInt(CSR_ADDR_w.W)
+  val mtvecAddr      = 0x305.asUInt(CSR_ADDR_w.W)
+  val mcounterenAddr = 0x306.asUInt(CSR_ADDR_w.W)
+  val mstatushAddr   = 0x310.asUInt(CSR_ADDR_w.W)
+
+  // Machine Trap Handling
+  val mscratchAddr = 0x340.asUInt(CSR_ADDR_w.W)
+  val mepcAddr     = 0x341.asUInt(CSR_ADDR_w.W)
+  val mcauseAddr   = 0x342.asUInt(CSR_ADDR_w.W)
+  val mtvalAddr    = 0x343.asUInt(CSR_ADDR_w.W)
+  val mipAddr      = 0x344.asUInt(CSR_ADDR_w.W)
+  val mtinstAddr   = 0x34a.asUInt(CSR_ADDR_w.W)
+  val mtval2Addr   = 0x34b.asUInt(CSR_ADDR_w.W)
+
+  // Machine Memory Protection
+
+  // Machine Counter/Timers
+
+  // Machine Counter Setup
+
+  // Debug/Trace Registers (shared with Debug Mode)
+
+  // Debug Mode Registers
+
+  //if (DEBUG) {
+  // ignore
+  // To finish the testbench, we ignore operation to these CSR
+  // instead of assert error
+  val IgnoreCSR = true.B
+  val satpAddr = 0x180.asUInt(CSR_ADDR_w.W)
+  val pmpaddr0Addr = 0x3b0.asUInt(CSR_ADDR_w.W)
+  val pmpcfg0Addr = 0x3a0.asUInt(CSR_ADDR_w.W)
+  //}
+}
 
 
 

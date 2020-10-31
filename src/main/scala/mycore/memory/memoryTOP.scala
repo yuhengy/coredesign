@@ -28,6 +28,7 @@ class memoryTOP extends Module
 
   //memToDecFeedback
     val memDest = Valid(UInt(WID_REG_ADDR.W))
+    val memCSRWriteType = Output(UInt(CSRWriteType_w.W))
 
   //fromRam
     val dataReadIO = new Bundle{
@@ -128,13 +129,17 @@ class memoryTOP extends Module
 
 //--------------io.output start--------------
 //memToWbData
-  io.outDataIO.PC     := regDataIO.PC
-  io.outDataIO.wbData := wbData
-  io.outDataIO.wbAddr := regDataIO.wbAddr
+  io.outDataIO.PC      := regDataIO.PC
+  io.outDataIO.wbData  := wbData
+  io.outDataIO.wbAddr  := regDataIO.wbAddr
+  io.outDataIO.CSRWriteData := regDataIO.CSRWriteData
+  io.outDataIO.CSRAddr := regDataIO.CSRAddr
 
 //memToWbCtrl
+  io.outCtrlIO.bits.wbSel := regCtrlIO.wbSel
   io.outCtrlIO.bits.rfWen := regCtrlIO.rfWen
   io.outCtrlIO.bits.cs_val_inst := regCtrlIO.cs_val_inst
+  io.outCtrlIO.bits.CSRWriteType := regCtrlIO.CSRWriteType
   if (DEBUG) {
     io.outCtrlIO.bits.goodTrapNemu := regCtrlIO.goodTrapNemu
   }
@@ -142,6 +147,7 @@ class memoryTOP extends Module
 //exeToDecFeedback
   io.memDest.bits  := regDataIO.wbAddr
   io.memDest.valid := regCtrlIO.rfWen
+  io.memCSRWriteType := regCtrlIO.CSRWriteType
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }

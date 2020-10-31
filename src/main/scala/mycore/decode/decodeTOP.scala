@@ -28,9 +28,12 @@ class decodeTOP extends Module
   //exeOutKill
     val exeOutKill  = Input(Bool())
 
-  //*ToDecFeedback
+  //ToDecFeedback
     val exeDest = Flipped(Valid(UInt(WID_REG_ADDR.W)))
+    val exeCSRWriteType = Input(UInt(CSRWriteType_w.W))
     val memDest = Flipped(Valid(UInt(WID_REG_ADDR.W)))
+    val memCSRWriteType = Input(UInt(CSRWriteType_w.W))
+    val wbCSRWriteType = Input(UInt(CSRWriteType_w.W))
     
   //wbToDecRegWrite
     val wbToDecWbAddr = Input(UInt(WID_REG_ADDR.W))
@@ -131,6 +134,11 @@ class decodeTOP extends Module
               ))
 //^^^^^^^^^^^^^^operand2 end^^^^^^^^^^^^^^
 
+//--------------exception start--------------
+//output
+  val exception = decoder.io.allCtrlIO.exception
+//^^^^^^^^^^^^^^exception end^^^^^^^^^^^^^^
+
 //--------------state machine start--------------
 //output
   object stateEnum extends ChiselEnum {
@@ -162,7 +170,10 @@ class decodeTOP extends Module
               io.memDest.valid && ((decoder.io.allCtrlIO.cs_rs2_oen===OEN_1) && io.memDest.bits===decRsAddr2 ||
                                    (decoder.io.allCtrlIO.cs_rs1_oen===OEN_1) && io.memDest.bits===decRsAddr1) ||
               io.wbToDecWRfWen && ((decoder.io.allCtrlIO.cs_rs2_oen===OEN_1) && io.wbToDecWbAddr===decRsAddr2 ||
-                                   (decoder.io.allCtrlIO.cs_rs1_oen===OEN_1) && io.wbToDecWbAddr===decRsAddr1)
+                                   (decoder.io.allCtrlIO.cs_rs1_oen===OEN_1) && io.wbToDecWbAddr===decRsAddr1) ||
+              decoder.io.allCtrlIO.CSRWriteType=/=CSRWT_U && (io.exeCSRWriteType=/=CSRWT_U ||
+                                                              io.memCSRWriteType=/=CSRWT_U ||
+                                                              io.wbCSRWriteType =/=CSRWT_U)
 
   io.inCtrlIO.ready := state === stateEnum.reset || state === stateEnum.idle ||
                        io.outCtrlIO.ready && io.outCtrlIO.valid ||
@@ -187,6 +198,8 @@ class decodeTOP extends Module
   io.outCtrlIO.bits.memMask     := decoder.io.allCtrlIO.memMask
   io.outCtrlIO.bits.memExt      := decoder.io.allCtrlIO.memExt
   io.outCtrlIO.bits.cs_val_inst := decoder.io.allCtrlIO.cs_val_inst
+  io.outCtrlIO.bits.CSRWriteType := decoder.io.allCtrlIO.CSRWriteType
+  io.outCtrlIO.bits.exception := exception
   if (DEBUG) {
     io.outCtrlIO.bits.goodTrapNemu := decoder.io.allCtrlIO.goodTrapNemu
   }

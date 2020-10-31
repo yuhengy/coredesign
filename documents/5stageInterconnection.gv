@@ -13,9 +13,10 @@ digraph G {
   "execute" -> "instFetch" [label="exeOutKill"];
 
   "execute" -> "decode" [label="exeOutKill"];
-  "execute" -> "decode" [label="exeDest"];
-  "memory" -> "decode" [label="memDest"];
-  "writeBack" -> "decode" [label="wbAddr/Data/Wen\nwbDest"];
+  "execute" -> "decode" [label="exeDest\nCSRWrite"];
+  "memory" -> "decode" [label="memDest\nCSRWrite"];
+  "writeBack" -> "decode" [label="wbAddr/Data/Wen\nwbDest\nCSRWrite"];
+  "writeBack" -> "preInstFetch" [label="exc-PC"];
 
 
 //ram

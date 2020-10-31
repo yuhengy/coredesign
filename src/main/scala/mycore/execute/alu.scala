@@ -32,9 +32,11 @@ class alu extends Module
                   (io.aluFunc === ALU_SLT)   -> (io.op1.asSInt() < io.op2.asSInt()).asUInt(),
                   (io.aluFunc === ALU_SLTU)  -> (io.op1 < io.op2).asUInt(),
                   (io.aluFunc === ALU_SLL)   -> ((io.op1 << shamt)(XLEN-1, 0)).asUInt(),
-                  (io.aluFunc === ALU_SRA)   -> (io.op1.asSInt() >> shamt).asUInt(),
-                  (io.aluFunc === ALU_SRAW)  -> Cat(Fill(32, 0.U), (io.op1(31,0).asSInt() >> shamt).asUInt()),
                   (io.aluFunc === ALU_SRL)   -> (io.op1 >> shamt).asUInt(),
+                  (io.aluFunc === ALU_SRA)   -> (io.op1.asSInt() >> shamt).asUInt(),
+                  (io.aluFunc === ALU_SLLW)   -> ((io.op1 << shamt(4,0))(XLEN-1, 0)).asUInt(),
+                  (io.aluFunc === ALU_SRLW)   -> (io.op1 >> shamt(4,0)).asUInt(),
+                  (io.aluFunc === ALU_SRAW)  -> Cat(Fill(32, 0.U), (io.op1(31,0).asSInt() >> shamt(4,0)).asUInt()),
                   (io.aluFunc === ALU_COPY_1)-> io.op1,
                   (io.aluFunc === ALU_COPY_2)-> io.op2
                   ))

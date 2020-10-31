@@ -22,10 +22,12 @@ class preInstFetchTOP extends Module
   //exeOutKill
     val exeOutKill  = Input(Bool())
 
-  //exeToIfFeedback
+  //exeToPreifFeedback
     val brjmpTarget = Input(UInt(XLEN.W))
     val jmpRTarget  = Input(UInt(XLEN.W))
     val PCSel       = Input(UInt(PCSel_w.W))
+  //wbToPreifFeedback
+    val exceptionTarget = Input(UInt(XLEN.W))
 
   //toRam
     val instReadIO = new Bundle{
@@ -40,10 +42,6 @@ class preInstFetchTOP extends Module
 //^^^^^^^^^^^^^^instFetch global status end^^^^^^^^^^^^^^
 
 //--------------PC next start--------------
-//input
-  val exceptionTarget = Wire(UInt(XLEN.W))  //TODO: this does not have signal now
-  exceptionTarget := 0.U
-  val donotSend = Wire(Bool())
 //private
   val PC4             = Wire(UInt(XLEN.W))
   val PCNext          = Wire(UInt(XLEN.W))
@@ -51,7 +49,7 @@ class preInstFetchTOP extends Module
   PCNext := Mux(io.PCSel === PC_4,      PC4,
             Mux(io.PCSel === PC_BRJMP,  io.brjmpTarget,
             Mux(io.PCSel === PC_JALR,   io.jmpRTarget,
-          /*Mux(io.PCSel === PC_EXC,*/  exceptionTarget)))
+          /*Mux(io.PCSel === PC_EXC,*/  io.exceptionTarget)))
 
   PC4 := regPC + 4.asUInt(XLEN.W)
 //^^^^^^^^^^^^^^PC next end^^^^^^^^^^^^^^
@@ -62,6 +60,7 @@ class preInstFetchTOP extends Module
     val reset, regIsUpdated, resultIsBuffered = Value
   }
   val state = RegInit(stateEnum.reset)
+  val donotSend = Wire(Bool())
 
 //private
   val regOutput = Reg(UInt(XLEN.W))

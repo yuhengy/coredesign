@@ -25,6 +25,7 @@ class mycoreTOP extends Module
   preInstFetchTOP.io.exeOutKill  := executeTOP.io.exeOutKill
   preInstFetchTOP.io.brjmpTarget := executeTOP.io.brjmpTarget
   preInstFetchTOP.io.jmpRTarget  := executeTOP.io.jmpRTarget
+  preInstFetchTOP.io.exceptionTarget := writeBackTOP.io.exceptionTarget
   preInstFetchTOP.io.PCSel       := executeTOP.io.PCSel
   preInstFetchTOP.io.instReadIO.reqReady := io.instReadIO.reqReady
   io.instReadIO.addr             := preInstFetchTOP.io.instReadIO.addr
@@ -40,10 +41,13 @@ class mycoreTOP extends Module
   decodeTOP.io.inCtrlIO <> instFetchTOP.io.outCtrlIO
   decodeTOP.io.exeOutKill    := executeTOP.io.exeOutKill
   decodeTOP.io.exeDest       <> executeTOP.io.exeDest
+  decodeTOP.io.exeCSRWriteType := executeTOP.io.exeCSRWriteType
   decodeTOP.io.memDest       <> memoryTOP.io.memDest
+  decodeTOP.io.memCSRWriteType := memoryTOP.io.memCSRWriteType
   decodeTOP.io.wbToDecWbAddr := writeBackTOP.io.wbToDecWbAddr
   decodeTOP.io.wbToDecWbdata := writeBackTOP.io.wbToDecWbdata
   decodeTOP.io.wbToDecWRfWen := writeBackTOP.io.wbToDecWRfWen
+  decodeTOP.io.wbCSRWriteType := writeBackTOP.io.wbCSRWriteType
 
   executeTOP.io.inDataIO  <> decodeTOP.io.outDataIO
   executeTOP.io.inCtrlIO  <> decodeTOP.io.outCtrlIO

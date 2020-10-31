@@ -17,6 +17,8 @@ class decToExeCtrlIO extends Bundle()
   val memMask     = UInt(memMask_w.W)
   val memExt      = UInt(memExt_w.W)
   val cs_val_inst = Bool()
+  val CSRWriteType = UInt(CSRWriteType_w.W)
+  val exception   = Bool()
   //if (DEBUG) {
     val goodTrapNemu = Bool()
   //}
@@ -26,13 +28,15 @@ class decToExeCtrlIO extends Bundle()
     rfWen  := REN_0
     memRd  := MRD_0
     memWr  := MWR_0
+    cs_val_inst := false.B
+    exception := false.B
+    CSRWriteType := CSRWT_U
 
     //TODO: following init is useless
     aluFunc     := ALU_X
     wbSel       := WB_X
     memMask     := MSK_X
     memExt      := EXT_X
-    cs_val_inst := false.B
     if (DEBUG) {
       goodTrapNemu := false.B
     }

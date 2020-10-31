@@ -27,7 +27,7 @@ class executeTOP extends Module
   //exeToMenCtrl
     val outCtrlIO = Decoupled(new exeToMemCtrlIO)
 
-  //exeToIfFeedback
+  //exeToPreifFeedback
     val brjmpTarget = Output(UInt(XLEN.W))
     val jmpRTarget  = Output(UInt(XLEN.W))
     val PCSel       = Output(UInt(PCSel_w.W))
@@ -36,6 +36,7 @@ class executeTOP extends Module
 
   //exeToDecFeedback
     val exeDest = Valid(UInt(WID_REG_ADDR.W))
+    val exeCSRWriteType = Output(UInt(CSRWriteType_w.W))
 
   //toRam
     val dataReadIO = new Bundle{
@@ -127,7 +128,7 @@ class executeTOP extends Module
   val brLt  = (regDataIO.aluop1.asSInt() < regDataIO.rfRs2Data.asSInt())
   val brLtu = (regDataIO.aluop1.asUInt() < regDataIO.rfRs2Data.asUInt())
   
-  PCSel := //Mux(io.ctl.pipeline_kill     , PC_EXC,
+  PCSel := Mux(regCtrlIO.exception        , PC_EXC,
            Mux(regCtrlIO.brType === BR_N  , PC_4,
            Mux(regCtrlIO.brType === BR_NE , Mux(!brEq,  PC_BRJMP, PC_4),
            Mux(regCtrlIO.brType === BR_EQ , Mux( brEq,  PC_BRJMP, PC_4),
@@ -138,7 +139,7 @@ class executeTOP extends Module
            Mux(regCtrlIO.brType === BR_J  , PC_BRJMP,
            Mux(regCtrlIO.brType === BR_JR , PC_JALR,
                                             PC_4
-           )))))))))//)
+           ))))))))))
 //^^^^^^^^^^^^^^branch/jump select end^^^^^^^^^^^^^^
 
 //--------------state machine start--------------
@@ -179,11 +180,13 @@ class executeTOP extends Module
 
 //--------------io.output start--------------
 //exeToMemData
-  io.outDataIO.PC        := regDataIO.PC
-  io.outDataIO.inst      := regDataIO.inst
-  io.outDataIO.wbData    := wbData
-  io.outDataIO.wbAddr    := regDataIO.wbAddr
-  io.outDataIO.addrAlign := aluOut(addrAlign_w-1, 0)
+  io.outDataIO.PC           := regDataIO.PC
+  io.outDataIO.inst         := regDataIO.inst
+  io.outDataIO.wbData       := wbData
+  io.outDataIO.wbAddr       := regDataIO.wbAddr
+  io.outDataIO.addrAlign    := aluOut(addrAlign_w-1, 0)
+  io.outDataIO.CSRWriteData := regDataIO.aluop1
+  io.outDataIO.CSRAddr      := regDataIO.aluop2(CSR_ADDR_w-1, 0)
 
 //decToExeCtrl
   io.outCtrlIO.bits.wbSel := regCtrlIO.wbSel
@@ -193,6 +196,7 @@ class executeTOP extends Module
   io.outCtrlIO.bits.memMask := regCtrlIO.memMask
   io.outCtrlIO.bits.memExt  := regCtrlIO.memExt
   io.outCtrlIO.bits.cs_val_inst := regCtrlIO.cs_val_inst
+  io.outCtrlIO.bits.CSRWriteType := regCtrlIO.CSRWriteType
   if (DEBUG) {
     io.outCtrlIO.bits.goodTrapNemu := regCtrlIO.goodTrapNemu
   }
@@ -207,6 +211,7 @@ class executeTOP extends Module
 //exeToDecFeedback
   io.exeDest.bits  := regDataIO.wbAddr
   io.exeDest.valid := regCtrlIO.rfWen
+  io.exeCSRWriteType := regCtrlIO.CSRWriteType
 
 //toRam
   io.dataReadIO.addr  := Cat(aluOut(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))

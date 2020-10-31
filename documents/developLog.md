@@ -255,5 +255,27 @@ The reason that we need this logic is that:
 + For data, memory stage will not be stalled from reasons other than mem. Thus, CPU can send new request regardless whether mem can serve it, and when mem serve it, memory stage is not stalled.
 + For inst, instFetch stage can be stalled from many other reasons. Thus, preInstFetch stage need wait instFetch ready, and then send new request to mem. However, instFetch ready depend on mem resp valid.
 
-## Oct29, 2020 commit-
+## Oct29, 2020 commit-2ffde40
 This commit adds latency to inst read. DANGEROUS: The state machine is poorly tested. It seems some state can hardly reach.
+
+## Oct31, 2020 commit-
+**SIGNIFICANT** This commit implements the framwork for CSR, implements enough CSR to support officialTest rv64ui, and pass all rv64ui except fence.i.
+
+### CSR Registers
+To make the code easier to read, we distribute the implementation code into two levels, namely, CSRTOP and CSRReg. We list their function below:
++ CSRTOP:
+	+ Decode the addr to select the read csr data with explicit instruction.
+	+ Following CSR function to select implicit read from all CSR Registers. 
+	+ Bypass the Module IO to each CSR Reg Module.
++ CSRReg:
+	+ Implement internal register, they can be shorter due to invalid status.
+	+ Read/write to internal register with permission to each field.
++ Note: explicit read/write represents read/write from CSRR[W/S/C]\(I\), instructions. While, implicit read/write is done by the hardware automatically.
+
+The novelity of this two-level implementation is tend to provide a easier understanding on each CSR Register's operation. The novel approach is by bypass all IO from Top module to each CSR Module, so that operations will not be limited by IO. **To improve Chisel for better support, we prefer a concept of Global reg/wire, so that can reduce input/output without loss of abstraction breaking.**
+
+### Machine-Level instructions
++ To solve CSR hazard, we stall second machine-level instruction at decode stage, until the first machine-level instrcution retire from writeBack stage.
++ To understant MRET implementation:
+	+ PCsel for exception is still sent to preInstFetch by execute stage.
+	+ Exception target PC is send from writeBack stage at the same cycle, since all CSR hazard is solved, this is safe.
