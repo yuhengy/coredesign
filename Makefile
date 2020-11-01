@@ -50,7 +50,9 @@ PWD := $(shell pwd)## In principle, this is useless,
 
 #*********************************
 # officialTest
+# ui
 #*********************************
+
 #testName_all += officialTest/rv64ui-p-add#done
 #testName_all += officialTest/rv64ui-p-addi#done
 #testName_all += officialTest/rv64ui-p-addiw#done
@@ -105,9 +107,29 @@ PWD := $(shell pwd)## In principle, this is useless,
 
 
 #*********************************
+# officialTest
+# um
+#*********************************
+testName_all += officialTest/rv64um-p-mul#done
+testName_all += officialTest/rv64um-p-mulh#done
+testName_all += officialTest/rv64um-p-mulhsu#done
+testName_all += officialTest/rv64um-p-mulhu#done
+testName_all += officialTest/rv64um-p-mulw#done
+
+#testName_all += officialTest/rv64um-p-div
+#testName_all += officialTest/rv64um-p-divu
+#testName_all += officialTest/rv64um-p-divuw
+#testName_all += officialTest/rv64um-p-divw
+#testName_all += officialTest/rv64um-p-rem
+#testName_all += officialTest/rv64um-p-remu
+#testName_all += officialTest/rv64um-p-remuw
+#testName_all += officialTest/rv64um-p-remw
+
+
+#*********************************
 # rtthread
 #*********************************
-testName_all += rtthread/rtthread
+#testName_all += rtthread/rtthread
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -234,6 +256,7 @@ getFromOfficialRepo:
 	make -C $(RISCVTESTS_HOME) install
 	mkdir -p $(officialTestBuildDir)
 	cp $(RISCVTESTS_HOME)/install/share/riscv-tests/isa/rv64ui*-p-* $(officialTestBuildDir)
+	cp $(RISCVTESTS_HOME)/install/share/riscv-tests/isa/rv64um*-p-* $(officialTestBuildDir)
 
 $(officialTestBuildDir)/%.bin: $(officialTestBuildDir)/%
 	riscv64-unknown-elf-objcopy -O binary $^ $@
@@ -248,6 +271,7 @@ cleanOfficialTestbench:
 ## TODO: for now, this should be done manully
 TRTHREAD_HOME = $(PWD)/../RT-Thread
 getFromRtthreadRepo:
+	make -C $(TRTHREAD_HOME)/bsp/riscv64 clean
 	make -C $(TRTHREAD_HOME)/bsp/riscv64 nutshell
 	mkdir -p $(rtthreadBuildDir)
 	cp $(TRTHREAD_HOME)/bsp/riscv64/build/code.txt $(rtthreadBuildDir)/rtthread.txt

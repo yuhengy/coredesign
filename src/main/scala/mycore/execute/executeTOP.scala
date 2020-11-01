@@ -168,9 +168,10 @@ class executeTOP extends Module
 //^^^^^^^^^^^^^^state machine end^^^^^^^^^^^^^^
 
 //--------------control signal start--------------
-  val stall = state === stateEnum.regIsUpdated &&
+  val stall = state === stateEnum.regIsUpdated &&  //TODO: this line should be skiped
               (regCtrlIO.memRd && !(io.dataReadIO.reqReady && io.outCtrlIO.ready) ||
-               regCtrlIO.memWr && !(io.dataWriteIO.reqReady && io.outCtrlIO.ready))
+               regCtrlIO.memWr && !(io.dataWriteIO.reqReady && io.outCtrlIO.ready)) ||
+              alu.io.stall
   //TODO: check whether stall need consider reset state
 
   io.inCtrlIO.ready := state === stateEnum.reset || state === stateEnum.idle ||

@@ -280,7 +280,12 @@ The novelity of this two-level implementation is tend to provide a easier unders
 	+ PCsel for exception is still sent to preInstFetch by execute stage.
 	+ Exception target PC is send from writeBack stage at the same cycle, since all CSR hazard is solved, this is safe.
 
-## Nov1, 2020 commit-
+## Nov1, 2020 commit-17e2059
 This commit implements explicit read/write to CSR. The code is easy to understand because each class/module is explicitly refer to one section in the `riscv-privileged.pdf`.
 
 Besides, RT-Thread file can be copied into `build/tesstbench/rtthread` with `make getFromRtthreadRepo`.
+
+## Nov1, 2020 commit-
+This commit implements M instructions. The multiplyer, which acts as mul and dic in face, is copied from [here](https://github.com/phantom-v/phvntom).
+
+Current problem is that, verilator seems will have `Floating point exception` bug when div/rem. I update verilator to the newest version but still not work. But this bug only happens in officialTest rv64um, but seems fine in RT-Thread. Thus, fixing this bug is not the highest prority for now.

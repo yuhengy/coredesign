@@ -135,7 +135,7 @@ wordLen_t ram_c::memRead(wordLen_t addr)
         && "Addr out of range") {
     return ram[(addr - ADDR_START) / sizeof(wordLen_t)];
   } else {
-    printf("Warning: Addr out of range!!!\n");
+    printf("Warning: Read Addr out of range!!!\n");
     return 0;
   }
 }
@@ -144,8 +144,11 @@ void ram_c::memWrite(wordLen_t addr, wordLen_t data)
 {
   assert((addr % sizeof(wordLen_t)) == 0
         && "Ram Addr should be aligned");
-  assert(ADDR_START <= addr 
+  if (ADDR_START <= addr 
                    && addr <= ADDR_START + RAMSIZE / sizeof(wordLen_t)
-        && "Addr out of range");
-  ram[(addr - ADDR_START) / sizeof(wordLen_t)] = data;
+        && "Addr out of range") {
+    ram[(addr - ADDR_START) / sizeof(wordLen_t)] = data;
+  } else {
+    printf("Warning: Write Addr out of range!!!\n");
+  }
 }

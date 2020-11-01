@@ -93,6 +93,21 @@ class decoder extends Module
                   SRLW   -> List(Y, BR_N  , OP1_RS1W, OP2_RS2   , OEN_1, OEN_1, ALU_SRLW  , WB_ALUW, REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
                   SRAW   -> List(Y, BR_N  , OP1_RS1W, OP2_RS2   , OEN_1, OEN_1, ALU_SRAW  , WB_ALUW, REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
 
+                  // M
+                  MUL    -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_MUL   , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  MULH   -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_MULH  , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  MULHSU -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_MULHSU, WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  MULHU  -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_MULHU , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  DIV    -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_DIV   , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  DIVU   -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_DIVU  , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  REM    -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_REM   , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  REMU   -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_REMU  , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  MULW   -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_MULW  , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  DIVW   -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_DIVW  , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  DIVUW  -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_DIVUW , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  REMW   -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_REMW  , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+                  REMUW  -> List(Y, BR_N  , OP1_RS1 , OP2_RS2   , OEN_1, OEN_1, ALU_REMUW , WB_ALU , REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
+
                   // Machine
                   MRET   -> List(Y, BR_N  , OP1_X   , OP2_X     , OEN_0, OEN_0, ALU_X     , WB_X   , REN_0, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_IMP, N),
 
