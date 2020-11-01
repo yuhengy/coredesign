@@ -112,7 +112,7 @@ class writeBackTOP extends Module
   if (DEBUG) {
     printf(s"PC to update regFile = 0x%x; stageValid = %d; instValid = %d\n", regDataIO.PC, state === stateEnum.regIsUpdated, regCtrlIO.cs_val_inst)
     assert(!(state === stateEnum.regIsUpdated && !regCtrlIO.cs_val_inst) &&
-           (regCtrlIO.CSRWriteType === CSRWT_U || CSRSupported))
+           (regCtrlIO.CSRWriteType === CSRWT_U || regCtrlIO.CSRWriteType === CSRWT_IMP || CSRSupported))
     
     BoringUtils.addSource(regCtrlIO.goodTrapNemu, "GoodTrapNemu")
 

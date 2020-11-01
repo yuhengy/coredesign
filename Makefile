@@ -9,6 +9,9 @@ PWD := $(shell pwd)## In principle, this is useless,
 #*****************************************************************************
 #testName_all += myTest/singleLUI
 
+#*********************************
+# AMCPUTest
+#*********************************
 #testName_all += AMCPUTest/add-longlong-riscv64-nutshell#done
 #testName_all += AMCPUTest/add-riscv64-nutshell#done
 #testName_all += AMCPUTest/bit-riscv64-nutshell#done
@@ -44,57 +47,67 @@ PWD := $(shell pwd)## In principle, this is useless,
 #testName_all += AMCPUTest/shuixianhua-riscv64-nutshell
 #testName_all += AMCPUTest/wanshu-riscv64-nutshell
 
-testName_all += officialTest/rv64ui-p-add#done
-testName_all += officialTest/rv64ui-p-addi#done
-testName_all += officialTest/rv64ui-p-addiw#done
-testName_all += officialTest/rv64ui-p-addw#done
-testName_all += officialTest/rv64ui-p-and#done
-testName_all += officialTest/rv64ui-p-andi#done
-testName_all += officialTest/rv64ui-p-auipc#done
-testName_all += officialTest/rv64ui-p-beq#done
-testName_all += officialTest/rv64ui-p-bge#done
-testName_all += officialTest/rv64ui-p-bgeu#done
-testName_all += officialTest/rv64ui-p-blt#done
-testName_all += officialTest/rv64ui-p-bne#done
-testName_all += officialTest/rv64ui-p-jal#done
-testName_all += officialTest/rv64ui-p-jalr#done
-testName_all += officialTest/rv64ui-p-lb#done
-testName_all += officialTest/rv64ui-p-lbu#done
-testName_all += officialTest/rv64ui-p-ld#done
-testName_all += officialTest/rv64ui-p-lh#done
-testName_all += officialTest/rv64ui-p-lhu#done
-testName_all += officialTest/rv64ui-p-lui#done
-testName_all += officialTest/rv64ui-p-lw#done
-testName_all += officialTest/rv64ui-p-lwu#done
-testName_all += officialTest/rv64ui-p-or#done
-testName_all += officialTest/rv64ui-p-ori#done
-testName_all += officialTest/rv64ui-p-sb#done
-testName_all += officialTest/rv64ui-p-sd#done
-testName_all += officialTest/rv64ui-p-sh#done
-testName_all += officialTest/rv64ui-p-simple#done
-testName_all += officialTest/rv64ui-p-sll#done
-testName_all += officialTest/rv64ui-p-slli#done
-testName_all += officialTest/rv64ui-p-slliw#done
-testName_all += officialTest/rv64ui-p-sllw#done
-testName_all += officialTest/rv64ui-p-slt#done
-testName_all += officialTest/rv64ui-p-slti#done
-testName_all += officialTest/rv64ui-p-sltiu#done
-testName_all += officialTest/rv64ui-p-sltu#done
-testName_all += officialTest/rv64ui-p-sra#done
-testName_all += officialTest/rv64ui-p-srai#done
-testName_all += officialTest/rv64ui-p-sraiw#done
-testName_all += officialTest/rv64ui-p-sraw#done
-testName_all += officialTest/rv64ui-p-srl#done
-testName_all += officialTest/rv64ui-p-srli#done
-testName_all += officialTest/rv64ui-p-srliw#done
-testName_all += officialTest/rv64ui-p-srlw#done
-testName_all += officialTest/rv64ui-p-sub#done
-testName_all += officialTest/rv64ui-p-subw#done
-testName_all += officialTest/rv64ui-p-sw#done
-testName_all += officialTest/rv64ui-p-xor#done
-testName_all += officialTest/rv64ui-p-xori#done
+
+#*********************************
+# officialTest
+#*********************************
+#testName_all += officialTest/rv64ui-p-add#done
+#testName_all += officialTest/rv64ui-p-addi#done
+#testName_all += officialTest/rv64ui-p-addiw#done
+#testName_all += officialTest/rv64ui-p-addw#done
+#testName_all += officialTest/rv64ui-p-and#done
+#testName_all += officialTest/rv64ui-p-andi#done
+#testName_all += officialTest/rv64ui-p-auipc#done
+#testName_all += officialTest/rv64ui-p-beq#done
+#testName_all += officialTest/rv64ui-p-bge#done
+#testName_all += officialTest/rv64ui-p-bgeu#done
+#testName_all += officialTest/rv64ui-p-blt#done
+#testName_all += officialTest/rv64ui-p-bne#done
+#testName_all += officialTest/rv64ui-p-jal#done
+#testName_all += officialTest/rv64ui-p-jalr#done
+#testName_all += officialTest/rv64ui-p-lb#done
+#testName_all += officialTest/rv64ui-p-lbu#done
+#testName_all += officialTest/rv64ui-p-ld#done
+#testName_all += officialTest/rv64ui-p-lh#done
+#testName_all += officialTest/rv64ui-p-lhu#done
+#testName_all += officialTest/rv64ui-p-lui#done
+#testName_all += officialTest/rv64ui-p-lw#done
+#testName_all += officialTest/rv64ui-p-lwu#done
+#testName_all += officialTest/rv64ui-p-or#done
+#testName_all += officialTest/rv64ui-p-ori#done
+#testName_all += officialTest/rv64ui-p-sb#done
+#testName_all += officialTest/rv64ui-p-sd#done
+#testName_all += officialTest/rv64ui-p-sh#done
+#testName_all += officialTest/rv64ui-p-simple#done
+#testName_all += officialTest/rv64ui-p-sll#done
+#testName_all += officialTest/rv64ui-p-slli#done
+#testName_all += officialTest/rv64ui-p-slliw#done
+#testName_all += officialTest/rv64ui-p-sllw#done
+#testName_all += officialTest/rv64ui-p-slt#done
+#testName_all += officialTest/rv64ui-p-slti#done
+#testName_all += officialTest/rv64ui-p-sltiu#done
+#testName_all += officialTest/rv64ui-p-sltu#done
+#testName_all += officialTest/rv64ui-p-sra#done
+#testName_all += officialTest/rv64ui-p-srai#done
+#testName_all += officialTest/rv64ui-p-sraiw#done
+#testName_all += officialTest/rv64ui-p-sraw#done
+#testName_all += officialTest/rv64ui-p-srl#done
+#testName_all += officialTest/rv64ui-p-srli#done
+#testName_all += officialTest/rv64ui-p-srliw#done
+#testName_all += officialTest/rv64ui-p-srlw#done
+#testName_all += officialTest/rv64ui-p-sub#done
+#testName_all += officialTest/rv64ui-p-subw#done
+#testName_all += officialTest/rv64ui-p-sw#done
+#testName_all += officialTest/rv64ui-p-xor#done
+#testName_all += officialTest/rv64ui-p-xori#done
 
 #testName_all += officialTest/rv64ui-p-fence_i
+
+
+#*********************************
+# rtthread
+#*********************************
+testName_all += rtthread/rtthread
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -134,6 +147,13 @@ officialTestDumpFile := $(shell find $(officialTestBuildDir) -name '*.dump')
 officialTestObjFile := $(officialTestDumpFile:%.dump=%)
 officialTestBinFile := $(officialTestObjFile:%=%.bin)
 #----------Official riscv-tests File End-------------
+
+#----------RT-Thread File Begin-------------
+rtthreadBuildDir = $(PWD)/build/testbench/rtthread
+rtthreadDumpFile := $(shell find $(rtthreadBuildDir) -name '*.txt')
+rtthreadObjFile := $(rtthreadDumpFile:%.txt=%.elf)
+rtthreadBinFile := $(rtthreadObjFile:%.elf=%.bin)
+#----------RT-Thread File End-------------
 
 #---------Verilator File Begin-------------
 verilatorHFile = $(shell find $(PWD)/verilator -name '*.h')
@@ -223,6 +243,20 @@ getOfficialTestbench: $(officialTestBinFile)
 cleanOfficialTestbench:
 	rm -rf $(officialTestBuildDir)
 #---------Get Official riscv-tests End-------------
+
+#---------Get RT-Thread Begin-------------
+## TODO: for now, this should be done manully
+TRTHREAD_HOME = $(PWD)/../RT-Thread
+getFromRtthreadRepo:
+	make -C $(TRTHREAD_HOME)/bsp/riscv64 nutshell
+	mkdir -p $(rtthreadBuildDir)
+	cp $(TRTHREAD_HOME)/bsp/riscv64/build/code.txt $(rtthreadBuildDir)/rtthread.txt
+	cp $(TRTHREAD_HOME)/bsp/riscv64/rtthread.elf $(rtthreadBuildDir)
+	cp $(TRTHREAD_HOME)/bsp/riscv64/rtthread.bin $(rtthreadBuildDir)
+
+cleanRtthread:
+	rm -rf $(rtthreadBuildDir)
+#---------Get RT-Thread End-------------
 
 #---------Assemble Verilog-Nemu-Testbench to Runable Begin-------------
 $(verilatorRunable): $(verilatorHFile) $(verilatorCppFile) $(verilogFile) $(NEMU_SO)

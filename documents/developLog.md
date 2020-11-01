@@ -258,7 +258,7 @@ The reason that we need this logic is that:
 ## Oct29, 2020 commit-2ffde40
 This commit adds latency to inst read. DANGEROUS: The state machine is poorly tested. It seems some state can hardly reach.
 
-## Oct31, 2020 commit-
+## Oct31, 2020 commit-83b8ef0
 **SIGNIFICANT** This commit implements the framwork for CSR, implements enough CSR to support officialTest rv64ui, and pass all rv64ui except fence.i.
 
 ### CSR Registers
@@ -279,3 +279,8 @@ The novelity of this two-level implementation is tend to provide a easier unders
 + To understant MRET implementation:
 	+ PCsel for exception is still sent to preInstFetch by execute stage.
 	+ Exception target PC is send from writeBack stage at the same cycle, since all CSR hazard is solved, this is safe.
+
+## Nov1, 2020 commit-
+This commit implements explicit read/write to CSR. The code is easy to understand because each class/module is explicitly refer to one section in the `riscv-privileged.pdf`.
+
+Besides, RT-Thread file can be copied into `build/tesstbench/rtthread` with `make getFromRtthreadRepo`.

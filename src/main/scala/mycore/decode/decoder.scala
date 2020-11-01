@@ -94,7 +94,7 @@ class decoder extends Module
                   SRAW   -> List(Y, BR_N  , OP1_RS1W, OP2_RS2   , OEN_1, OEN_1, ALU_SRAW  , WB_ALUW, REN_1, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),
 
                   // Machine
-                  MRET   -> List(Y, BR_N  , OP1_X   , OP2_X     , OEN_0, OEN_0, ALU_X     , WB_X   , REN_0, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_R, N),
+                  MRET   -> List(Y, BR_N  , OP1_X   , OP2_X     , OEN_0, OEN_0, ALU_X     , WB_X   , REN_0, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_IMP, N),
 
                   // if (DEBUG)
                   NEMUHALT->List(Y, BR_N  , OP1_X   , OP2_X     , OEN_0, OEN_0, ALU_X     , WB_X   , REN_0, MRD_0, MWR_0, MSK_X, EXT_X ,CSRWT_U, N),  //For AMCPUTest
