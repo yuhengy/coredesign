@@ -18,7 +18,8 @@ int main(int argc, char** argv)
 {
   char* imgPath = argv[1];
   verilatorResult_c* verilatorResult = new verilatorResult_c(imgPath, &sc_time);
-  nemuResult_c* nemuResult = new nemuResult_c(imgPath);
+  nemuResult_c* nemuResult;
+  if (DIFFTESTON) nemuResult = new nemuResult_c(imgPath);
 
   printf("                          **************************************************************\n");
   printf("                          ***************Reset Stage of Verilator RegFile***************\n");
@@ -27,7 +28,7 @@ int main(int argc, char** argv)
 
   while (!verilatorResult->hitGoodTrap()) {
     verilatorResult->step(1);
-    nemuResult->step(1);
+    if (DIFFTESTON) nemuResult->step(1);
     if (DUMPTRACEON) verilatorResult->dump();
 
     if (DIFFTESTON && verilatorResult->compareWith(nemuResult)) {
@@ -41,7 +42,7 @@ int main(int argc, char** argv)
     }
 
 #ifdef DEBUG
-    if (nemuResult->getCycleCounter() == 100000) {
+    if (sc_time == 100000) {
       break;
     }
 #endif
@@ -55,6 +56,6 @@ int main(int argc, char** argv)
   }
 
   delete verilatorResult;
-  delete nemuResult;
+  if (DIFFTESTON) delete nemuResult;
   return 0;
 }

@@ -32,6 +32,7 @@ public:
   ram_c(char* imgPath, CPU_RAM_IO_t inputCPU_RAM_IO);
   void eval();
   void eval_computeLogic();
+  void eval_updateReg();
 
 
 private:

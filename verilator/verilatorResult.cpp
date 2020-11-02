@@ -70,7 +70,8 @@ void verilatorResult_c::step(int i)
       verilatorTOP->eval();
       ram->eval();
       verilatorTOP->eval();
-      ram->eval_computeLogic();  // there sxists logic MEM-CPU-MEM
+      ram->eval_computeLogic();  // there exists logic MEM-CPU-MEM
+      ram->eval_updateReg();
       (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
       
       verilatorTOP->clock = 0;
@@ -82,7 +83,8 @@ void verilatorResult_c::step(int i)
     verilatorTOP->eval();
     ram->eval();
     verilatorTOP->eval();
-    ram->eval_computeLogic();  // there sxists logic MEM-CPU-MEM
+    ram->eval_computeLogic();  // there exists logic MEM-CPU-MEM
+      ram->eval_updateReg();
     (*sc_time)++; if(vcdTrace) { tfp->dump((double)*sc_time); }
       
     verilatorTOP->clock = 0;

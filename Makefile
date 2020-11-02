@@ -271,7 +271,7 @@ cleanOfficialTestbench:
 ## TODO: for now, this should be done manully
 TRTHREAD_HOME = $(PWD)/../RT-Thread
 getFromRtthreadRepo:
-	rm $(TRTHREAD_HOME)/bsp/riscv64/rtthread.elf
+	rm -f $(TRTHREAD_HOME)/bsp/riscv64/rtthread.elf
 	make -C $(TRTHREAD_HOME)/bsp/riscv64 nutshell
 	mkdir -p $(rtthreadBuildDir)
 	cp $(TRTHREAD_HOME)/bsp/riscv64/build/code.txt $(rtthreadBuildDir)/rtthread.txt

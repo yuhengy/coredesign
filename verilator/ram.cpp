@@ -89,6 +89,7 @@ void ram_c::eval()
 
   //STEP3 Compute logic
   eval_computeLogic();
+
 }
 
 void ram_c::eval_computeLogic()
@@ -113,7 +114,11 @@ void ram_c::eval_computeLogic()
     dataWriteReqBuff_new.en  = *(CPU_RAM_IO.dataWriteIO_en);
     dataWriteReqBuff_new.busy = *(CPU_RAM_IO.dataWriteIO_en);
   }
+}
 
+//TODO: this is messy, rewrite it.
+void ram_c::eval_updateReg()
+{
   if (*(CPU_RAM_IO.dataWriteIO_en) && !(dataWriteReqBuff_old.busy && !dataWrite_canFinish)) {
     wordLen_t fullMask = 0;
     for(int i = 0; i < sizeof(wordLen_t); i++) {
@@ -122,8 +127,15 @@ void ram_c::eval_computeLogic()
         fullMask |= (byteEn << (8*i+j));
       }
     }
-    wordLen_t dataToWrite = (fullMask & *(CPU_RAM_IO.dataWriteIO_data)) 
-                          | ((~fullMask) & memRead(*(CPU_RAM_IO.dataWriteIO_addr)));
+
+    wordLen_t dataToWrite;
+    if (*(CPU_RAM_IO.dataWriteIO_addr) == UART0_CTRL_ADDR) {
+      dataToWrite = fullMask & *(CPU_RAM_IO.dataWriteIO_data);
+    }
+    else {
+      dataToWrite = (fullMask & *(CPU_RAM_IO.dataWriteIO_data)) 
+                  | ((~fullMask) & memRead(*(CPU_RAM_IO.dataWriteIO_addr)));
+    }
     memWrite(*(CPU_RAM_IO.dataWriteIO_addr), dataToWrite);
   }
 }
