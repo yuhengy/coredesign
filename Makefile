@@ -35,17 +35,17 @@ PWD := $(shell pwd)## In principle, this is useless,
 #testName_all += AMCPUTest/to-lower-case-riscv64-nutshell#done
 #testName_all += AMCPUTest/unalign-riscv64-nutshell#done
 
-#testName_all += AMCPUTest/div-riscv64-nutshell
-#testName_all += AMCPUTest/fact-riscv64-nutshell
-#testName_all += AMCPUTest/goldbach-riscv64-nutshell
-#testName_all += AMCPUTest/hello-str-riscv64-nutshell
-#testName_all += AMCPUTest/leap-year-riscv64-nutshell
-#testName_all += AMCPUTest/matrix-mul-riscv64-nutshell
-#testName_all += AMCPUTest/mul-longlong-riscv64-nutshell
-#testName_all += AMCPUTest/prime-riscv64-nutshell
-#testName_all += AMCPUTest/recursion-riscv64-nutshell
-#testName_all += AMCPUTest/shuixianhua-riscv64-nutshell
-#testName_all += AMCPUTest/wanshu-riscv64-nutshell
+#testName_all += AMCPUTest/div-riscv64-nutshell#done
+#testName_all += AMCPUTest/fact-riscv64-nutshell#done
+#testName_all += AMCPUTest/goldbach-riscv64-nutshell#done
+#testName_all += AMCPUTest/hello-str-riscv64-nutshell#done
+#testName_all += AMCPUTest/leap-year-riscv64-nutshell#done
+#testName_all += AMCPUTest/matrix-mul-riscv64-nutshell#done
+#testName_all += AMCPUTest/mul-longlong-riscv64-nutshell#done
+#testName_all += AMCPUTest/prime-riscv64-nutshell#done
+#testName_all += AMCPUTest/recursion-riscv64-nutshell#done
+#testName_all += AMCPUTest/shuixianhua-riscv64-nutshell#done
+#testName_all += AMCPUTest/wanshu-riscv64-nutshell#done
 
 
 #*********************************
@@ -110,11 +110,11 @@ PWD := $(shell pwd)## In principle, this is useless,
 # officialTest
 # um
 #*********************************
-testName_all += officialTest/rv64um-p-mul#done
-testName_all += officialTest/rv64um-p-mulh#done
-testName_all += officialTest/rv64um-p-mulhsu#done
-testName_all += officialTest/rv64um-p-mulhu#done
-testName_all += officialTest/rv64um-p-mulw#done
+#testName_all += officialTest/rv64um-p-mul#done
+#testName_all += officialTest/rv64um-p-mulh#done
+#testName_all += officialTest/rv64um-p-mulhsu#done
+#testName_all += officialTest/rv64um-p-mulhu#done
+#testName_all += officialTest/rv64um-p-mulw#done
 
 #testName_all += officialTest/rv64um-p-div
 #testName_all += officialTest/rv64um-p-divu
@@ -129,7 +129,7 @@ testName_all += officialTest/rv64um-p-mulw#done
 #*********************************
 # rtthread
 #*********************************
-#testName_all += rtthread/rtthread
+testName_all += rtthread/rtthread
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^END^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -271,7 +271,7 @@ cleanOfficialTestbench:
 ## TODO: for now, this should be done manully
 TRTHREAD_HOME = $(PWD)/../RT-Thread
 getFromRtthreadRepo:
-	make -C $(TRTHREAD_HOME)/bsp/riscv64 clean
+	rm $(TRTHREAD_HOME)/bsp/riscv64/rtthread.elf
 	make -C $(TRTHREAD_HOME)/bsp/riscv64 nutshell
 	mkdir -p $(rtthreadBuildDir)
 	cp $(TRTHREAD_HOME)/bsp/riscv64/build/code.txt $(rtthreadBuildDir)/rtthread.txt

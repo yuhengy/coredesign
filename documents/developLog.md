@@ -285,7 +285,10 @@ This commit implements explicit read/write to CSR. The code is easy to understan
 
 Besides, RT-Thread file can be copied into `build/tesstbench/rtthread` with `make getFromRtthreadRepo`.
 
-## Nov1, 2020 commit-
+## Nov1, 2020 commit-066278c
 This commit implements M instructions. The multiplyer, which acts as mul and dic in face, is copied from [here](https://github.com/phantom-v/phvntom).
 
 Current problem is that, verilator seems will have `Floating point exception` bug when div/rem. I update verilator to the newest version but still not work. But this bug only happens in officialTest rv64um, but seems fine in RT-Thread. Thus, fixing this bug is not the highest prority for now.
+
+## Nov2, 2020 commit-
+This commit adds a uart input output following nutshell standard in verilator simulation. However, I simplily add the uart class in ram class, which is not novel. This should be rewrite in future.

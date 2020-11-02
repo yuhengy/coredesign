@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <verilated.h>
 
+#define DIFFTESTON false
+#define DUMPTRACEON false
+
 long sc_time = 0;
 double sc_time_stamp () {       // Called by $time in Verilog
     return sc_time;
@@ -25,9 +28,9 @@ int main(int argc, char** argv)
   while (!verilatorResult->hitGoodTrap()) {
     verilatorResult->step(1);
     nemuResult->step(1);
-    verilatorResult->dump();
+    if (DUMPTRACEON) verilatorResult->dump();
 
-    if (verilatorResult->compareWith(nemuResult)) {
+    if (DIFFTESTON && verilatorResult->compareWith(nemuResult)) {
       printf("                          **************************************************************\n");
       printf("                          ***************Compare Verilator and Nemu Error***************\n");
       printf("                          **************************************************************\n");

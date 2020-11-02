@@ -35,6 +35,8 @@ ram_c::ram_c(char* imgPath, CPU_RAM_IO_t inputCPU_RAM_IO)
   readImage(ram, imgPath);
   CPU_RAM_IO = inputCPU_RAM_IO;
   srand(time(NULL));
+
+  uart = new uart_c(); //TODO: destroy; can this be done in defination in .h?
 //#ifdef DEBUG
 //  printf("RAM: %x\n", (unsigned int)ram[0]);
 //#endif
@@ -128,13 +130,14 @@ void ram_c::eval_computeLogic()
 
 wordLen_t ram_c::memRead(wordLen_t addr)
 {
-  assert((addr % sizeof(wordLen_t)) == 0
-        && "Ram Addr should be aligned");
-  if (ADDR_START <= addr 
-                   && addr <= ADDR_START + RAMSIZE / sizeof(wordLen_t)
-        && "Addr out of range") {
+  assert((addr % sizeof(wordLen_t)) == 0 && "Ram Addr should be aligned");
+  if ((ADDR_START <= addr) && (addr < ADDR_START + RAMSIZE)) {
     return ram[(addr - ADDR_START) / sizeof(wordLen_t)];
-  } else {
+  }
+  else if ((UART0_CTRL_ADDR <= addr) && (addr < UART0_CTRL_ADDR + UART0_CTRL_SIZE)) {
+    return uart->read(addr);
+  }
+  else {
     printf("Warning: Read Addr out of range!!!\n");
     return 0;
   }
@@ -142,13 +145,14 @@ wordLen_t ram_c::memRead(wordLen_t addr)
 
 void ram_c::memWrite(wordLen_t addr, wordLen_t data)
 {
-  assert((addr % sizeof(wordLen_t)) == 0
-        && "Ram Addr should be aligned");
-  if (ADDR_START <= addr 
-                   && addr <= ADDR_START + RAMSIZE / sizeof(wordLen_t)
-        && "Addr out of range") {
+  assert((addr % sizeof(wordLen_t)) == 0 && "Ram Addr should be aligned");
+  if ((ADDR_START <= addr) && (addr < ADDR_START + RAMSIZE)) {
     ram[(addr - ADDR_START) / sizeof(wordLen_t)] = data;
-  } else {
+  }
+  else if ((UART0_CTRL_ADDR <= addr) && (addr < UART0_CTRL_ADDR + UART0_CTRL_SIZE)) {
+    uart->write(addr, data);
+  }
+  else {
     printf("Warning: Write Addr out of range!!!\n");
   }
 }

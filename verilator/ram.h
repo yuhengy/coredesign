@@ -2,6 +2,7 @@
 #define __RAM_H__
 
 #include "common.h"
+#include "uart.h"
 
 int readImage(wordLen_t* array, char* imgPath);  //This is also used by numeResult.cpp, so is not private
 
@@ -35,6 +36,7 @@ public:
 
 private:
   wordLen_t ram[RAMSIZE / sizeof(wordLen_t)];
+  uart_c* uart;
   struct CPU_RAM_IO_t CPU_RAM_IO;
 
   struct readReqBuffer {
