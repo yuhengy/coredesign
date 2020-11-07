@@ -296,5 +296,10 @@ This commit adds a uart input output following nutshell standard in verilator si
 ## Nov2, 2020 commit-9650812
 **SIGNIFICANT** This commit runs TR-Thread in verilator.
 
-## Nov7, 2020 commit-
+## Nov7, 2020 commit-ebfaea7
 This commit adds SRAM-like to AXI4 bridge, and split mem and mmio.
+
+## Nov7, 2020 commit-
+This commit modyfiy SRAM-like to AXI4 bridge **messily**, in order to use unaligned axi addr to read/write uart registers with 8 bit width.
+
+However, it would be better if those 8-bit uart register can be accessed with the same 64 bit data bus. This means, when writing, the strb will tell which 8-bit register will be written; when reading, we may need to read several 8-bit registers to merge a 64 bit width, or there may be some holes in the 64 bit width becuase there is not registers in these addr space.

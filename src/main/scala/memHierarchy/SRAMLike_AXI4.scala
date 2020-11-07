@@ -137,9 +137,21 @@ class SRAMLike_AXI4 extends Module
                               io.dataReadIO.en)
     instReadBufferAddr   := io.instReadIO.addr
     dataReadBufferAddr   := io.dataReadIO.addr
-    dataWriteBufferAddr  := io.dataWriteIO.addr
-    dataWriteBufferData  := io.dataWriteIO.data
-    dataWriteBufferMask  := io.dataWriteIO.mask
+    when (io.dataWriteIO.addr === 0x41000008.U) {  // uart init
+      dataWriteBufferAddr  := 0x4100000f.U
+      dataWriteBufferData  := io.dataWriteIO.data
+      dataWriteBufferMask  := io.dataWriteIO.mask
+    }.
+    elsewhen (io.dataWriteIO.addr === 0x41000000.U) {  // uart putc
+      dataWriteBufferAddr  := io.dataWriteIO.addr
+      dataWriteBufferData  := io.dataWriteIO.data
+      dataWriteBufferMask  := io.dataWriteIO.mask
+    }.
+    otherwise {
+      dataWriteBufferAddr  := io.dataWriteIO.addr
+      dataWriteBufferData  := io.dataWriteIO.data
+      dataWriteBufferMask  := io.dataWriteIO.mask
+    }
 
     // AXI4
     io.AXI4IO.awvalid := false.B
@@ -217,9 +229,11 @@ class SRAMLike_AXI4 extends Module
     io.AXI4IO.rready  := false.B
 
     io.AXI4IO.arid    := AXI_ID.U
-    io.AXI4IO.araddr  := dataReadBufferAddr(A_ADDR_W-1,0)
+    //io.AXI4IO.araddr  := dataReadBufferAddr(A_ADDR_W-1,0)
+    io.AXI4IO.araddr  := Mux(dataReadBufferAddr(A_ADDR_W-1,0)===0x41000010.U, 0x41000014.U, dataReadBufferAddr(A_ADDR_W-1,0))
     io.AXI4IO.arlen   := AXI_LEN_1.U
-    io.AXI4IO.arsize  := AXI_SIZE_64bit.U
+    //io.AXI4IO.arsize  := AXI_SIZE_64bit.U
+    io.AXI4IO.arsize  := Mux(dataReadBufferAddr(A_ADDR_W-1,0)===0x41000010.U, 0.U, AXI_SIZE_64bit.U)
     io.AXI4IO.arburst := AXI_BURST_FIXED.U
     io.AXI4IO.arprot  := AXI_PROT.U
     io.AXI4IO.aruser  := AXI_USER.U
@@ -237,7 +251,8 @@ class SRAMLike_AXI4 extends Module
     io.dataWriteIO.reqReady  := false.B
     io.dataWriteIO.respValid := false.B
 
-    io.dataReadIO.data  := io.AXI4IO.rdata
+    //io.dataReadIO.data  := io.AXI4IO.rdata
+    io.dataReadIO.data  := Mux(dataReadBufferAddr(A_ADDR_W-1,0)===0x41000010.U, Cat(io.AXI4IO.rdata(31,0), io.AXI4IO.rdata(31,0)), io.AXI4IO.rdata)
 
     // AXI4
     io.AXI4IO.awvalid := false.B
