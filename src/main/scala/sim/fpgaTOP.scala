@@ -83,6 +83,6 @@ class fpgaTOP extends Module {
 
 }
 
-object elaborateFPGA extends App {
+object elaboratefpgaTOP extends App {
   (new stage.ChiselStage).execute(args, Seq(stage.ChiselGeneratorAnnotation(() => new fpgaTOP)))
 }

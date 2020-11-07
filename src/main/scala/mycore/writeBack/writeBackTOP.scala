@@ -111,7 +111,7 @@ class writeBackTOP extends Module
 
   if (DEBUG) {
     if (DUMPTRACE) {
-      printf(s"PC to update regFile = 0x%x; stageValid = %d; instValid = %d\n", regDataIO.PC, state === stateEnum.regIsUpdated, regCtrlIO.cs_val_inst)
+      printf(s"PC to update regFile = 0x%x; inst = %x; stageValid = %d; instValid = %d\n", regDataIO.PC, regDataIO.inst, state === stateEnum.regIsUpdated, regCtrlIO.cs_val_inst)
     }
     assert(!(state === stateEnum.regIsUpdated && !regCtrlIO.cs_val_inst) &&
            (regCtrlIO.CSRWriteType === CSRWT_U || regCtrlIO.CSRWriteType === CSRWT_IMP || CSRSupported))

@@ -1,0 +1,31 @@
+digraph G {
+
+  # Stage 0
+  reset -> idle [label="NULL"];
+
+  # Stage 1
+  idle -> instReadAddr [label="instReadIO.en (priority 3)"];
+  idle -> dataReadAddr [label="dataReadIO.en (priority 1)"];
+  idle -> dataWriteAddr [label="dataWriteIO.en (priority 2)"];
+
+  # Stage 2
+  instReadAddr -> instReadData [label="AXI4IO.arready"];
+  # Stage 3
+  instReadData -> idle [label="AXI4IO.rvalid"];
+
+  # Stage 4
+  dataReadAddr -> dataReadData [label="AXI4IO.arready"];
+  # Stage 5
+  dataReadData -> idle [label="AXI4IO.rvalid &&\ndataWriteBufferEmpty && instReadBufferEmpty"];
+  dataReadData -> dataWriteAddr [label="AXI4IO.rvalid &&\n!dataWriteBufferEmpty (priority 2)"];
+  dataReadData -> instReadAddr [label="AXI4IO.rvalid &&\n!instReadBufferEmpty (priority 3)"];
+
+  # Stage 6
+  dataWriteAddr -> dataWriteData [label="AXI4IO.awready"];
+  # Stage 7
+  dataWriteData -> dataWriteResp [label="AXI4IO.wready"];
+  # Stage 8
+  dataWriteResp -> idle [label="AXI4IO.bvalid &&\ninstReadBufferEmpty"];
+  dataWriteResp -> instReadAddr [label="AXI4IO.bvalid &&\n!ninstReadBufferEmpty"];
+
+}

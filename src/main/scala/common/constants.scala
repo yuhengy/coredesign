@@ -21,6 +21,45 @@ object constants extends
 {
 }
 
+object memMapConstants {
+
+  // `addr & MMIOSPACE_MASK === MMIOSPCAE_ID` means `is a mmioAddr`
+  val MMIOSPACE_MASK = BigInt("ffffffffc0000000",16)
+  val MMIOSPCAE_ID = BigInt("0000000040000000",16)
+
+  val MEMSPACE_MASK = BigInt("ffffffff80000000",16)
+  val MEMSPACE_ID = BigInt("0000000080000000",16)
+}
+
+// This is copied from NutShellChipLink
+object AXIConstants {
+
+  val A_ID_W    = 4
+  val A_ADDR_W  = 32
+  val A_DATA_W  = 64
+  val A_STRB_W  = A_DATA_W/8
+  val A_SIZE_W  = 3
+  val A_BURST_W = 2
+  val A_LEN_W   = 8
+  val A_RESP_W  = 2
+  val A_QOS_W   = 4
+  val A_CACHE_W = 4
+  val A_LOCK_W  = 1
+  val A_PROT_W  = 3
+  val A_USER_W  = 1
+  val A_LAST_W  = 1
+
+  val AXI_ID = 0
+  val AXI_LEN_1 = 0
+  val AXI_SIZE_64bit = 3
+  val AXI_BURST_FIXED = 0
+  val AXI_LOCK_NORMAL = 0
+  val AXI_CACHE_DeviceNonBuffer = 0  //TODO: check
+  val AXI_PROT = 1  //TODO: check
+  val AXI_QOS_NON = 0
+  val AXI_USER = 0
+}
+
 
 trait commonConstants
 {
@@ -31,7 +70,8 @@ trait commonConstants
 trait RISCVConstants
 {
   val NUM_REG = 32
-  val ADDR_START = 0x80000000L
+  //val ADDR_START = 0x80000000L
+  val ADDR_START = 0x40000004L
   val WID_INST = 32
 
 

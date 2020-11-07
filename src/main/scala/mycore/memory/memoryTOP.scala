@@ -130,6 +130,7 @@ class memoryTOP extends Module
 //--------------io.output start--------------
 //memToWbData
   io.outDataIO.PC      := regDataIO.PC
+  io.outDataIO.inst    := regDataIO.inst
   io.outDataIO.wbData  := wbData
   io.outDataIO.wbAddr  := regDataIO.wbAddr
   io.outDataIO.CSRWriteData := regDataIO.CSRWriteData

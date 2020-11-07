@@ -25,6 +25,6 @@ class verilatorTOP extends Module {
 
 }
 
-object elaborate extends App {
+object elaborateverilatorTOP extends App {
   (new stage.ChiselStage).execute(args, Seq(stage.ChiselGeneratorAnnotation(() => new verilatorTOP)))
 }

@@ -137,7 +137,7 @@ testName_all += rtthread/rtthread
 #********************** Here We Start the Files ***********************
 #* You Need Not Worry About These If You are Using docker-compose.yml *
 #**********************************************************************
-topModuleName = verilatorTOP
+topModuleName ?= verilatorTOP
 
 #---------Chisel File Begin-------------
 chiselFile = $(shell find $(PWD)/src -name '*.scala')
@@ -204,7 +204,7 @@ documentsPDF = $(documentsFile:%.gv=%.pdf)
 
 #---------Chisel to verilog Begin-------------
 $(verilogFile): $(chiselFile)
-	sbt "runMain sim.elaborate -td $(verilogDir) --full-stacktrace"
+	sbt "runMain sim.elaborate$(topModuleName) -td $(verilogDir) --full-stacktrace"
 	#sbt "project sim; run -td $(verilogDir)" #alternative sbt usage
 
 getVerilog: $(verilogFile)

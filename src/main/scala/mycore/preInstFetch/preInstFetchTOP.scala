@@ -99,7 +99,7 @@ class preInstFetchTOP extends Module
 //--------------control signal start--------------
   donotSend := !io.outCtrlIO.ready || !io.instReadIO.reqReady
   
-  io.outCtrlIO.valid := state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered
+  io.outCtrlIO.valid := (state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered) && !donotSend
 //^^^^^^^^^^^^^^control signal end^^^^^^^^^^^^^^
 
 //--------------io.output start--------------
@@ -109,7 +109,7 @@ class preInstFetchTOP extends Module
 
 //toRam
   io.instReadIO.addr := Cat(Mux(state === stateEnum.resultIsBuffered && !io.exeOutKill, regOutput, PCNext)(XLEN-1, addrAlign_w), Fill(addrAlign_w, 0.U))
-  io.instReadIO.en   := (state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered) && io.outCtrlIO.ready
+  io.instReadIO.en   := (state === stateEnum.regIsUpdated || state === stateEnum.resultIsBuffered) && !donotSend
 //^^^^^^^^^^^^^^io.output end^^^^^^^^^^^^^^
 
 }
