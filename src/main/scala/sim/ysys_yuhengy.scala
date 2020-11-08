@@ -14,6 +14,9 @@ class ysys_yuhengy extends Module {
   val io = IO(new Bundle{
     val AXI4IO_MEM = new AXI4IO
     val AXI4IO_MMIO = new AXI4IO
+
+    val mtip = Input(Bool())
+    val meip = Input(Bool())
   })
 
   val mycoreTOP = Module(new mycoreTOP)

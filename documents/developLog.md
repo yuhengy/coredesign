@@ -299,7 +299,21 @@ This commit adds a uart input output following nutshell standard in verilator si
 ## Nov7, 2020 commit-ebfaea7
 This commit adds SRAM-like to AXI4 bridge, and split mem and mmio.
 
-## Nov7, 2020 commit-
+## Nov7, 2020 commit-e8482b2
 This commit modyfiy SRAM-like to AXI4 bridge **messily**, in order to use unaligned axi addr to read/write uart registers with 8 bit width.
 
 However, it would be better if those 8-bit uart register can be accessed with the same 64 bit data bus. This means, when writing, the strb will tell which 8-bit register will be written; when reading, we may need to read several 8-bit registers to merge a 64 bit width, or there may be some holes in the 64 bit width becuase there is not registers in these addr space.
+
+## Nov8, 2020 commit-
+**SUBMISSION** This submission version version freeze the topmodule (`src/main/scala/sim/ysys_yuhengy`) interface. To generate the submitted verilog, run `topModuleName=ysys_yuhengy make getVerilog`, and find the output at `build/generated-verilog/ysys_yuhengy.v`
+
+Here is the simple discription of the core:
++ instruction support
+    + riscv64I set, riscv64M set, Zicsr set.
+    + Machine-Level csr, without interrupt, ecall support. In short, csr instructioin won't cause assert error, but won't take effect as well.
++ micro-architecture detail
+    + 5-stage pipeline with stall and without forward.
+    + No cache, no tlb, multi cycle multi-div.
++ passed tests
+    + With verilator, can run RT-Thread.
+    + With vcs, can print `H` with the `hello-riscv64-asic.bin.txt`.

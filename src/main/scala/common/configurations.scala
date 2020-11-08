@@ -21,7 +21,7 @@ trait TODOConfigurations
 trait debugConfigurations
 {
   val DEBUG = true
-  val DUMPTRACE = true
+  val DUMPTRACE = false
   val FPGAINSTDEPTH_w = 16  //fpga InstRAM size is 16K * 64 = 1M
   val FPGADATADEPTH_w = 16  //fpga DataRAM size is 16K * 64 = 1M
 
