@@ -10,10 +10,10 @@ import common.configurations._
 import mycore.mycoreTOP
 import memHierarchy._
 
-class ysys_yuhengy extends Module {
+class ysyx_yyh extends Module {
   val io = IO(new Bundle{
-    val AXI4IO_MEM = new AXI4IO
-    val AXI4IO_MMIO = new AXI4IO
+    val mem = new AXI4IO
+    val mmio = new AXI4IO
 
     val mtip = Input(Bool())
     val meip = Input(Bool())
@@ -45,24 +45,33 @@ class ysys_yuhengy extends Module {
   SRAMLike_AXI4_MMIO.io.dataWriteIO   <> splitMap_data.io.MMIOWriteIO
 
   // output
-  io.AXI4IO_MEM  <> SRAMLike_AXI4_MEM.io.AXI4IO
-  io.AXI4IO_MMIO <> SRAMLike_AXI4_MMIO.io.AXI4IO
+  io.mem  <> SRAMLike_AXI4_MEM.io.AXI4IO
+  io.mmio <> SRAMLike_AXI4_MMIO.io.AXI4IO
 
   // DontCare
-  val diffTestRegfile = Wire(Vec(NUM_REG, UInt(XLEN.W)))
-  val diffTestPC      = Wire(UInt(XLEN.W))
-  val diffTestCommit  = Wire(Bool())
-  val GoodTrapNemu    = Wire(Bool())
-  diffTestRegfile := DontCare
-  diffTestPC      := DontCare
-  diffTestCommit  := DontCare
-  GoodTrapNemu    := DontCare 
-  BoringUtils.addSink(diffTestRegfile, "diffTestRegfile")
-  BoringUtils.addSink(diffTestPC, "diffTestPC")
-  BoringUtils.addSink(diffTestCommit, "diffTestCommit")
-  BoringUtils.addSink(GoodTrapNemu, "GoodTrapNemu")
+
+  if (DIFFTEST) {
+    val diffTestRegfile = Wire(Vec(NUM_REG, UInt(XLEN.W)))
+    val diffTestPC      = Wire(UInt(XLEN.W))
+    val diffTestCommit  = Wire(Bool())
+    val GoodTrapNemu    = Wire(Bool())
+    diffTestRegfile := DontCare
+    diffTestPC      := DontCare
+    diffTestCommit  := DontCare
+    GoodTrapNemu    := DontCare 
+    BoringUtils.addSink(diffTestRegfile, "diffTestRegfile")
+    BoringUtils.addSink(diffTestPC, "diffTestPC")
+    BoringUtils.addSink(diffTestCommit, "diffTestCommit")
+    BoringUtils.addSink(GoodTrapNemu, "GoodTrapNemu")
+  }
 }
 
-object elaborateysys_yuhengy extends App {
-  (new stage.ChiselStage).execute(args, Seq(stage.ChiselGeneratorAnnotation(() => new ysys_yuhengy)))
+object elaborateysyx_yyh extends App {
+  (new chisel3.stage.ChiselStage).execute(args,
+    Seq(
+      chisel3.stage.ChiselGeneratorAnnotation(() => new ysyx_yyh),
+      firrtl.stage.RunFirrtlTransformAnnotation(new AddModulePrefix()),
+      ModulePrefixAnnotation("yyh_")
+    )
+  )
 }

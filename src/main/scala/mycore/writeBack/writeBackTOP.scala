@@ -116,11 +116,12 @@ class writeBackTOP extends Module
     assert(!(state === stateEnum.regIsUpdated && !regCtrlIO.cs_val_inst) &&
            (regCtrlIO.CSRWriteType === CSRWT_U || regCtrlIO.CSRWriteType === CSRWT_IMP || CSRSupported))
     
-    BoringUtils.addSource(regCtrlIO.goodTrapNemu, "GoodTrapNemu")
-
-    val commitedPC = RegNext(regDataIO.PC, 0.U)
-    BoringUtils.addSource(io.inCtrlIO.valid && io.inCtrlIO.ready, "diffTestCommit")
-    BoringUtils.addSource(commitedPC, "diffTestPC")
+    if (DIFFTEST) {
+      BoringUtils.addSource(regCtrlIO.goodTrapNemu, "GoodTrapNemu")
+      val commitedPC = RegNext(regDataIO.PC, 0.U)
+      BoringUtils.addSource(io.inCtrlIO.valid && io.inCtrlIO.ready, "diffTestCommit")
+      BoringUtils.addSource(commitedPC, "diffTestPC")
+    }
   }
 
 }
